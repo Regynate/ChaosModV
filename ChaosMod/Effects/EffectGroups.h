@@ -16,6 +16,7 @@ enum class EEffectGroupType
 	TrafficSpawner,	 // Effects which change or spawn a lot of vehicles
 	TimeChange,         // Effects which change time of day
 	WeatherChange,      // Effects which change the weather
+	Camera,             // Effects which affect player's vision in any way
 };
 
 struct EffectGroup
@@ -36,6 +37,7 @@ inline const std::unordered_map<EEffectGroupType, EffectGroup> g_EffectGroups
 	{EEffectGroupType::TrafficColor, { .WeightMult = 3 }},
 	{EEffectGroupType::TimeChange, {.WeightMult = 2 }},
 	{EEffectGroupType::WeatherChange, {.WeightMult = 2 }},
+	{EEffectGroupType::Camera, {.WeightMult = 2 }},
 };
 
 inline std::unordered_map<EEffectGroupType, int> g_dictAllEffectGroupMemberCount;

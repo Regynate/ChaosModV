@@ -69,6 +69,7 @@ static RegisterEffect registerEffect(EFFECT_MISC_DVDSCREENSAVER, OnStart, nullpt
 		.Name = "DVD Screensaver",
 		.Id = "misc_dvdscreensaver",
 		.IsTimed = true,
-		.IsShortDuration = true
+		.IsShortDuration = true,
+		.EEffectGroupType = EEffectGroupType::Camera
 	}
 );

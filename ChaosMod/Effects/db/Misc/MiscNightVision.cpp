@@ -14,6 +14,7 @@ static RegisterEffect registerEffect(EFFECT_PLAYER_NIGHTVISION, nullptr, OnStop,
 	{
 		.Name = "Night Vision",
 		.Id = "player_nightvision",
-		.IsTimed = true
+		.IsTimed = true,
+		.EEffectGroupType = EEffectGroupType::Camera
 	}
 );

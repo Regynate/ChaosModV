@@ -84,6 +84,7 @@ static RegisterEffect registerEffect(EFFECT_PLAYER_DRUNK, nullptr, OnStop, OnTic
 	{
 		.Name = "Drunk",
 		.Id = "player_drunk",
-		.IsTimed = true
+		.IsTimed = true,
+		.EEffectGroupType = EEffectGroupType::Camera
 	}
 );

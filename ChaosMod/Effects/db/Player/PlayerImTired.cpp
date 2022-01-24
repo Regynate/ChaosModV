@@ -106,6 +106,7 @@ static RegisterEffect registerEffect(EFFECT_PLAYER_TIRED, OnStart, nullptr, OnTi
 	{
 		.Name = "I'm So Tired",
 		.Id = "player_tired",
-		.IsTimed = true
+		.IsTimed = true,
+		.EEffectGroupType = EEffectGroupType::Camera
 	}
 );

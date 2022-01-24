@@ -23,6 +23,7 @@ static RegisterEffect registerEffect(EFFECT_LOW_POLY, nullptr, OnStop, OnTick, E
 	{
 		.Name = "Low Render Distance",
 		.Id = "world_lowpoly",
-		.IsTimed = true
+		.IsTimed = true,
+		.EEffectGroupType = EEffectGroupType::Camera
 	}
 );

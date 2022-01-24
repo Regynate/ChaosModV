@@ -20,6 +20,7 @@ static RegisterEffect registerEffect(EFFECT_PLAYER_LOCKCAMERA, nullptr, nullptr,
 	{
 		.Name = "Lock Camera",
 		.Id = "player_lockcamera",
-		.IsTimed = true
+		.IsTimed = true,
+		.EEffectGroupType = EEffectGroupType::Camera
 	}
 );

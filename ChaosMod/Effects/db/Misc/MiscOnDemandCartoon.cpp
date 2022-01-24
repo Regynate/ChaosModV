@@ -73,6 +73,7 @@ static RegisterEffect registerEffect(EFFECT_MISC_ON_DEMAND_CARTOON, OnStart, OnS
 	{
 		.Name = "On-Demand TV",
 		.Id = "player_on_demand_cartoon",
-		.IsTimed = true
+		.IsTimed = true,
+		.EEffectGroupType = EEffectGroupType::Camera
 	}
 );

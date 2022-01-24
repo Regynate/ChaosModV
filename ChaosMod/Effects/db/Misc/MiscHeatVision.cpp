@@ -15,6 +15,7 @@ static RegisterEffect registerEffect(EFFECT_PLAYER_HEATVISION, nullptr, OnStop, 
 		.Name = "Heat Vision",
 		.Id = "player_heatvision",
 		.IsTimed = true,
-		.IsShortDuration = true
+		.IsShortDuration = true,
+		.EEffectGroupType = EEffectGroupType::Camera
 	}
 );

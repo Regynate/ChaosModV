@@ -23,6 +23,7 @@ static RegisterEffect registerEffect1(EFFECT_SCREEN_MEXICO, nullptr, OnStop, OnT
 		.Name = "Is This What Mexico Looks Like?",
 		.Id = "screen_mexico",
 		.IsTimed = true,
+		.EEffectGroupType = EEffectGroupType::Camera,
 		.IncompatibleWith = { EFFECT_SCREEN_LS_NOIRE, EFFECT_SCREEN_LSD, EFFECT_SCREEN_BLOOM, EFFECT_SCREEN_RENDERDIST, EFFECT_SCREEN_FOG, EFFECT_SCREEN_BRIGHT, EFFECT_SCREEN_FULLBRIGHT, EFFECT_SCREEN_BUBBLEVISION }
 	}
 );
@@ -60,6 +61,7 @@ static RegisterEffect registerEffect2(EFFECT_SCREEN_BRIGHT, nullptr, OnStopBrigh
 		.Id = "screen_bright",
 		.IsTimed = true,
 		.IsShortDuration = true,
+		.EEffectGroupType = EEffectGroupType::Camera,
 		.IncompatibleWith = { EFFECT_SCREEN_LS_NOIRE, EFFECT_SCREEN_LSD, EFFECT_SCREEN_BLOOM, EFFECT_SCREEN_RENDERDIST, EFFECT_SCREEN_FOG, EFFECT_SCREEN_MEXICO, EFFECT_SCREEN_FULLBRIGHT, EFFECT_SCREEN_BUBBLEVISION }
 	}
 );
@@ -74,6 +76,7 @@ static RegisterEffect registerEffect3(EFFECT_SCREEN_FOG, nullptr, OnStop, OnTick
 		.Id = "screen_fog",
 		.IsTimed = true,
 		.IsShortDuration = true,
+		.EEffectGroupType = EEffectGroupType::Camera,
 		.IncompatibleWith = { EFFECT_SCREEN_LS_NOIRE, EFFECT_SCREEN_LSD, EFFECT_SCREEN_BLOOM, EFFECT_SCREEN_RENDERDIST, EFFECT_SCREEN_BRIGHT, EFFECT_SCREEN_MEXICO, EFFECT_SCREEN_FULLBRIGHT, EFFECT_SCREEN_BUBBLEVISION }
 	}
 );
@@ -88,6 +91,7 @@ static RegisterEffect registerEffect4(EFFECT_SCREEN_RENDERDIST, nullptr, OnStop,
 		.Id = "screen_lowrenderdist",
 		.IsTimed = true,
 		.IsShortDuration = true,
+		.EEffectGroupType = EEffectGroupType::Camera,
 		.IncompatibleWith = { EFFECT_SCREEN_LS_NOIRE, EFFECT_SCREEN_LSD, EFFECT_SCREEN_BLOOM, EFFECT_SCREEN_FOG, EFFECT_SCREEN_BRIGHT, EFFECT_SCREEN_MEXICO, EFFECT_SCREEN_FULLBRIGHT, EFFECT_SCREEN_BUBBLEVISION }
 	}
 );
@@ -101,6 +105,7 @@ static RegisterEffect registerEffect5(EFFECT_SCREEN_BLOOM, nullptr, OnStop, OnTi
 		.Name = "Bloom",
 		.Id = "screen_bloom",
 		.IsTimed = true,
+		.EEffectGroupType = EEffectGroupType::Camera,
 		.IncompatibleWith = { EFFECT_SCREEN_LS_NOIRE, EFFECT_SCREEN_LSD, EFFECT_SCREEN_RENDERDIST, EFFECT_SCREEN_FOG, EFFECT_SCREEN_BRIGHT, EFFECT_SCREEN_MEXICO, EFFECT_SCREEN_FULLBRIGHT, EFFECT_SCREEN_BUBBLEVISION }
 	}
 );
@@ -185,6 +190,7 @@ static RegisterEffect registerEffect6(EFFECT_SCREEN_LSD, nullptr, OnStopLSD, OnT
 		.Name = "LSD",
 		.Id = "screen_lsd",
 		.IsTimed = true,
+		.EEffectGroupType = EEffectGroupType::Camera,
 		.IncompatibleWith = { EFFECT_SCREEN_LS_NOIRE, EFFECT_SCREEN_BLOOM, EFFECT_SCREEN_RENDERDIST, EFFECT_SCREEN_FOG, EFFECT_SCREEN_BRIGHT, EFFECT_SCREEN_MEXICO, EFFECT_SCREEN_FULLBRIGHT, EFFECT_SCREEN_BUBBLEVISION }
 	}
 );
@@ -203,6 +209,7 @@ static RegisterEffect registerEffect7(EFFECT_SCREEN_FULLBRIGHT, OnStartFullbrigh
 		.Name = "Fullbright",
 		.Id = "screen_fullbright",
 		.IsTimed = true,
+		.EEffectGroupType = EEffectGroupType::Camera,
 		.IncompatibleWith = { EFFECT_SCREEN_LS_NOIRE, EFFECT_SCREEN_LSD, EFFECT_SCREEN_BLOOM, EFFECT_SCREEN_RENDERDIST, EFFECT_SCREEN_FOG, EFFECT_SCREEN_BRIGHT, EFFECT_SCREEN_MEXICO, EFFECT_SCREEN_BUBBLEVISION }
 	}
 );
@@ -219,6 +226,7 @@ static RegisterEffect registerEffect8(EFFECT_SCREEN_BUBBLEVISION, nullptr, OnSto
 		.Id = "screen_bubblevision",
 		.IsTimed = true,
 		.IsShortDuration = true,
+		.EEffectGroupType = EEffectGroupType::Camera,
 		.IncompatibleWith = { EFFECT_SCREEN_LS_NOIRE, EFFECT_SCREEN_LSD, EFFECT_SCREEN_BLOOM, EFFECT_SCREEN_RENDERDIST, EFFECT_SCREEN_FOG, EFFECT_SCREEN_BRIGHT, EFFECT_SCREEN_MEXICO, EFFECT_SCREEN_FULLBRIGHT }
 	}
 );
@@ -284,6 +292,7 @@ static RegisterEffect registerEffectLsNoire(EFFECT_SCREEN_LS_NOIRE, OnStartLSNoi
 		.Name = "LS Noire",
 		.Id = "screen_lsnoire",
 		.IsTimed = true,
+		.EEffectGroupType = EEffectGroupType::Camera,
 		.IncompatibleWith = { EFFECT_SCREEN_LSD, EFFECT_SCREEN_BLOOM, EFFECT_SCREEN_RENDERDIST, EFFECT_SCREEN_FOG, EFFECT_SCREEN_BRIGHT, EFFECT_SCREEN_MEXICO, EFFECT_SCREEN_FULLBRIGHT, EFFECT_SCREEN_BUBBLEVISION }
 	}
 );
@@ -298,6 +307,7 @@ static RegisterEffect registerEffectGlases(EFFECT_SCREEN_NEED_GLASSES, nullptr, 
 		.Id = "screen_needglasses",
 		.IsTimed = true,
 		.IsShortDuration = true,
+		.EEffectGroupType = EEffectGroupType::Camera,
 		.IncompatibleWith = { EFFECT_SCREEN_LSD, EFFECT_SCREEN_BLOOM, EFFECT_SCREEN_RENDERDIST, EFFECT_SCREEN_FOG, EFFECT_SCREEN_BRIGHT, EFFECT_SCREEN_MEXICO, EFFECT_SCREEN_FULLBRIGHT }
 	}
 );

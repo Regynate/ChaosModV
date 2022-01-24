@@ -27,6 +27,7 @@ static RegisterEffect registerEffect(EFFECT_MISC_PORTRAIT_MODE, OnStart, nullptr
 	{
 		.Name = "Portrait Mode",
 		.Id = "misc_portrait",
-		.IsTimed = true
+		.IsTimed = true,
+		.EEffectGroupType = EEffectGroupType::Camera
 	}
 );
