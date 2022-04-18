@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using Shared; 
+using Shared;
 
 using static ConfigApp.Effects;
 
@@ -64,7 +64,7 @@ namespace ConfigApp
                 {
                     using (File.Create(".writetest"))
                     {
-                    
+
                     }
 
                     File.Delete(".writetest");
@@ -129,7 +129,7 @@ namespace ConfigApp
             misc_user_toggle_mod_shortcut.IsChecked = m_configFile.ReadValueBool("EnableToggleModShortcut", true);
             misc_user_effects_menu_enable.IsChecked = m_configFile.ReadValueBool("EnableDebugMenu", false);
             misc_user_effects_timer_pause_shortcut_enable.IsChecked = m_configFile.ReadValueBool("EnablePauseTimerShortcut", false);
-            misc_user_toggle_mod_shortcut.IsChecked = m_configFile.ReadValueBool("EnableToggleModShortcut", true);
+            misc_user_effects_max_running_effects.Text = m_configFile.ReadValue("MaxParallelRunningEffects", "99");
             if (m_configFile.HasKey("EffectTimerColor"))
             {
                 misc_user_effects_timer_color.SelectedColor = (Color)ColorConverter.ConvertFromString(m_configFile.ReadValue("EffectTimerColor"));
@@ -170,12 +170,17 @@ namespace ConfigApp
             m_configFile.WriteValue("DisableStartup", misc_user_effects_disable_startup.IsChecked.Value);
             m_configFile.WriteValue("EnableGroupWeightingAdjustments", misc_user_effects_enable_group_weighting.IsChecked.Value);
             m_configFile.WriteValue("EnableFailsafe", misc_user_effects_enable_failsafe.IsChecked.Value);
+            int runningEffects;
+            if (int.TryParse(misc_user_effects_max_running_effects.Text, out runningEffects) && runningEffects > 0)
+            {
+                m_configFile.WriteValue("MaxParallelRunningEffects", misc_user_effects_max_running_effects.Text);
+            }
 
             // Meta Effects
             m_configFile.WriteValue("NewMetaEffectSpawnTime", meta_effects_spawn_dur.Text);
             m_configFile.WriteValue("MetaEffectDur", meta_effects_timed_dur.Text);
             m_configFile.WriteValue("MetaShortEffectDur", meta_effects_short_timed_dur.Text);
-            
+
             m_configFile.WriteFile();
         }
 
@@ -314,7 +319,7 @@ namespace ConfigApp
 
                 sortedEffects.Add(effectInfo.Name, new Tuple<EffectType, EffectCategory>(effectType, effectInfo.EffectCategory));
             }
-            
+
             foreach (var effect in sortedEffects)
             {
                 Tuple<EffectType, EffectCategory> effectTuple = effect.Value;
@@ -358,7 +363,7 @@ namespace ConfigApp
 
             meta_effects_tree_view.Items.Clear();
             meta_effects_tree_view.Items.Add(metaParentItem);
-            
+
         }
 
         void InitTwitchTab()

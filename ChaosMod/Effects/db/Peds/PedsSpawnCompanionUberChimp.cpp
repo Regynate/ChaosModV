@@ -1,0 +1,45 @@
+/*
+	Effect by Moxi, based on code from "Spawn Companion Brad"
+*/
+
+#include <stdafx.h>
+
+static void OnStart()
+{
+	static const Hash model = GET_HASH_KEY("u_m_y_pogo_01");
+
+	Hash relationshipGroup;
+	ADD_RELATIONSHIP_GROUP("_COMPANION_UBER_CHIMP", &relationshipGroup);
+	SET_RELATIONSHIP_BETWEEN_GROUPS(0, relationshipGroup, GET_HASH_KEY("PLAYER"));
+	SET_RELATIONSHIP_BETWEEN_GROUPS(0, GET_HASH_KEY("PLAYER"), relationshipGroup);
+
+	Ped playerPed = PLAYER_PED_ID();
+	Vector3 playerPos = GET_ENTITY_COORDS(playerPed, false);
+
+	Ped ped = CreatePoolPed(4, model, playerPos.x, playerPos.y, playerPos.z, GET_ENTITY_HEADING(playerPed));
+	if (IS_PED_IN_ANY_VEHICLE(playerPed, false))
+	{
+		SET_PED_INTO_VEHICLE(ped, GET_VEHICLE_PED_IS_IN(playerPed, false), -2);
+	}
+
+	SET_PED_SUFFERS_CRITICAL_HITS(ped, false);
+
+	SET_PED_RELATIONSHIP_GROUP_HASH(ped, relationshipGroup);
+	SET_PED_HEARING_RANGE(ped, 9999.f);
+
+	SET_PED_AS_GROUP_MEMBER(ped, GET_PLAYER_GROUP(PLAYER_ID()));
+
+	GIVE_WEAPON_TO_PED(ped, GET_HASH_KEY("weapon_rayminigun"), 9999, true, true);
+	// GIVE_WEAPON_TO_PED(ped, GET_HASH_KEY("weapon_appistol"), 9999, true, true);
+
+	SET_PED_ACCURACY(ped, 100);
+	SET_PED_FIRING_PATTERN(ped, 0xC6EE6B4C);
+}
+
+static RegisterEffect registerEffect(EFFECT_SPAWN_COMPANION_UBER_CHIMP, OnStart, EffectInfo
+	{
+		.Name = "Spawn Companion Uber Chimp",
+		.Id = "spawn_uber_chimp",
+		.EEffectGroupType = EEffectGroupType::SpawnCompanion
+	}
+);

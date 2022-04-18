@@ -46,11 +46,11 @@ static void OnTick()
 				std::vector<Ped> peds;
 				std::vector<Entity> props;
 
-				Entity thing;
-				
-				switch(objType)
+				Entity thing = 0;
+
+				switch (objType)
 				{
-				case 0: 
+				case 0:
 					for (Entity prop : GetAllProps())
 					{
 						props.push_back(prop);
@@ -59,7 +59,7 @@ static void OnTick()
 					{
 						Entity thingProp = props[g_Random.GetRandomInt(0, props.size() - 1)];
 						thing = thingProp;
-					}			
+					}
 					break;
 				case 1:
 					for (Ped ped : GetAllPeds())
@@ -70,7 +70,7 @@ static void OnTick()
 					{
 						Ped thingPed = peds[g_Random.GetRandomInt(0, peds.size() - 1)];
 						thing = thingPed;
-					}				
+					}
 					break;
 				case 2:
 					std::vector<Vehicle> vehs;
@@ -96,12 +96,7 @@ static void OnTick()
 						CLEAR_PED_TASKS_IMMEDIATELY(thing);
 						SET_PED_TO_RAGDOLL(thing, 2000, 2000, 0, 1, 1, 0);
 					}
-					if (GET_ENTITY_TYPE(thing) == 3)
-					{
-						//prevent non-moveable objects cluttering up important areas
-						SET_OBJECT_AS_NO_LONGER_NEEDED(&thing);
-					}
-					APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(thing, 1, .0f, 1000.f, 0.f, false, true, true, false);
+					Memory::ApplyForceToEntityCenterOfMass(thing, 1, .0f, 1000.f, 0.f, false, true, true, false);
 				}
 			}
 		}

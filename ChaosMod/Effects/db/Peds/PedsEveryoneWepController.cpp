@@ -6,8 +6,11 @@ static void OnStartRPG()
 	
 	for (Ped ped : GetAllPeds())
 	{
-		GIVE_WEAPON_TO_PED(ped, rpgHash, 9999, true, true);
-		SET_CURRENT_PED_WEAPON(ped, rpgHash, true);
+		if (IS_PED_HUMAN(ped))
+		{
+			GIVE_WEAPON_TO_PED(ped, rpgHash, 9999, true, true);
+			SET_CURRENT_PED_WEAPON(ped, rpgHash, true);
+		}
 	}
 }
 
@@ -24,8 +27,11 @@ static void OnStartTazer()
 
 	for (Ped ped : GetAllPeds())
 	{
-		GIVE_WEAPON_TO_PED(ped, tazerHash, 9999, true, true);
-		SET_CURRENT_PED_WEAPON(ped, tazerHash, true);
+		if (IS_PED_HUMAN(ped))
+		{
+			GIVE_WEAPON_TO_PED(ped, tazerHash, 9999, true, true);
+			SET_CURRENT_PED_WEAPON(ped, tazerHash, true);
+		}
 	}
 }
 
@@ -42,8 +48,11 @@ static void OnStartMinigun()
 
 	for (Ped ped : GetAllPeds())
 	{
-		GIVE_WEAPON_TO_PED(ped, minigunHash, 9999, true, true);
-		SET_CURRENT_PED_WEAPON(ped, minigunHash, true);
+		if (IS_PED_HUMAN(ped))
+		{
+			GIVE_WEAPON_TO_PED(ped, minigunHash, 9999, true, true);
+			SET_CURRENT_PED_WEAPON(ped, minigunHash, true);
+		}
 	}
 }
 
@@ -60,8 +69,11 @@ static void OnStartUpNAtomizer()
 
 	for (Ped ped : GetAllPeds())
 	{
-		GIVE_WEAPON_TO_PED(ped, raypistolHash, 9999, true, true);
-		SET_CURRENT_PED_WEAPON(ped, raypistolHash, true);
+		if (IS_PED_HUMAN(ped))
+		{
+			GIVE_WEAPON_TO_PED(ped, raypistolHash, 9999, true, true);
+			SET_CURRENT_PED_WEAPON(ped, raypistolHash, true);
+		}
 	}
 }
 
@@ -80,8 +92,11 @@ static void OnStartRandom()
 	{
 		Hash wep = weps[g_Random.GetRandomInt(0, weps.size() - 1)];
 
-		GIVE_WEAPON_TO_PED(ped, wep, 9999, true, true);
-		SET_CURRENT_PED_WEAPON(ped, wep, true);
+		if (IS_PED_HUMAN(ped))
+		{
+			GIVE_WEAPON_TO_PED(ped, wep, 9999, true, true);
+			SET_CURRENT_PED_WEAPON(ped, wep, true);
+		}
 	}
 }
 
@@ -98,8 +113,11 @@ static void OnStartRailgun()
 
 	for (Ped ped : GetAllPeds())
 	{
-		GIVE_WEAPON_TO_PED(ped, railgunHash, 9999, true, true);
-		SET_CURRENT_PED_WEAPON(ped, railgunHash, true);
+		if (IS_PED_HUMAN(ped))
+		{
+			GIVE_WEAPON_TO_PED(ped, railgunHash, 9999, true, true);
+			SET_CURRENT_PED_WEAPON(ped, railgunHash, true);
+		}
 	}
 }
 
@@ -116,8 +134,11 @@ static void OnStartBattleAxe()
 
 	for (Ped ped : GetAllPeds())
 	{
-		GIVE_WEAPON_TO_PED(ped, axeHash, 9999, true, true);
-		SET_CURRENT_PED_WEAPON(ped, axeHash, true);
+		if (IS_PED_HUMAN(ped))
+		{
+			GIVE_WEAPON_TO_PED(ped, axeHash, 9999, true, true);
+			SET_CURRENT_PED_WEAPON(ped, axeHash, true);
+		}
 	}
 }
 

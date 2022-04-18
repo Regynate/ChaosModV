@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#define FAN_CATS_AMOUNT 3
+#define FAN_CATS_AMOUNT 5
 
 static void OnStart()
 {

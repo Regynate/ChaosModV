@@ -87,6 +87,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Components\DebugMenu.cpp" />
+    <ClCompile Include="Components\ShortCut.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Components\EffectDispatcher.cpp" />
     <ClCompile Include="Effects\db\Meta\MetaAdditionalEffects.cpp" />
@@ -145,6 +146,7 @@
     <ClCompile Include="Effects\db\Player\PlayerVR.cpp" />
     <ClCompile Include="Effects\db\Player\PlayerSpinCam.cpp" />
     <ClCompile Include="Effects\db\Player\PlayerZoomZoomCam.cpp" />
+    <ClCompile Include="Effects\db\Player\PlayerSickCam.cpp" />
     <ClCompile Include="Effects\db\Vehs\VehsCrumble.cpp" />
     <ClCompile Include="Effects\db\Vehs\VehsReplaceVehicle.cpp" />
     <ClCompile Include="Effects\db\Peds\PedsGunsmoke.cpp" />
@@ -314,7 +316,34 @@
     <ClCompile Include="Effects\db\Vehs\VehsSpawner.cpp" />
     <ClCompile Include="Effects\db\Vehs\VehsCruiseControl.cpp" />
     <ClCompile Include="Effects\db\Vehs\VehsSpawnIESultan.cpp" />
+    <ClCompile Include="Effects\db\Vehs\VehsWiggleChangesSize.cpp" />
+    <ClCompile Include="Effects\db\Vehs\VehsTiny.cpp" />
     <ClCompile Include="Effects\db\Weather\WeatherController.cpp" />
+    <ClCompile Include="Effects\db\Peds\PedsSeriousKamikazes.cpp" />
+    <ClCompile Include="Effects\db\Player\PlayerLeanedCamera.cpp" />
+    <ClCompile Include="Effects\db\Misc\MiscExtremeWhaleRain.cpp" />
+    <ClCompile Include="Effects\db\Misc\MiscSpawnHotTub.cpp" />
+    <ClCompile Include="Effects\db\Misc\MiscBlueBalled.cpp" />
+    <ClCompile Include="Effects\db\Misc\MiscSpinningProps.cpp" />
+    <ClCompile Include="Effects\db\Misc\MiscGhostWorld.cpp" />
+    <ClCompile Include="Effects\db\Misc\MiscMajorTurbulence.cpp" />
+    <ClCompile Include="Effects\db\Misc\MiscFlipUI.cpp" />
+    <ClCompile Include="Effects\db\Misc\MiscCloneOnDeath.cpp" />
+    <ClCompile Include="Effects\db\Peds\Peds2xAnimationSpeed.cpp" />
+    <ClCompile Include="Effects\db\Peds\PedsHeadless.cpp" />
+    <ClCompile Include="Effects\db\Peds\PedsGrappleGuns.cpp" />
+    <ClCompile Include="Effects\db\Peds\PedsPropHunt.cpp" />
+    <ClCompile Include="Effects\db\Peds\PedsSpawnFanHens.cpp" />
+    <ClCompile Include="Effects\db\Peds\PedsSpawnAngryNakedMan.cpp" />
+    <ClCompile Include="Effects\db\Peds\PedsSpawnFanGirls.cpp" />
+    <ClCompile Include="Effects\db\Peds\PedsSpawnTowingTonya.cpp" />
+    <ClCompile Include="Effects\db\Peds\PedsSpawnCompanionUberChimp.cpp" />
+    <ClCompile Include="Effects\db\Peds\PedsHotCougars.cpp" />
+    <ClCompile Include="Effects\db\Player\PlayerMonsterHead.cpp" />
+    <ClCompile Include="Effects\db\Player\PlayerSpawnCloneArmy.cpp" />
+    <ClCompile Include="Effects\db\Player\PlayerBattleBus.cpp" />
+    <ClCompile Include="Effects\db\Player\PlayerLagCamera.cpp" />
+    <ClCompile Include="Effects\db\Player\PlayerTpToEverything.cpp" />
     <ClCompile Include="Components\Failsafe.cpp" />
     <ClCompile Include="LuaScripts.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -323,6 +352,7 @@
     <ClCompile Include="Memory\Hooks\AudioPitchHook.cpp" />
     <ClCompile Include="Memory\Hooks\MiscHooks.cpp" />
     <ClCompile Include="Memory\Memory.cpp" />
+    <ClCompile Include="..\vendor\Patterns\Patterns.cpp" />
     <ClCompile Include="Components\SplashTexts.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -342,6 +372,7 @@
     <ClInclude Include="Components\Component.h" />
     <ClInclude Include="Components\DebugMenu.h" />
     <ClInclude Include="Components\EffectDispatcher.h" />
+    <ClInclude Include="Components\ShortCut.h" />
     <ClInclude Include="EffectConfig.h" />
     <ClInclude Include="Effects\EffectData.h" />
     <ClInclude Include="Effects\EEffectExecutionType.h" />
@@ -357,6 +388,7 @@
     <ClInclude Include="LuaScripts.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Memory\Gravity.h" />
+    <ClInclude Include="Memory\Physics.h" />
     <ClInclude Include="Memory\Handle.h" />
     <ClInclude Include="Memory\Hooks\ScriptThreadRunHook.h" />
     <ClInclude Include="Memory\Hooks\HandleToEntityStructHook.h" />
@@ -366,6 +398,7 @@
     <ClInclude Include="Memory\Misc.h" />
     <ClInclude Include="Memory\PedModels.h" />
     <ClInclude Include="Memory\Snow.h" />
+    <ClInclude Include="Memory\UI.h" />
     <ClInclude Include="Memory\Vehicle.h" />
     <ClInclude Include="Memory\WeaponPool.h" />
     <ClInclude Include="Components\SplashTexts.h" />

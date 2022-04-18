@@ -34,7 +34,7 @@ static void OnTick()
 	}
 
 	Vector3 playerCoord = GET_ENTITY_COORDS(playerPed, false);
-	int count = 10;
+	// int count = 10;
 
 	for (Entity entity : entities)
 	{
@@ -53,19 +53,19 @@ static void OnTick()
 			}
 			float forceDistance = min(max(0.f, (startDistance - distance)), maxForceDistance);
 			float force = (forceDistance / maxForceDistance) * maxForce;
-			APPLY_FORCE_TO_ENTITY(entity, 3, (entityCoord.x - playerCoord.x) * -1.f, (entityCoord.y - playerCoord.y) * -1.f, (entityCoord.z - playerCoord.z) * -1.f, 0, 0, 0, false, false, true, true, false, true);
+			Memory::ApplyForceToEntity(entity, 3, (entityCoord.x - playerCoord.x) * -1.f, (entityCoord.y - playerCoord.y) * -1.f, (entityCoord.z - playerCoord.z) * -1.f, 0, 0, 0, false, false, true, true, false, true);
 		
 			if (IS_ENTITY_A_MISSION_ENTITY(entity))
 			{
 				SET_ENTITY_INVINCIBLE(entity, true);
 			}
 
-			if (--count <= 0)
+			/* if (--count <= 0)
 			{
 				WAIT(0);
 
 				count = 10;
-			}
+			} */
 		}
 	}
 }
