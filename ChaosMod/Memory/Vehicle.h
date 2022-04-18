@@ -2,6 +2,7 @@
 
 #include "Memory.h"
 #include "Handle.h"
+#include "Entity.h"
 
 #include "../Util/Natives.h"
 
@@ -93,8 +94,7 @@ namespace Memory
 		__int64 v6 = sub_7FF69C749B98(vehicle);
 		if (v6)
 		{
-			(*reinterpret_cast<__int64(**)(__int64)>(*reinterpret_cast<__int64*>(v6) + 1536))(v6);
-
+			(*reinterpret_cast<__int64(**)(__int64)>(*reinterpret_cast<__int64*>(v6) + 1528))(v6);
 			if (v6)
 			{
 				*reinterpret_cast<BYTE*>(v6 + 2373) &= 0xFEu;
@@ -184,19 +184,28 @@ namespace Memory
 
 	inline void SetVehicleScale(Vehicle veh, float scaleMultiplier)
 	{
-		auto offset = getScriptHandleBaseAddress(veh);
+		auto baseAddr = GetScriptHandleBaseAddress(veh);
+		if (!baseAddr)
+		{
+			return;
+		}
 
-		auto address = offset + 0x60;											// a matrix for passengers
-		auto address2 = *reinterpret_cast<uintptr_t*>(offset + 0x30) + 0x20;	// a matrix for vehicle
-		Vector3 fv = Memory::GetVector3(address + 0x00);
-		Vector3 rv = Memory::GetVector3(address + 0x10);
-		Vector3 uv = Memory::GetVector3(address + 0x20);
+		auto passengerMatrixAddress = baseAddr + 0x60;
+		Vector3 passengerForwardVec = Memory::GetVector3(passengerMatrixAddress + 0x00);
+		Vector3 passengerRightVec = Memory::GetVector3(passengerMatrixAddress + 0x10);
+		Vector3 passengerUpVec = Memory::GetVector3(passengerMatrixAddress + 0x20);
 
-		Memory::SetVector3(address + 0x00, fv * scaleMultiplier);
-		Memory::SetVector3(address + 0x10, rv * scaleMultiplier);
-		Memory::SetVector3(address + 0x20, uv * scaleMultiplier);
-		Memory::SetVector3(address2 + 0x00, fv * scaleMultiplier);
-		Memory::SetVector3(address2 + 0x10, rv * scaleMultiplier);
-		Memory::SetVector3(address2 + 0x20, uv * scaleMultiplier);
+		auto vehicleMatrixAddress = *reinterpret_cast<uintptr_t*>(baseAddr + 0x30) + 0x20;
+		Vector3 vehicleForwardVec = Memory::GetVector3(vehicleMatrixAddress + 0x00);
+		Vector3 vehicleRightVec = Memory::GetVector3(vehicleMatrixAddress + 0x10);
+		Vector3 vehicleUpVec = Memory::GetVector3(vehicleMatrixAddress + 0x20);
+
+		Memory::SetVector3(passengerMatrixAddress + 0x00, passengerForwardVec * scaleMultiplier);
+		Memory::SetVector3(passengerMatrixAddress + 0x10, passengerRightVec * scaleMultiplier);
+		Memory::SetVector3(passengerMatrixAddress + 0x20, passengerUpVec * scaleMultiplier);
+
+		Memory::SetVector3(vehicleMatrixAddress + 0x00, vehicleForwardVec * scaleMultiplier);
+		Memory::SetVector3(vehicleMatrixAddress + 0x10, vehicleRightVec * scaleMultiplier);
+		Memory::SetVector3(vehicleMatrixAddress + 0x20, vehicleUpVec * scaleMultiplier);
 	}
 }

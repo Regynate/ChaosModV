@@ -4,8 +4,8 @@
 
 #include <stdafx.h>
 
-std::map<Ped, Object> pedPropsMap;
-std::vector<Hash> availablePropModels;
+static std::map<Ped, Object> pedPropsMap;
+static std::vector<Hash> availablePropModels;
 
 static Vector3 GetPropOffset(Hash propModel)
 {
@@ -26,8 +26,7 @@ static void OnTick()
 
 		availablePropModels.clear();
 
-		std::vector<Entity> props = GetAllPropsArray();
-		for (Entity prop : props)
+		for (Entity prop : GetAllProps())
 		{
 			Hash model = GET_ENTITY_MODEL(prop);
 			Vector3 min, max;

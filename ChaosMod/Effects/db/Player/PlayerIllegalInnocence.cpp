@@ -23,7 +23,7 @@ static void OnStart()
 	m_lastTick = GET_GAME_TIMER();
 	m_timeReserve = WAIT_TIME;
 	lastPlayerKills = -1;
-#pragma endregion
+	#pragma endregion
 }
 
 static void OnTick()
@@ -69,7 +69,7 @@ static void OnTick()
 		m_timeReserve = WAIT_TIME;
 	}
 	lastPlayerKills = allPlayerKills;
-#pragma endregion
+	#pragma endregion
 
 #pragma region invert normal wanted level gains
 	// If wanted level has increased, decrease it instead

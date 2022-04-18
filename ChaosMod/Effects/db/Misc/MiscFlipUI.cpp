@@ -55,11 +55,11 @@ static void OnTick()
 			SET_HUD_COMPONENT_POSITION(i, hudComponentXValues[i], yPos);
 		}
 	}
-
+	
 	Vector3 mobilePos;
 	GET_MOBILE_PHONE_POSITION(&mobilePos);
 	SET_MOBILE_PHONE_POSITION(-110.f, mobilePos.y, mobilePos.z);
-
+	
 	Memory::SetRadarOffsetX(0.825f);
 
 	// TODO: Find a way to move character swap circle to the left

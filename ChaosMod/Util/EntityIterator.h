@@ -14,28 +14,28 @@ public:
 	T* Pool = nullptr;
 	int32_t Index = 0;
 
-	explicit PoolIterator(T* pool, int32_t index = 0)
-	{
-		this->Pool = pool;
+	explicit PoolIterator (T *pool, int32_t index = 0)
+        {
+		this->Pool  = pool;
 		this->Index = index;
-	}
+        }
 
 	PoolIterator& operator++()
 	{
 		for (Index++; Index < Pool->m_ulSize; Index++)
-		{
-			if (Pool->IsValid(Index))
 			{
-				return *this;
+				if (Pool->IsValid (Index))
+					{
+						return *this;
+					}
 			}
-		}
 
 		Index = Pool->m_ulSize;
 		return *this;
 	}
 
 	Entity operator*()
-	{
+        {
 		static int(*_addEntityToPoolFunc)(__int64) = []
 		{
 			Handle handle = Memory::FindPattern("48 F7 F9 49 8B 48 08 48 63 D0 C1 E0 08 0F B6 1C 11 03 D8").Addr();
@@ -45,12 +45,12 @@ public:
 		__int64 ullAddr = Pool->GetAddress(Index);
 		int iHandle = _addEntityToPoolFunc(ullAddr);
 		return iHandle;
-	}
+        }
 
-	bool operator!=(const PoolIterator& other) const
-	{
+	bool operator!=(const PoolIterator &other) const
+        {
 		return this->Index != other.Index;
-	}
+        }
 };
 
 // Common functions for VehiclePool and GenericPool
@@ -58,25 +58,25 @@ template<typename T>
 class PoolUtils
 {
 public:
-	inline auto ToArray()
+	inline auto ToArray ()
 	{
 		std::vector<Entity> arr;
 		for (auto entity : *static_cast<T*>(this))
-		{
-			arr.push_back(entity);
-		}
+			{
+				arr.push_back (entity);
+			}
 
 		return arr;
 	}
 
-	auto begin()
+	auto begin ()
 	{
-		return ++PoolIterator<T>(static_cast<T*>(this), -1);
+		return ++PoolIterator<T> (static_cast<T*>(this), -1);
 	}
 
-	auto end()
+	auto end ()
 	{
-		return ++PoolIterator<T>(static_cast<T*>(this), static_cast<T*>(this)->m_ulSize);
+		return ++PoolIterator<T> (static_cast<T*>(this), static_cast<T*>(this)->m_ulSize);
 	}
 };
 
@@ -160,15 +160,16 @@ inline auto& GetAllProps()
 
 inline auto GetAllPedsArray()
 {
-	return GetAllPeds().ToArray();
+	return GetAllPeds().ToArray ();
 }
 
 inline auto GetAllVehsArray()
 {
-	return GetAllVehs().ToArray();
+	return GetAllVehs().ToArray ();
 }
 
 inline auto GetAllPropsArray()
 {
-	return GetAllProps().ToArray();
+	return GetAllProps().ToArray ();
 }
+

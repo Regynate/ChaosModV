@@ -21,7 +21,7 @@ namespace Memory
 		static MinimapData* data = nullptr;
 		static MinimapData defaultValues[3] = {};
 
-		static void(__cdecl * refreshMinimapFunc)() = nullptr;
+		static void(__cdecl* refreshMinimapFunc)() = nullptr;
 
 		if (!data)
 		{
