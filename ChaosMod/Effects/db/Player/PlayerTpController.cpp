@@ -179,9 +179,8 @@ static void OnStartRandom()
 	{
 		x = g_Random.GetRandomInt(-3747.f, 4500.f);
 		y = g_Random.GetRandomInt(-4400.f, 8022.f);
-		
-	}
-	while (TEST_VERTICAL_PROBE_AGAINST_ALL_WATER(x, y, z, 0, &_));
+
+	} while (TEST_VERTICAL_PROBE_AGAINST_ALL_WATER(x, y, z, 0, &_));
 
 	float groundZ;
 	bool useGroundZ;
@@ -228,6 +227,7 @@ static void OnStartMission()
 		excludedColors = { 42, 43 };
 		break;
 	default: // default
+		excludedColors = { };
 		break;
 	}
 	const int possibleBlipIds[] = { 66, 76, 77, 78, 79, 80, 86, 88 , 89, 96, 104, 105, 106, 107, 112, 113, 118, 120, 123, 124, 208, 209, 210, 211, 214, 267, 293, 355, 363, 381, 382, 383, 384, 385, 386, 387, 388, 389, 428, 445, 447, 448, 449, 450, 451, 452, 453, 454 };
@@ -287,7 +287,7 @@ static void OnStartFakeTp()
 	Player player = PLAYER_ID();
 	Ped playerPed = PLAYER_PED_ID();
 	Vehicle playerVeh = IS_PED_IN_ANY_VEHICLE(playerPed, false) ? GET_VEHICLE_PED_IS_IN(playerPed, false) : 0;
-	
+
 	Vector3 playerPos = GET_ENTITY_COORDS(playerPed, false);
 
 	Hooks::EnableScriptThreadBlock();

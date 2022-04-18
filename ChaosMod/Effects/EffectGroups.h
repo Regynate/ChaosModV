@@ -25,15 +25,15 @@ struct EffectGroup
 
 inline const std::unordered_map<EEffectGroupType, EffectGroup> g_EffectGroups
 {
-	{EEffectGroupType::Teleport, {.WeightMult = 2 }},
-	{EEffectGroupType::SpawnGeneric, { .WeightMult = 5 }},
-	{EEffectGroupType::SpawnEnemySpecial, {.WeightMult = 5 }},
-	{EEffectGroupType::SpawnEnemy, { .WeightMult = 4 }},
-	{EEffectGroupType::SpawnCompanion, {.WeightMult = 5 }},
-	{EEffectGroupType::Weapons, { .WeightMult = 4 }},
-	{EEffectGroupType::PlayerKill, { .WeightMult = 2 }},
+	{EEffectGroupType::Teleport, {.WeightMult = 10 }},
+	{EEffectGroupType::SpawnGeneric, {.WeightMult = 20 }},
+	{EEffectGroupType::SpawnEnemySpecial, {.WeightMult = 10 }},
+	{EEffectGroupType::SpawnEnemy, {.WeightMult = 15 }},
+	{EEffectGroupType::SpawnCompanion, {.WeightMult = 10 }},
+	{EEffectGroupType::Weapons, {.WeightMult = 5 }},
+	{EEffectGroupType::PlayerKill, {.WeightMult = 2 }},
 	{EEffectGroupType::TrafficSpawner, {.WeightMult = 3 }},
-	{EEffectGroupType::TrafficColor, { .WeightMult = 3 }},
+	{EEffectGroupType::TrafficColor, {.WeightMult = 3 }},
 	{EEffectGroupType::TimeChange, {.WeightMult = 2 }},
 	{EEffectGroupType::WeatherChange, {.WeightMult = 2 }},
 };

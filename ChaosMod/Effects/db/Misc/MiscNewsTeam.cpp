@@ -73,7 +73,10 @@ static const char* ms_rgTextPairs[] =
 	"HMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM",
 
 	"Just Imagine All The Stuff I Could Put In Here",
-	"Oh Wait..."
+	"Oh Wait...",
+
+	"This is Moxi's best effect. 100% true, trust me.",
+	"Brought to you by Sabotage News, the best source for factual and quality news"
 };
 
 static void OnStart()
@@ -171,6 +174,7 @@ static RegisterEffect registerEffect(EFFECT_MISC_NEWS_TEAM, OnStart, OnStop, OnT
         .Name = "News Team",
         .Id = "misc_news_team",
 	.IsTimed = true,
-	.IsShortDuration = true
+	.IsShortDuration = true,
+	.IncompatibleWith = { EFFECT_PLAYER_BINOCULARS, EFFECT_FLIP_CAMERA, EFFECT_PLAYER_GTA_2, EFFECT_PLAYER_QUAKE_FOV, EFFECT_LEANED_CAMERA, EFFECT_PLAYER_SPIN_CAMERA, EFFECT_PLAYER_ZOOMZOOM_CAM }
     }
 );

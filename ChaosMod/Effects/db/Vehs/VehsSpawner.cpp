@@ -53,7 +53,11 @@ static void OnStartMonster()
 {
 	Vector3 playerPos = GetPlayerPos();
 
-	CreatePoolVehicle(GET_HASH_KEY("MONSTER"), playerPos.x, playerPos.y, playerPos.z, GET_ENTITY_HEADING(PLAYER_PED_ID()));
+	Vehicle veh = CreatePoolVehicle(GET_HASH_KEY("marshall"), playerPos.x, playerPos.y, playerPos.z, GET_ENTITY_HEADING(PLAYER_PED_ID()));
+
+	SET_VEHICLE_MOD_KIT(veh, 0);
+	int liv = GET_VEHICLE_LIVERY_COUNT(veh);
+	SET_VEHICLE_LIVERY(veh, g_Random.GetRandomInt(0, liv - 1));
 }
 
 static RegisterEffect registerEffect4(EFFECT_SPAWN_MONSTER, OnStartMonster, EffectInfo
@@ -109,7 +113,37 @@ static void OnStartBus()
 {
 	Vector3 playerPos = GetPlayerPos();
 
-	CreatePoolVehicle(GET_HASH_KEY("BUS"), playerPos.x, playerPos.y, playerPos.z, GET_ENTITY_HEADING(PLAYER_PED_ID()));
+	Vehicle veh = CreatePoolVehicle(GET_HASH_KEY("BUS"), playerPos.x, playerPos.y, playerPos.z, GET_ENTITY_HEADING(PLAYER_PED_ID()));
+
+	int seats = GET_VEHICLE_MODEL_NUMBER_OF_SEATS(GET_ENTITY_MODEL(veh));
+
+	std::vector<Ped> pedPool;
+	for (Ped ped : GetAllPeds())
+	{
+		if (!IS_PED_A_PLAYER(ped) && IS_PED_HUMAN(ped))
+		{
+			pedPool.push_back(ped);
+		}
+	}
+	for (int i = -1; i < seats; i++)
+	{
+		if (pedPool.empty())
+		{
+			break;
+		}
+		if (i == -1)
+		{
+			Ped driver = GET_PED_IN_VEHICLE_SEAT(veh, -1, 0);
+			SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(driver, true);
+			TASK_VEHICLE_MISSION_PED_TARGET(driver, veh, PLAYER_PED_ID(), 13, 9999.f, 4176732, .0f, .0f, false);
+		}
+		if (IS_VEHICLE_SEAT_FREE(veh, i, false))
+		{
+			int randomIndex = g_Random.GetRandomInt(0, pedPool.size() - 1);
+			SET_PED_INTO_VEHICLE(pedPool[randomIndex], veh, i);
+			pedPool.erase(pedPool.begin() + randomIndex);
+		}
+	}
 }
 
 static RegisterEffect registerEffect8(EFFECT_SPAWN_BUS, OnStartBus, EffectInfo
@@ -279,10 +313,125 @@ static void OnStartWizardBroom()
 }
 
 
-static RegisterEffect registerEffect(EFFECT_VEHS_WIZARD_BROOM, OnStartWizardBroom, nullptr, nullptr, EffectInfo
+static RegisterEffect registerEffect16(EFFECT_VEHS_WIZARD_BROOM, OnStartWizardBroom, nullptr, nullptr, EffectInfo
 	{
 		.Name = "You're A Wizard, Franklin",
 		.Id = "vehs_spawn_wizard_broom",
+		.EEffectGroupType = EEffectGroupType::SpawnGeneric
+	}
+);
+
+static void OnStartKosatka()
+{
+	Vector3 playerPos = GetPlayerPos();
+
+	CreatePoolVehicle(GET_HASH_KEY("kosatka"), playerPos.x, playerPos.y, playerPos.z, GET_ENTITY_HEADING(PLAYER_PED_ID()));
+}
+
+static RegisterEffect registerEffect17(EFFECT_SPAWN_KOSATKA, OnStartKosatka, EffectInfo
+	{
+		.Name = "Spawn Kosatka",
+		.Id = "spawn_kosatka",
+		.EEffectGroupType = EEffectGroupType::SpawnGeneric
+	}
+);
+static void OnStartFreight()
+{
+	Vector3 playerPos = GetPlayerPos();
+
+	CreatePoolVehicle(GET_HASH_KEY("freight"), playerPos.x, playerPos.y, playerPos.z, GET_ENTITY_HEADING(PLAYER_PED_ID()));
+}
+
+static RegisterEffect registerEffect18(EFFECT_SPAWN_FREIGHT, OnStartFreight, EffectInfo
+	{
+		.Name = "Spawn Freight",
+		.Id = "spawn_freight",
+		.EEffectGroupType = EEffectGroupType::SpawnGeneric
+	}
+);
+static void OnStartAKuruma()
+{
+	Vector3 playerPos = GetPlayerPos();
+
+	Vehicle veh = CreatePoolVehicle(GET_HASH_KEY("kuruma2"), playerPos.x, playerPos.y, playerPos.z, GET_ENTITY_HEADING(PLAYER_PED_ID()));
+
+	SET_VEHICLE_MOD_KIT(veh, 0);
+	for (int i = 0; i < 50; i++)
+	{
+		int max = GET_NUM_VEHICLE_MODS(veh, i);
+		if (max > 0)
+		{
+			SET_VEHICLE_MOD(veh, i, max - 1, true);
+		}
+
+		TOGGLE_VEHICLE_MOD(veh, i, true);
+	}
+
+	SET_VEHICLE_TYRES_CAN_BURST(veh, false);
+	SET_VEHICLE_WINDOW_TINT(veh, 1);
+
+	SET_VEHICLE_COLOURS(veh, 159, 158);
+
+	_SET_VEHICLE_NEON_LIGHTS_COLOUR(veh, 255, 150, 0);
+	for (int i = 0; i < 4; i++)
+	{
+		_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, i, true);
+	}
+
+	_SET_VEHICLE_XENON_LIGHTS_COLOR(veh, 6);
+}
+
+static RegisterEffect registerEffect19(EFFECT_SPAWN_ARMORED_KURUMA, OnStartAKuruma, EffectInfo
+	{
+		.Name = "Spawn Armored Kuruma",
+		.Id = "spawn_armored_kuruma",
+		.EEffectGroupType = EEffectGroupType::SpawnGeneric
+	}
+);
+static void OnStartHandler()
+{
+	Vector3 playerPos = GetPlayerPos();
+
+	CreatePoolVehicle(GET_HASH_KEY("handler"), playerPos.x, playerPos.y, playerPos.z, GET_ENTITY_HEADING(PLAYER_PED_ID()));
+}
+
+static RegisterEffect registerEffect20(EFFECT_SPAWN_HANDLER, OnStartHandler, EffectInfo
+	{
+		.Name = "Spawn Handler",
+		.Id = "spawn_handler",
+		.EEffectGroupType = EEffectGroupType::SpawnGeneric
+	}
+);
+
+static void OnStartBedmobile()
+{
+	static const Hash carHash = GET_HASH_KEY("dune");
+	static const Hash bedHash = GET_HASH_KEY("apa_mp_h_bed_double_09");
+	LoadModel(carHash);
+	LoadModel(bedHash);
+
+	Ped player = PLAYER_PED_ID();
+	Vector3 playerPos = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(player, 0, 1, 0);
+
+	Vehicle veh = CreatePoolVehicle(carHash, playerPos.x, playerPos.y, playerPos.z, GET_ENTITY_HEADING(player));
+	SET_VEHICLE_ENGINE_ON(veh, true, true, false);
+	SET_VEHICLE_MOD_KIT(veh, 0);
+	for (int i = 0; i < 50; i++)
+	{
+		int max = GET_NUM_VEHICLE_MODS(veh, i);
+		SET_VEHICLE_MOD(veh, i, max > 0 ? max - 1 : 0, false);
+	}
+	SET_ENTITY_ALPHA(veh, 0, false);
+	SET_ENTITY_VISIBLE(veh, false, false);
+
+	Object bed = CREATE_OBJECT(bedHash, playerPos.x, playerPos.y + 2, playerPos.z, true, false, false);
+	ATTACH_ENTITY_TO_ENTITY(bed, veh, 0, 0, -1.25, -0.65, 0, 0, 180, true, false, false, false, 0, true);
+}
+
+static RegisterEffect registerEffect21(EFFECT_VEHS_BEDMOBILE, OnStartBedmobile, nullptr, nullptr, EffectInfo
+	{
+		.Name = "Spawn Bedmobile",
+		.Id = "vehs_spawn_bedmobile",
 		.EEffectGroupType = EEffectGroupType::SpawnGeneric
 	}
 );

@@ -1,6 +1,6 @@
 /*
 	Effect by ShySkream
-	
+
 	uses modified code from "pacifist", "need for speed", and "never wanted".
 */
 
@@ -12,26 +12,23 @@
 static DWORD64 m_timeReserve;
 static DWORD64 m_lastTick = 0;
 
-static int lastPlayerHits;
-static Hash currentPedHash;
-
+static int lastPlayerKills;
 static int lastWantedLevel = 0;
 #pragma endregion
 
 static void OnStart()
 {
-	#pragma region variable initializations
+#pragma region variable initializations
 	lastWantedLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(PLAYER_ID());
 	m_lastTick = GET_GAME_TIMER();
 	m_timeReserve = WAIT_TIME;
-	currentPedHash = -1;
-	lastPlayerHits = -1;
+	lastPlayerKills = -1;
 	#pragma endregion
 }
 
 static void OnTick()
 {
-	#pragma region variable updates
+#pragma region variable updates
 	DWORD64 currentTick = GET_GAME_TIMER();
 	DWORD64 tickDelta = currentTick - m_lastTick;
 
@@ -39,45 +36,30 @@ static void OnTick()
 	int wantedLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
 
 	Hash playerHash = GET_ENTITY_MODEL(PLAYER_PED_ID());
-	#pragma endregion
+#pragma endregion
 
-	#pragma region check if player ran over someone
+#pragma region check if player ran over someone
 	if (GET_TIME_SINCE_PLAYER_HIT_PED(player) < 200 && GET_TIME_SINCE_PLAYER_HIT_PED(player) != -1) {
 		lastWantedLevel = 0;
 		SET_PLAYER_WANTED_LEVEL(player, lastWantedLevel, false);
 		SET_PLAYER_WANTED_LEVEL_NOW(player, true);
 		m_timeReserve = WAIT_TIME;
 	}
-	#pragma endregion
+#pragma endregion
 
-	#pragma region check if player shot someone
+#pragma region check if player shot someone
 
-	if (playerHash != currentPedHash)
+
+	int allPlayerKills = 0;
+	int curKills = 0;
+	for (Hash hash : { GET_HASH_KEY("SP0_KILLS"), GET_HASH_KEY("SP1_KILLS"), GET_HASH_KEY("SP2_KILLS")})
 	{
-		currentPedHash = playerHash;
-		lastPlayerHits = -1;
+		STAT_GET_INT(hash, &curKills, -1);
+		allPlayerKills += curKills;
 	}
 
-	Hash hitHash;
-	//get correct character hash
-	switch (playerHash)
-	{
-	case 225514697: // Michael 
-		hitHash = GET_HASH_KEY("SP0_HITS");
-		break;
-	case 2602752943: // Franklin
-		hitHash = GET_HASH_KEY("SP1_HITS");
-		break;
-	case 2608926626: // Trevor
-		hitHash = GET_HASH_KEY("SP2_HITS");
-		break;
-	}
-
-	// get stat for current character
-	int playerHits;
-	STAT_GET_INT(hitHash, &playerHits, -1);
-	// check if stat this tick is larger than stat last tick
-	if (lastPlayerHits >= 0 && playerHits > lastPlayerHits)
+	//check if stat this tick is larger than stat last tick
+	if (lastPlayerKills >= 0 && allPlayerKills > lastPlayerKills)
 	{
 		if (lastWantedLevel > 0) {
 			lastWantedLevel = lastWantedLevel - 1;
@@ -86,10 +68,10 @@ static void OnTick()
 		SET_PLAYER_WANTED_LEVEL_NOW(player, true);
 		m_timeReserve = WAIT_TIME;
 	}
-	lastPlayerHits = playerHits;
+	lastPlayerKills = allPlayerKills;
 	#pragma endregion
 
-	#pragma region invert normal wanted level gains
+#pragma region invert normal wanted level gains
 	// If wanted level has increased, decrease it instead
 
 	if (lastWantedLevel < wantedLevel) {
@@ -99,16 +81,16 @@ static void OnTick()
 		m_timeReserve = WAIT_TIME;
 	}
 
-	#pragma endregion
+#pragma endregion
 
-	#pragma region acknowledge wanted level decreases
+#pragma region acknowledge wanted level decreases
 	else if (lastWantedLevel > wantedLevel) {
 		lastWantedLevel = wantedLevel;
 		m_timeReserve = WAIT_TIME;
 	}
-	#pragma endregion
+#pragma endregion
 
-	#pragma region police responce to prologed innocence
+#pragma region police responce to prologed innocence
 	else if (lastWantedLevel < 4) {
 		// Cap the police responce for innocence at 4 stars
 		if (m_timeReserve < tickDelta) {
@@ -126,7 +108,7 @@ static void OnTick()
 	}
 
 	m_lastTick = currentTick;
-	#pragma endregion
+#pragma endregion
 }
 
 static RegisterEffect registerEffect(EFFECT_ILLEGAL_INNOCENCE, OnStart, nullptr, OnTick, EffectInfo
@@ -137,4 +119,3 @@ static RegisterEffect registerEffect(EFFECT_ILLEGAL_INNOCENCE, OnStart, nullptr,
 		.IncompatibleWith = {EFFECT_NEVER_WANTED}
 	}
 );
-
