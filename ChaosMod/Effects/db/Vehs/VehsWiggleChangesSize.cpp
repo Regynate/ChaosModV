@@ -106,7 +106,7 @@ static void OnTick()
 	}
 }
 
-static RegisterEffect registerEffect(EFFECT_WIGGLE_CHANGES_SIZE, nullptr, nullptr, OnTick, EffectInfo
+static RegisterEffect registerEffect(EFFECT_VEHS_WIGGLE_CHANGES_SIZE, nullptr, nullptr, OnTick, EffectInfo
 	{
 		.Name = "Wiggle-Wiggle",
 		.Id = "veh_wiggle_changes_size",
