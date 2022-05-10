@@ -331,7 +331,6 @@
     <ClCompile Include="Effects\db\Vehs\VehsSpawner.cpp" />
     <ClCompile Include="Effects\db\Vehs\VehsCruiseControl.cpp" />
     <ClCompile Include="Effects\db\Vehs\VehsSpawnIESultan.cpp" />
-    <ClCompile Include="Effects\db\Vehs\VehsWiggleChangesSize.cpp" />
     <ClCompile Include="Effects\db\Weather\WeatherController.cpp" />
     <ClCompile Include="Effects\db\Peds\PedsSeriousKamikazes.cpp" />
     <ClCompile Include="Effects\db\Player\PlayerLeanedCamera.cpp" />
