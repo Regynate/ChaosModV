@@ -331,7 +331,6 @@ namespace ConfigApp
             EFFECT_EXTREME_WHALE_RAIN,
             EFFECT_LEANED_CAMERA,
             EFFECT_PLAYER_MONSTER_HEAD,
-            EFFECT_VEHS_WIGGLE_CHANGES_SIZE,
             EFFECT_MISC_CLONE_ON_DEATH,
             EFFECT_SPAWN_TOWING_TONYA,
             EFFECT_PEDS_SPAWN_SPACE_RANGER,
@@ -372,6 +371,7 @@ namespace ConfigApp
             EFFECT_MISC_JUMPY_PROPS,
             EFFECT_PEDS_PROP_HUNT,
             EFFECT_MISC_WATER,
+            EFFECT_VEHS_WIGGLE_WIGGLE,
             _EFFECT_ENUM_MAX
         }
 
@@ -692,7 +692,6 @@ namespace ConfigApp
             {EffectType.EFFECT_PLAYER_CLONE_ARMY, new EffectInfo("Spawn Clone Army", EffectCategory.PLAYER, "player_clone_army")},
             {EffectType.EFFECT_BATTLE_BUS, new EffectInfo("Where We Droppin?", EffectCategory.PLAYER, "player_battle_bus", true, false)},
             {EffectType.EFFECT_MISC_MAJOR_TURBULENCE, new EffectInfo("Major Turbulence", EffectCategory.MISC, "misc_major_turbulence", true)},
-            {EffectType.EFFECT_VEHS_WIGGLE_CHANGES_SIZE, new EffectInfo("Wiggle-Wiggle", EffectCategory.VEHICLE, "veh_wiggle_changes_size", true)},
             {EffectType.EFFECT_SPINNING_PROPS, new EffectInfo("Spinning Props", EffectCategory.MISC, "misc_spinning_props", true)},
             {EffectType.EFFECT_PLAYER_GRAVITY_SPHERE, new EffectInfo("Gravity Sphere", EffectCategory.PLAYER, "player_grav_sphere", true, true)},
             {EffectType.EFFECT_PLAYER_SICK_CAM, new EffectInfo("I Feel Sick", EffectCategory.PLAYER, "player_sick_cam", true, true)},
@@ -708,6 +707,7 @@ namespace ConfigApp
             {EffectType.EFFECT_MISC_WATER, new EffectInfo("Drought", EffectCategory.MISC, "misc_remove_water", true)},
             {EffectType.EFFECT_VEHS_PROP_MODELS, new EffectInfo("Prop Cars", EffectCategory.VEHICLE, "vehs_prop_models", true)},
             {EffectType.EFFECT_VEHS_TINY, new EffectInfo("Tiny Vehicles", EffectCategory.VEHICLE, "vehs_tiny", true)},
+            {EffectType.EFFECT_VEHS_WIGGLE_WIGGLE, new EffectInfo("Wiggle-Wiggle", EffectCategory.VEHICLE, "vehs_wiggle_wiggle", true)},
         };
     }
 }
