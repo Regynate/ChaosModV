@@ -719,7 +719,12 @@ namespace ConfigApp
             { "player_facecame", new EffectInfo("Facetime", EffectCategory.Player, true, true) },
             { "peds_giants", new EffectInfo("Giants", EffectCategory.Peds, true) },
             { "player_stun", new EffectInfo("That's Stunning", EffectCategory.Player)},
-            { "vehs_disappear_on_impact", new EffectInfo("Vehicles Disappear On Impact", EffectCategory.Vehicle, true)}
+            { "vehs_disappear_on_impact", new EffectInfo("Vehicles Disappear On Impact", EffectCategory.Vehicle, true)},
+            { "vehs_monster_trucks", new EffectInfo("Monster Trucks", EffectCategory.Vehicle, true)},
+            { "player_movementx05", new EffectInfo("0.5x Movement Speed", EffectCategory.Player, true, true)},
+            { "player_movementx10", new EffectInfo("10x Movement Speed", EffectCategory.Player, true, true)},
+            { "player_movementx5", new EffectInfo("5x Movement Speed", EffectCategory.Player, true, true)},
+            { "peds_blanks", new EffectInfo("Blanks", EffectCategory.Peds, true, true)}
         };
     }
 }
