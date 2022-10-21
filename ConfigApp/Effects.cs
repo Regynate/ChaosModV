@@ -714,6 +714,7 @@ namespace ConfigApp
             { "randomgravity", new EffectInfo("Random Gravity", EffectCategory.Misc, true) },
             { "misc_complications", new EffectInfo("Complications", EffectCategory.Misc) },
             { "peds_upsidedown", new EffectInfo("Upside Down Peds", EffectCategory.Peds, true)},
+            { "screen_maximap", new EffectInfo("Maximap", EffectCategory.Misc, true)},
         };
     }
 }
