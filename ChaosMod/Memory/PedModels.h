@@ -4,6 +4,7 @@
 #include "Memory.h"
 
 #include <vector>
+#include "Memory/GetVector3.h"
 
 using DWORD64 = unsigned long long;
 using WORD    = unsigned short;
@@ -98,12 +99,13 @@ namespace Memory
 
 		return c_rgPedModels;
 	}
+	
 
 	inline void SetPedVehiclePedsScale(Vehicle veh, float scaleMultiplier)
 	{
-		auto offset = getScriptHandleBaseAddress(veh);
+		auto offset            = reinterpret_cast<uintptr_t>(getScriptHandleBaseAddress(veh));
 
-		auto MatrixAddress = offset + 0x60;
+		auto MatrixAddress          = offset + 0x60;
 		Vector3 passengerForwardVec = Memory::GetVector3(MatrixAddress + 0x00);
 		Vector3 passengerRightVec = Memory::GetVector3(MatrixAddress + 0x10);
 		Vector3 passengerUpVec = Memory::GetVector3(MatrixAddress + 0x20);
@@ -115,7 +117,7 @@ namespace Memory
 
 	inline void SetPedScale(Ped ped, float scaleMultiplier)
 	{
-		auto offset = getScriptHandleBaseAddress(ped);
+		auto offset = reinterpret_cast<uintptr_t>(getScriptHandleBaseAddress(ped));
 
 		auto pedMatrixAddress = offset + 0x60;
 		Vector3 pedForwardVec = Memory::GetVector3(pedMatrixAddress + 0x00);

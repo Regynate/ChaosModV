@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "./Memory/Hooks/AudioPitchHook.h"
+#include "Memory/PedModels.h"
 #include <map>
 
 static float ms_fScale = 3.f;
@@ -69,11 +70,12 @@ static void OnStop()
 	Hooks::ResetAudioPitch();
 }
 
-static RegisterEffect reg(EFFECT_PEDS_GIANTS, OnStart, OnStop, OnTick, EffectInfo
+// clang-format off
+REGISTER_EFFECT(OnStart, OnStop, OnTick, EffectInfo
 	{
 		.Name = "Giants",
 		.Id = "peds_giants",
 		.IsTimed = true,
-		.IncompatibleWith = { EFFECT_PEDS_MINIONS, EFFECT_HIGH_PITCH, EFFECT_LOW_PITCH, EFFECT_WEIRD_PITCH, EFFECT_PLAYER_GTA_2, EFFECT_PLAYER_LAGGY_CAMERA, EFFECT_PLAYER_LOCKCAMERA, EFFECT_PLAYER_QUAKE_FOV, EFFECT_PLAYER_SPIN_CAMERA, EFFECT_PLAYER_SICK_CAM, EFFECT_GAMESPEED_X02, EFFECT_GAMESPEED_X05 }
+		.EffectCategory = EEffectCategory::Pitch
 	}
 );

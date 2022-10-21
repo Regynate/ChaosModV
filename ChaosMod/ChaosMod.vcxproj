@@ -95,7 +95,6 @@
     <ClCompile Include="Effects\db\Meta\MetaReInvoke.cpp" />
     <ClCompile Include="Effects\db\Misc\MiscBoostVelocity.cpp" />
     <ClCompile Include="Effects\db\Misc\MiscFakeSpawn.cpp" />
-    <ClCompile Include="Effects\db\Misc\MiscFlipUI.cpp" />
     <ClCompile Include="Effects\db\Meta\MetaHideChaosUI.cpp" />
     <ClCompile Include="Effects\db\Meta\MetaNoChaos.cpp" />
     <ClCompile Include="Effects\db\Meta\MetaTimerSpeed.cpp" />
@@ -183,6 +182,7 @@
     <ClCompile Include="Effects\db\Screen\ScreenFlipCamera.cpp" />
     <ClCompile Include="Effects\db\Screen\ScreenFlipUI.cpp" />
     <ClCompile Include="Effects\db\Screen\ScreenHeatVision.cpp" />
+    <ClCompile Include="Effects\db\Screen\ScreenMaximap.cpp" />
     <ClCompile Include="Effects\db\Screen\ScreenNightVision.cpp" />
     <ClCompile Include="Effects\db\Screen\ScreenNoHUD.cpp" />
     <ClCompile Include="Effects\db\Screen\ScreenNoRadar.cpp" />
@@ -426,6 +426,7 @@
     <ClInclude Include="LuaScripts.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Memory\Entity.h" />
+    <ClInclude Include="Memory\GetVector3.h" />
     <ClInclude Include="Memory\Gravity.h" />
     <ClInclude Include="Memory\Hooks\ShaderHook.h" />
     <ClInclude Include="Memory\Physics.h" />

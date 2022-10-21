@@ -10,6 +10,8 @@
 #include <unordered_set>
 #include <vector>
 
+#include "Memory/GetVector3.h"
+
 using DWORD64 = unsigned long long;
 using WORD    = unsigned short;
 
@@ -172,22 +174,9 @@ namespace Memory
 		return result ? *reinterpret_cast<float *>(result + 2496) : false;
 	}
 
-	inline Vector3 GetVector3(auto offset)
-	{
-		return Vector3(*reinterpret_cast<float *>(offset), *reinterpret_cast<float *>(offset + 0x4),
-		               *reinterpret_cast<float *>(offset + 0x8));
-	}
-
-	inline void SetVector3(auto offset, Vector3 vec)
-	{
-		*reinterpret_cast<float *>(offset)       = vec.x;
-		*reinterpret_cast<float *>(offset + 0x4) = vec.y;
-		*reinterpret_cast<float *>(offset + 0x8) = vec.z;
-	}
-
 	inline void SetVehicleScale(Vehicle veh, float scaleMultiplier)
 	{
-		auto baseAddr = GetScriptHandleBaseAddress(veh);
+		uintptr_t baseAddr = GetScriptHandleBaseAddress(veh);
 		if (!baseAddr)
 		{
 			return;

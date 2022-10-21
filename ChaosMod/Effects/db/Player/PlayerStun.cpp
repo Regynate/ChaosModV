@@ -20,7 +20,8 @@ static void OnStart()
 	ANIMPOSTFX_STOP(effectName.c_str());
 }
 
-static RegisterEffect registerEffect(EFFECT_PLAYER_STUN, OnStart, nullptr, nullptr, EffectInfo
+// clang-format off
+REGISTER_EFFECT(OnStart, nullptr, nullptr, EffectInfo
 	{
 		.Name = "That's Stunning",
 		.Id = "player_stun"
