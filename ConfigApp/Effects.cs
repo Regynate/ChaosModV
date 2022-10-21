@@ -718,6 +718,7 @@ namespace ConfigApp
             { "screen_maximap", new EffectInfo("Maximap", EffectCategory.Misc, true)},
             { "player_facecame", new EFfectInfo("Facetime", EffectCategory.PLAYER, true, true) },
             { "peds_giants", new EffectInfo("Giants", EffectCategory.PEDS, "peds_giants", true) }
+            { "player_stun", new EffectInfo("That's Stunning", EffectCategory.PLAYER)},
         };
     }
 }
