@@ -726,6 +726,8 @@ namespace ConfigApp
             { "player_movementx5", new EffectInfo("5x Movement Speed", EffectCategory.Player, true, true)},
             { "peds_blanks", new EffectInfo("Blanks", EffectCategory.Peds, true, true)}
             { "aliens", new EffectInfo("Alien Invasion", EffectCategory.Peds, true) },
+            { "vehs_disassemble", new EffectInfo("Disassemble Current Vehicle", EffectCategory.Vehicle) },
+            { "vehs_detach_wheel", new EffectInfo("Detach Random Wheel", EffectCategory.Vehicle) }
         };
     }
 }
