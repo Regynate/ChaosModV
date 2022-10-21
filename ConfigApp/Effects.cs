@@ -378,6 +378,7 @@ namespace ConfigApp
             { "timecycle_darkworld", new EffectInfo("A Dark World", EffectCategory.Screen, true, true) },
             { "peds_toast", new EffectInfo("You're Toast", EffectCategory.Peds, true) },
             { "tp_fakex2", new EffectInfo("Fake Fake Teleport", EffectCategory.Player, false) },
+            { "randomgravity", new EffectInfo("Random Gravity", EffectCategory.Misc, true) },
         };
     }
 }
