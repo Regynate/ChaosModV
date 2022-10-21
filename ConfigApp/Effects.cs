@@ -725,6 +725,7 @@ namespace ConfigApp
             { "player_movementx10", new EffectInfo("10x Movement Speed", EffectCategory.Player, true, true)},
             { "player_movementx5", new EffectInfo("5x Movement Speed", EffectCategory.Player, true, true)},
             { "peds_blanks", new EffectInfo("Blanks", EffectCategory.Peds, true, true)}
+            { "aliens", new EffectInfo("Alien Invasion", EffectCategory.Peds, true) },
         };
     }
 }
