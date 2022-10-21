@@ -719,6 +719,7 @@ namespace ConfigApp
             { "player_facecame", new EFfectInfo("Facetime", EffectCategory.PLAYER, true, true) },
             { "peds_giants", new EffectInfo("Giants", EffectCategory.PEDS, "peds_giants", true) }
             { "player_stun", new EffectInfo("That's Stunning", EffectCategory.PLAYER)},
+            { "vehs_disappear_on_impact", new EffectInfo("Vehicles Disappear On Impact", EffectCategory.VEHICLE, "vehs_disappear_on_impact", true)}
         };
     }
 }
