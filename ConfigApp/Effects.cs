@@ -379,6 +379,7 @@ namespace ConfigApp
             { "peds_toast", new EffectInfo("You're Toast", EffectCategory.Peds, true) },
             { "tp_fakex2", new EffectInfo("Fake Fake Teleport", EffectCategory.Player, false) },
             { "randomgravity", new EffectInfo("Random Gravity", EffectCategory.Misc, true) },
+            { "misc_complications", new EffectInfo("Complications", EffectCategory.Misc) },
         };
     }
 }
