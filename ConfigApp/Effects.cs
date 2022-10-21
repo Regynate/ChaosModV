@@ -372,6 +372,7 @@ namespace ConfigApp
             { "screen_colorfulworld", new EffectInfo("Colorful World", EffectCategory.Screen, true) },
             { "screen_arc", new EffectInfo("Arced Screen", EffectCategory.Screen, true, true) },
             { "world_blackhole", new EffectInfo("Black Hole", EffectCategory.Misc, true, true) },
+            { "spawn_mime", new EffectInfo("Spawn Murderous Mime", EffectCategory.Peds) },
             { "player_afk", new EffectInfo("Afk", EffectCategory.Player, true, true) },
             { "misc_pay_respects", new EffectInfo("Pay Respects", EffectCategory.Misc, true, true) },
             { "peds_invisible_weps", new EffectInfo("Imaginary Weapons", EffectCategory.Peds, true) },
