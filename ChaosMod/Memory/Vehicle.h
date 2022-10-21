@@ -174,33 +174,6 @@ namespace Memory
 		return result ? *reinterpret_cast<float *>(result + 2496) : false;
 	}
 
-	inline void SetVehicleScale(Vehicle veh, float scaleMultiplier)
-	{
-		uintptr_t baseAddr = GetScriptHandleBaseAddress(veh);
-		if (!baseAddr)
-		{
-			return;
-		}
-
-		auto passengerMatrixAddress = baseAddr + 0x60;
-		Vector3 passengerForwardVec = Memory::GetVector3(passengerMatrixAddress + 0x00);
-		Vector3 passengerRightVec   = Memory::GetVector3(passengerMatrixAddress + 0x10);
-		Vector3 passengerUpVec      = Memory::GetVector3(passengerMatrixAddress + 0x20);
-
-		auto vehicleMatrixAddress   = *reinterpret_cast<uintptr_t *>(baseAddr + 0x30) + 0x20;
-		Vector3 vehicleForwardVec   = Memory::GetVector3(vehicleMatrixAddress + 0x00);
-		Vector3 vehicleRightVec     = Memory::GetVector3(vehicleMatrixAddress + 0x10);
-		Vector3 vehicleUpVec        = Memory::GetVector3(vehicleMatrixAddress + 0x20);
-
-		Memory::SetVector3(passengerMatrixAddress + 0x00, passengerForwardVec * scaleMultiplier);
-		Memory::SetVector3(passengerMatrixAddress + 0x10, passengerRightVec * scaleMultiplier);
-		Memory::SetVector3(passengerMatrixAddress + 0x20, passengerUpVec * scaleMultiplier);
-
-		Memory::SetVector3(vehicleMatrixAddress + 0x00, vehicleForwardVec * scaleMultiplier);
-		Memory::SetVector3(vehicleMatrixAddress + 0x10, vehicleRightVec * scaleMultiplier);
-		Memory::SetVector3(vehicleMatrixAddress + 0x20, vehicleUpVec * scaleMultiplier);
-	}
-
 	inline void SetVehicleRaise(Vehicle vehicle, float height)
 	{
 		auto vehAddr = getScriptHandleBaseAddress(vehicle);
