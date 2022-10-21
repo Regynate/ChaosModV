@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "./Memory/Hooks/AudioPitchHook.h"
-#include "Memory/PedModels.h"
+#include "Memory/ViewMatrix.h"
 #include <map>
 
 static float ms_fScale = 3.f;
@@ -48,13 +48,15 @@ static void OnTick()
 
 		if (VectorEquals(pedMap[ped], pedSize))
 		{
-			Memory::SetPedScale(ped, ms_fScale);
+			Memory::ViewMatrix vm = Memory::ViewMatrix(ped);
+			vm.MultiplyDirectionVectors(ms_fScale);
 		}
 
 		if (IS_PED_IN_ANY_VEHICLE(ped, 1))
 		{
 			Vehicle veh = GET_VEHICLE_PED_IS_IN(ped, 0);
-			Memory::SetPedVehiclePedsScale(veh, ms_fScale / 2);
+			Memory::ViewMatrix vm = Memory::ViewMatrix(veh);
+			vm.MultiplyDirectionVectors(ms_fScale);
 		}
 		SET_PED_LEG_IK_MODE(ped, 0);
 	}

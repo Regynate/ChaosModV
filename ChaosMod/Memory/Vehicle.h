@@ -10,8 +10,6 @@
 #include <unordered_set>
 #include <vector>
 
-#include "Memory/GetVector3.h"
-
 using DWORD64 = unsigned long long;
 using WORD    = unsigned short;
 
