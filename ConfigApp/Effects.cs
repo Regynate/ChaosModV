@@ -383,6 +383,7 @@ namespace ConfigApp
             { "tp_fakex2", new EffectInfo("Fake Fake Teleport", EffectCategory.Player, false) },
             { "randomgravity", new EffectInfo("Random Gravity", EffectCategory.Misc, true) },
             { "misc_complications", new EffectInfo("Complications", EffectCategory.Misc) },
+            { "peds_upsidedown", new EffectInfo("Upside Down Peds", EffectCategory.Peds, true)},
         };
     }
 }
