@@ -15,7 +15,8 @@ static void OnTick()
 	}
 }
 
-static RegisterEffect registerEffect2(EFFECT_VEHS_DISAPPEAR_ON_IMPACT, nullptr, nullptr, OnTick, EffectInfo
+// clang-format off
+REGISTER_EFFECT(EFFECT_VEHS_DISAPPEAR_ON_IMPACT, nullptr, nullptr, OnTick, EffectInfo
 	{
 		.Name = "Vehicles Disappear On Impact",
 		.Id = "vehs_disappear_on_impact",
