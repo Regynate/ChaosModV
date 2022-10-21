@@ -364,6 +364,7 @@ namespace ConfigApp
             { "misc_invertedcolors", new EffectInfo("Inverted Colors", EffectCategory.MISC, true) },
             { "misc_fourthdimension", new EffectInfo("Fourth Dimension", EffectCategory.MISC, true, true) },
             { "misc_rgbland", new EffectInfo("RGB Land", EffectCategory.MISC, true) },
+            { "peds_spawn_beast", new EffectInfo("Spawn Beast", EffectCategory.PEDS) },
             { "vehs_rolling", new EffectInfo("Rolling Stones", EffectCategory.VEHICLE, true, true) },
             { "player_invert_veh_controls", new EffectInfo("Invert Vehicle Controls", EffectCategory.PLAYER, true, true) },
             { "player_sneeze", new EffectInfo("Bless You", EffectCategory.PLAYER, true, true) },
