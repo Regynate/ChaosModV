@@ -371,6 +371,9 @@ static void ParseScriptEntry(const std::filesystem::directory_entry &entry)
 	lua["GetAllPedModels"]                      = Memory::GetAllPedModels;
 	lua["GetAllVehicleModels"]                  = Memory::GetAllVehModels;
 
+	lua["SetSurroundingPedsInVehicles"]         = SetSurroundingPedsInVehicles;
+	lua["LoadModel"]                            = LoadModel;
+
 	lua.new_enum("EOverrideShaderType", "LensDistortion", EOverrideShaderType::LensDistortion, "Snow",
 	             EOverrideShaderType::Snow);
 	lua["OverrideShader"]   = Hooks::OverrideShader;
