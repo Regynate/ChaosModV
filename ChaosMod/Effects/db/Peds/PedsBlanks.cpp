@@ -63,7 +63,8 @@ static void OnTick()
 	}
 }
 
-static RegisterEffect reg(nullptr, OnStop, OnTick, EffectInfo
+// clang-format off
+REGISTER_EFFECT(nullptr, OnStop, OnTick, EffectInfo
 	{
 		.Name = "Blanks",
 		.Id = "peds_blanks",
