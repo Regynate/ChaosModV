@@ -717,6 +717,7 @@ namespace ConfigApp
             { "peds_upsidedown", new EffectInfo("Upside Down Peds", EffectCategory.Peds, true)},
             { "screen_maximap", new EffectInfo("Maximap", EffectCategory.Misc, true)},
             { "player_facecame", new EFfectInfo("Facetime", EffectCategory.PLAYER, true, true) },
+            { "peds_giants", new EffectInfo("Giants", EffectCategory.PEDS, "peds_giants", true) }
         };
     }
 }
