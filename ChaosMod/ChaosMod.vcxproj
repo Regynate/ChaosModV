@@ -93,6 +93,7 @@
     <ClCompile Include="Effects\db\Meta\MetaAdditionalEffects.cpp" />
     <ClCompile Include="Effects\db\Meta\MetaEffectDuration.cpp" />
     <ClCompile Include="Effects\db\Meta\MetaReInvoke.cpp" />
+    <ClCompile Include="Effects\db\Misc\MiscBlueballed.cpp" />
     <ClCompile Include="Effects\db\Misc\MiscBoostVelocity.cpp" />
     <ClCompile Include="Effects\db\Misc\MiscFakeSpawn.cpp" />
     <ClCompile Include="Effects\db\Meta\MetaHideChaosUI.cpp" />
@@ -123,6 +124,7 @@
     <ClCompile Include="Effects\db\Misc\MiscWeirdPitch.cpp" />
     <ClCompile Include="Effects\db\Peds\Peds2xAnimationSpeed.cpp" />
     <ClCompile Include="Effects\db\Peds\PedsAliens.cpp" />
+    <ClCompile Include="Effects\db\Peds\PedsBikeBuddies.cpp" />
     <ClCompile Include="Effects\db\Peds\PedsBlanks.cpp" />
     <ClCompile Include="Effects\db\Peds\PedsBloody.cpp" />
     <ClCompile Include="Effects\db\Peds\PedsBusBois.cpp" />
