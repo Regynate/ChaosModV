@@ -37,8 +37,6 @@ static void OnStart()
 	SET_ENTITY_HEALTH(ped, 1000, 0);
 	SET_PED_ARMOUR(ped, 1000);
 
-	SET_AI_MELEE_WEAPON_DAMAGE_MODIFIER(4);
-
 	SET_PED_COMBAT_ATTRIBUTES(pd, 5, true);
 	SET_PED_COMBAT_ATTRIBUTES(pd, 46, true);
 
@@ -50,16 +48,6 @@ static void OnStart()
 	TASK_COMBAT_PED(pd, playerPed, 0, 16);
 
 	SET_PED_FIRING_PATTERN(pd, 0xC6EE6B4C);
-
-	while (DOES_ENTITY_EXIST(pd))
-	{
-		if (IS_ENTITY_DEAD(pd, 1))
-		{
-			break;
-		}
-		WAIT(0);
-	}
-	RESET_AI_MELEE_WEAPON_DAMAGE_MODIFIER();
 }
 
 // clang-format off
