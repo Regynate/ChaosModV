@@ -45,6 +45,6 @@ REGISTER_EFFECT(nullptr, nullptr, onTickSprunk, EffectInfo
         .Id = "misc_quick_sprunk_stop",
         .IsTimed = true,
         .IsShortDuration = false,
-        .EEffectGroupType = EEffectGroupType::SpawnGeneric
+        .EffectGroupType = EEffectGroupType::SpawnGeneric
     }
 );
