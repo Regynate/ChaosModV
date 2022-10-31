@@ -5,7 +5,7 @@
 
 static void OnStart()
 {
-	static const Hash model = GET_HASH_KEY("vader");
+	static const Hash model = GET_HASH_KEY("scorcher");
 	LoadModel(model);
 	SetSurroundingPedsInVehicles(model, 120);
 }
