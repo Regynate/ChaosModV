@@ -318,7 +318,7 @@ namespace ConfigApp
             { "peds_spawn_biker", new EffectInfo("Spawn Biker", EffectCategory.Peds) },
             { "peds_spawn_juggernaut", new EffectInfo("Spawn Juggernaut", EffectCategory.Peds) },
             { "misc_witness_protection", new EffectInfo("Witness Protection", EffectCategory.Misc, true) },
-            { "misc_quick_sprunk_stop", new EffectInfo("Quick Sprunk Stop", EffectCategory.Misc) },
+            { "misc_quick_sprunk_stop", new EffectInfo("Quick Sprunk Stops", EffectCategory.Misc, true) },
             { "player_blimp_strats", new EffectInfo("Blimp Strats", EffectCategory.Player) },
             { "peds_spawn_space_ranger", new EffectInfo("Spawn Space Ranger", EffectCategory.Peds) },
             { "peds_mowermates", new EffectInfo("Mower Mates", EffectCategory.Peds) },
