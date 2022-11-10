@@ -24,7 +24,7 @@ jobs:
       run: msbuild ChaosMod.sln /t:ConfigApp /p:Configuration=Release
 
     - name: Compile Voting Proxy
-      run: msbuild ChaosMod.sln /t:TwitchChatVotingProxy /p:Configuration=Release
+      run: msbuild ChaosMod.sln /t:VotingProxy /p:Configuration=Release
 
     - name: Compile ASI & Dependencies
       run: |
@@ -54,7 +54,7 @@ jobs:
         rm data.zip
         cp ../ChaosMod/build/ChaosMod.asi
         cp ../ConfigApp/bin/Release/ChaosModVConfig.exe chaosmod/
-        cp ../TwitchChatVotingProxy/bin/Release/TwitchChatVotingProxy.exe chaosmod/
+        cp ../VotingProxy/bin/Release/VotingProxy.exe chaosmod/
         cp -r ../twitchVotingOverlay/dist chaosmod/twitchOverlay
         cp ../scripts/natives_def.lua chaosmod/
         cd ..
@@ -62,7 +62,7 @@ jobs:
         cd symbols
         cp ../ChaosMod/build/ChaosMod.pdb
         cp ../ConfigApp/bin/Release/ChaosModVConfig.pdb
-        cp ../TwitchChatVotingProxy/bin/Release/TwitchChatVotingProxy.pdb
+        cp ../VotingProxy/bin/Release/VotingProxy.pdb
 
     - name: Upload :)
       uses: actions/upload-artifact@v1
