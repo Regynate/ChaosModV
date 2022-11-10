@@ -62,7 +62,7 @@ jobs:
         cd symbols
         cp ../ChaosMod/build/ChaosMod.pdb
         cp ../ConfigApp/bin/Release/ChaosModVConfig.pdb
-        cp ../VotingProxy/bin/Release/VotingProxy.pdb
+        cp ../TwitchChatVotingProxy/bin/Release/VotingProxy.pdb
 
     - name: Upload :)
       uses: actions/upload-artifact@v1
