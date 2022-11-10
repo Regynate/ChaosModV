@@ -18,6 +18,7 @@ namespace VotingProxy.VotingReceiver
         private ChatClient client;
         private VotingReceiverConfig config;
         private ILogger logger = Log.Logger.ForContext<ChatVotingReceiver>();
+        private bool m_joinedChannel;
 
         public ChatVotingReceiver(VotingReceiverConfig config)
         {
@@ -44,6 +45,7 @@ namespace VotingProxy.VotingReceiver
             client.OnError += OnError;
             client.OnIncorrectLogin += OnIncorrectLogin;
             client.OnJoinedChannel += OnJoinedChannel;
+            client.OnJoinedChannel += (sender, e) => { m_joinedChannel = true; };
             client.OnMessageReceived += OnMessageReceived;
 
             client.Connect();
@@ -120,6 +122,11 @@ namespace VotingProxy.VotingReceiver
         public async Task<int[]> EndPoll(string pollId)
         {
             return await client.EndPoll(config.UserId, pollId);
+        }
+
+        bool IVotingReceiver.JoinedChannel()
+        {
+            return m_joinedChannel;
         }
     }
 }

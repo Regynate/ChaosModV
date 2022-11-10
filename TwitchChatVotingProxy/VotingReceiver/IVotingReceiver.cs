@@ -27,5 +27,7 @@ namespace VotingProxy.VotingReceiver
         Task<string> StartPoll(string name, string[] options);
 
         Task<int[]> EndPoll(string pollId);
+
+        bool JoinedChannel();
     }
 }

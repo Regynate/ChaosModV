@@ -131,15 +131,26 @@ namespace VotingProxy
         /// </summary>
         private void OnGetVoteResult(object sender, OnGetVoteResultArgs e)
         {
-            if (overlayMode == EOverlayMode.TWITCH_POLLS)
+            if (overlayMode == EOverlayMode.TWITCH_POLLS && currentPollId != "")
             {
-                var task = votingReceiver.EndPoll(currentPollId);
-                task.Wait();
-                int[] results = task.Result;
-                for (int i = 0; i < results.Length; i++)
+                try
                 {
-                    activeVoteOptions[i].Votes = results[i];
+                    var task = votingReceiver.EndPoll(currentPollId);
+                    task.Wait();
+                    int[] results = task.Result;
+
+                    logger.Debug("Votes:");
+                    for (int i = 0; i < results.Length; i++)
+                    {
+                        activeVoteOptions[i].Votes = results[i];
+                        logger.Debug($"{activeVoteOptions[i].Votes}");
+                    }
                 }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.ToString());
+                }
+                currentPollId = "";
             }
 
             // Tell the overlay server that the vote has ended
@@ -218,12 +229,23 @@ namespace VotingProxy
                     overlayServer.NewVoting(activeVoteOptions);
                     break;
                 case EOverlayMode.TWITCH_POLLS:
-                    var task = votingReceiver.StartPoll(
-                        "New effect", 
-                        Array.ConvertAll(activeVoteOptions.ToArray(), o => o.Label)
-                        );
-                    task.Wait();
-                    currentPollId = task.Result;
+                    if (votingReceiver.JoinedChannel())
+                    {
+                        try
+                        {
+                            var task = votingReceiver.StartPoll(
+                                "New effect",
+                                Array.ConvertAll(activeVoteOptions.ToArray(), o => o.Label)
+                                );
+                            task.Wait();
+                            currentPollId = task.Result;
+                            logger.Debug(currentPollId);
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Error(ex.ToString());
+                        }
+                    }
                     break;
             }
             // Clear the old voted for information
