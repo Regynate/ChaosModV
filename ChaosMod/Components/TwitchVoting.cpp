@@ -9,12 +9,12 @@
 #include "Util/json.hpp"
 
 #define BUFFER_SIZE 256
-#define VOTING_PROXY_START_ARGS L"chaosmod\\TwitchChatVotingProxy.exe --startProxy"
+#define VOTING_PROXY_START_ARGS L"chaosmod\\VotingProxy.exe --startProxy"
 
 TwitchVoting::TwitchVoting(const std::array<BYTE, 3> &rgTextColor) : Component(), m_rgTextColor(rgTextColor)
 {
 	m_bEnableTwitchVoting =
-	    g_OptionsManager.GetTwitchValue<bool>("EnableTwitchVoting", OPTION_DEFAULT_TWITCH_VOTING_ENABLED);
+	    g_OptionsManager.GetTwitchValue<bool>("VotingEnabled", OPTION_DEFAULT_TWITCH_VOTING_ENABLED);
 
 	if (!m_bEnableTwitchVoting)
 	{
@@ -41,18 +41,18 @@ TwitchVoting::TwitchVoting(const std::array<BYTE, 3> &rgTextColor) : Component()
 	}
 
 	m_iTwitchSecsBeforeVoting =
-	    g_OptionsManager.GetTwitchValue<int>("TwitchVotingSecsBeforeVoting", OPTION_DEFAULT_TWITCH_SECS_BEFORE_VOTING);
+	    g_OptionsManager.GetTwitchValue<int>("SecsBeforeVoting", OPTION_DEFAULT_TWITCH_SECS_BEFORE_VOTING);
 
 	m_eTwitchOverlayMode = g_OptionsManager.GetTwitchValue<ETwitchOverlayMode>(
-	    "TwitchVotingOverlayMode", static_cast<ETwitchOverlayMode>(OPTION_DEFAULT_TWITCH_OVERLAY_MODE));
+	    "VotingOverlayMode", static_cast<ETwitchOverlayMode>(OPTION_DEFAULT_TWITCH_OVERLAY_MODE));
 
 	m_bEnableTwitchChanceSystem =
-	    g_OptionsManager.GetTwitchValue<bool>("TwitchVotingChanceSystem", OPTION_DEFAULT_TWITCH_PROPORTIONAL_VOTING);
+	    g_OptionsManager.GetTwitchValue<bool>("VotingChanceSystem", OPTION_DEFAULT_TWITCH_PROPORTIONAL_VOTING);
 	m_bEnableVotingChanceSystemRetainChance = g_OptionsManager.GetTwitchValue<bool>(
-	    "TwitchVotingChanceSystemRetainChance", OPTION_DEFAULT_TWITCH_PROPORTIONAL_VOTING_RETAIN_CHANCE);
+	    "ChanceSystemRetainChance", OPTION_DEFAULT_TWITCH_PROPORTIONAL_VOTING_RETAIN_CHANCE);
 
 	m_bEnableTwitchRandomEffectVoteable =
-	    g_OptionsManager.GetTwitchValue<bool>("TwitchRandomEffectVoteableEnable", OPTION_DEFAULT_TWITCH_RANDOM_EFFECT);
+	    g_OptionsManager.GetTwitchValue<bool>("RandomEffectVoteableEnable", OPTION_DEFAULT_TWITCH_RANDOM_EFFECT);
 
 	STARTUPINFO startupInfo      = {};
 	PROCESS_INFORMATION procInfo = {};
@@ -74,7 +74,7 @@ TwitchVoting::TwitchVoting(const std::array<BYTE, 3> &rgTextColor) : Component()
 	if (!bResult)
 	{
 		ErrorOutWithMsg((std::ostringstream()
-		                 << "Error while starting chaosmod/TwitchChatVotingProxy.exe (Error Code: " << GetLastError()
+		                 << "Error while starting chaosmod/VotingProxy.exe (Error Code: " << GetLastError()
 		                 << "). Please verify the file exists. Reverting to normal mode.")
 		                    .str());
 
@@ -329,6 +329,8 @@ void TwitchVoting::OnRun()
 		
 		SendToPipe("vote", effectNames);
 
+		LOG("Sended votes");
+
 		m_bAlternatedVotingRound = !m_bAlternatedVotingRound;
 	}
 
@@ -428,6 +430,8 @@ bool TwitchVoting::HandleMsg(const std::string &szMsg)
 	}
 	else
 	{
+		LOG("recieved message: " << szMsg);
+
 		nlohmann::json receivedJSON = nlohmann::json::parse(szMsg);
 		if (!receivedJSON.empty())
 		{

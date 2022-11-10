@@ -40,10 +40,10 @@ EffectDispatcher::EffectDispatcher(const std::array<BYTE, 3> &rgTimerColor, cons
 	    g_OptionsManager.GetConfigValue<int>("MaxParallelRunningEffects", OPTION_DEFAULT_MAX_RUNNING_PARALLEL_EFFECTS);
 
 	m_bEnableTwitchVoting =
-	    g_OptionsManager.GetTwitchValue<bool>("EnableTwitchVoting", OPTION_DEFAULT_TWITCH_VOTING_ENABLED);
+	    g_OptionsManager.GetTwitchValue<bool>("VotingEnabled", OPTION_DEFAULT_TWITCH_VOTING_ENABLED);
 
 	m_eTwitchOverlayMode = static_cast<ETwitchOverlayMode>(
-	    g_OptionsManager.GetTwitchValue<int>("TwitchVotingOverlayMode", OPTION_DEFAULT_TWITCH_OVERLAY_MODE));
+	    g_OptionsManager.GetTwitchValue<int>("VotingOverlayMode", OPTION_DEFAULT_TWITCH_OVERLAY_MODE));
 
 	Reset();
 }

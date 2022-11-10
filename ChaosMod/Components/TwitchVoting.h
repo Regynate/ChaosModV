@@ -17,7 +17,8 @@ enum class ETwitchOverlayMode : int
 {
 	ChatMessages,
 	OverlayIngame,
-	OverlayOBS
+	OverlayOBS,
+	TwitchPolls
 };
 
 class TwitchVoting : public Component

@@ -1,9 +1,10 @@
-﻿namespace TwitchChatVotingProxy
+﻿namespace VotingProxy
 {
     enum EOverlayMode
     {
         CHAT_MESSAGES,
         OVERLAY_INGAME,
-        OVERLAY_OBS
+        OVERLAY_OBS,
+        TWITCH_POLLS
     }
 }

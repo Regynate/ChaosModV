@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 
-namespace TwitchChatVotingProxy.ChaosPipe
+namespace VotingProxy.ChaosPipe
 {
     class ChaosPipeClient : IChaosPipeClient
     {
@@ -118,6 +118,7 @@ namespace TwitchChatVotingProxy.ChaosPipe
             } else
             {
                 CurrentVotesResult res = new CurrentVotesResult(args.CurrentVotes);
+                logger.Information("sending message: " + res.ToString());
                 SendMessageToPipe(JsonConvert.SerializeObject(res));
             }
         }
@@ -169,6 +170,8 @@ namespace TwitchChatVotingProxy.ChaosPipe
                 var message = readPipeTask.Result;
                 // Null the reading task so the next read is dispatched
                 readPipeTask = null;
+
+                logger.Information("received message: " + message);
 
                 // Evaluate message
                 PipeMessage pipe = JsonConvert.DeserializeObject<PipeMessage>(message);

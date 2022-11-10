@@ -335,3 +335,7 @@ ASALocalRun/
 ChaosMod/.cache/
 ChaosMod/build/
 ChaosMod/out/
+TwitchExtension/
+twitchVotingOverlay/dist/bundle.js
+**/.env*
+!**/.env.example

@@ -3,12 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
-using TwitchChatVotingProxy.ChaosPipe;
-using TwitchChatVotingProxy.Config;
-using TwitchChatVotingProxy.OverlayServer;
-using TwitchChatVotingProxy.VotingReceiver;
+using VotingProxy.ChaosPipe;
+using VotingProxy.Config;
+using VotingProxy.OverlayServer;
+using VotingProxy.VotingReceiver;
 
-namespace TwitchChatVotingProxy
+namespace VotingProxy
 {
     class ChaosModController
     {
@@ -28,13 +28,15 @@ namespace TwitchChatVotingProxy
         private EOverlayMode? overlayMode;
         private IVotingReceiver votingReceiver;
         private string[] permittedUsernames;
+        private string currentPollId = "";
 
         public ChaosModController(
             IChaosPipeClient chaosPipe,
             IOverlayServer overlayServer,
             IVotingReceiver votingReceiver,
             IConfig config
-        ) {
+        )
+        {
             this.chaosPipe = chaosPipe;
             this.overlayServer = overlayServer;
             this.votingReceiver = votingReceiver;
@@ -45,14 +47,17 @@ namespace TwitchChatVotingProxy
             this.chaosPipe.OnNewVote += OnNewVote;
             this.chaosPipe.OnNoVotingRound += OnNoVotingRound;
 
-            // Setup receiver listeners
-            this.votingReceiver.OnMessage += OnVoteReceiverMessage;
-
             // Setup config options
             votingMode = config.VotingMode;
             overlayMode = config.OverlayMode;
             retainInitialVotes = config.RetainInitalVotes;
-            permittedUsernames = config.PermittedTwitchUsernames;
+            permittedUsernames = config.PermittedUsernames;
+
+            if (config.OverlayMode != EOverlayMode.TWITCH_POLLS)
+            {
+                // Setup receiver listeners
+                this.votingReceiver.OnMessage += OnVoteReceiverMessage;
+            }
 
             // Setup display update tick
             displayUpdateTick.Elapsed += DisplayUpdateTick;
@@ -126,12 +131,24 @@ namespace TwitchChatVotingProxy
         /// </summary>
         private void OnGetVoteResult(object sender, OnGetVoteResultArgs e)
         {
+            if (overlayMode == EOverlayMode.TWITCH_POLLS)
+            {
+                var task = votingReceiver.EndPoll(currentPollId);
+                task.Wait();
+                int[] results = task.Result;
+                for (int i = 0; i < results.Length; i++)
+                {
+                    activeVoteOptions[i].Votes = results[i];
+                }
+            }
+
             // Tell the overlay server that the vote has ended
             try
             {
-                overlayServer.EndVoting();
+                overlayServer?.EndVoting();
 
-            } catch (Exception err)
+            }
+            catch (Exception err)
             {
                 Log.Error(err, "error occured");
             }
@@ -200,6 +217,14 @@ namespace TwitchChatVotingProxy
                 case EOverlayMode.OVERLAY_OBS:
                     overlayServer.NewVoting(activeVoteOptions);
                     break;
+                case EOverlayMode.TWITCH_POLLS:
+                    var task = votingReceiver.StartPoll(
+                        "New effect", 
+                        Array.ConvertAll(activeVoteOptions.ToArray(), o => o.Label)
+                        );
+                    task.Wait();
+                    currentPollId = task.Result;
+                    break;
             }
             // Clear the old voted for information
             userVotedFor.Clear();
@@ -221,6 +246,8 @@ namespace TwitchChatVotingProxy
         /// </summary>
         private void OnVoteReceiverMessage(object sender, OnMessageArgs e)
         {
+            logger.Debug($"Got message: {e.Message}");
+
             if (!voteRunning) return;
 
             if (permittedUsernames.Length > 0)
@@ -257,14 +284,15 @@ namespace TwitchChatVotingProxy
                         // If they haven't voted, count his vote
                         userVotedFor.Add(e.ClientId, i);
                         voteOption.Votes++;
-       
-                    } else if (previousVote != i)
+
+                    }
+                    else if (previousVote != i)
                     {
                         // If the player has already voted, and it's not the same as before,
                         // remove the old vote, and add the new one.
                         userVotedFor.Remove(e.ClientId);
                         activeVoteOptions[previousVote].Votes--;
-                        
+
                         userVotedFor.Add(e.ClientId, i);
                         voteOption.Votes++;
                     }
