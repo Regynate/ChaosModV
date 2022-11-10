@@ -122,6 +122,7 @@
     <ClCompile Include="Effects\db\Misc\MiscSuperStunt.cpp" />
     <ClCompile Include="Effects\db\Misc\MiscVehicleRain.cpp" />
     <ClCompile Include="Effects\db\Misc\MiscWeirdPitch.cpp" />
+    <ClCompile Include="Effects\db\Misc\MiscStickyFlashbang.cpp" />
     <ClCompile Include="Effects\db\Peds\Peds2xAnimationSpeed.cpp" />
     <ClCompile Include="Effects\db\Peds\PedsAliens.cpp" />
     <ClCompile Include="Effects\db\Peds\PedsBikeBuddies.cpp" />
@@ -148,6 +149,7 @@
     <ClCompile Include="Effects\db\Peds\PedsSpawnBallaSquad.cpp" />
     <ClCompile Include="Effects\db\Peds\PedsMinions.cpp" />
     <ClCompile Include="Effects\db\Peds\PedsSpawnAngryJimmy.cpp" />
+    <ClCompile Include="Effects\db\Peds\PedsSpawnIncompleteBuddy.cpp" />
     <ClCompile Include="Effects\db\Peds\PedsSpawnMime.cpp" />
     <ClCompile Include="Effects\db\Peds\PedsSpawnBeast.cpp" />
     <ClCompile Include="Effects\db\Peds\PedsSpawnRoastingLamar.cpp" />

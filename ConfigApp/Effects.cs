@@ -408,6 +408,8 @@ namespace ConfigApp
             { "aliens", new EffectInfo("Alien Invasion", EffectCategory.Peds, true) },
             { "misc_blueballed", new EffectInfo("Get Blueballed", EffectCategory.Misc, true) },
             { "peds_bike_bois", new EffectInfo("Bike Buddies", EffectCategory.Peds) },
+            { "peds_spawnincbuddy", new EffectInfo("Spawn Incomplete Buddy", EffectCategory.Peds) },
+            { "misc_sticky_flashbang", new EffectInfo("Sticky Flashbang", EffectCategory.Misc, true, true) },
         };
     }
 }
