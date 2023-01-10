@@ -3,6 +3,7 @@
 #include "../Util/Logging.h"
 #include "Handle.h"
 #include "Memory.h"
+#include "../vendor/shv/exports.h"
 
 using DWORD64 = unsigned long long;
 using Entity  = int;
