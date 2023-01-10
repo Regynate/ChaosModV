@@ -12,6 +12,8 @@ namespace Memory
 	/* FiveM's shv doesn't provide getScriptHandleBaseAddress, so we find it ourselves */
 	inline DWORD64 GetScriptHandleBaseAddress(Entity entity)
 	{
+		// Quick fix because I have no idea how to find this pattern
+		/*
 		static auto _getScriptHandleBaseAddress = []() -> DWORD64 (*)(Entity)
 		{
 			Handle handle =
@@ -24,7 +26,8 @@ namespace Memory
 
 			return handle.At(4).Into().Get<DWORD64(Entity)>();
 		}();
+		*/
 
-		return _getScriptHandleBaseAddress(entity);
+		return getScriptHandleBaseAddress(entity);
 	}
 }
