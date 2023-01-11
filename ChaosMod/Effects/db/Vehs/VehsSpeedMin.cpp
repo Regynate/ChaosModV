@@ -38,7 +38,7 @@ static void OnTick()
 	Ped playerPed = PLAYER_PED_ID();
 	Vehicle veh   = GET_VEHICLE_PED_IS_IN(playerPed, false);
 
-	if (m_lastVeh != 0 && veh != m_lastVeh)
+	if (m_lastVeh != 0 && (veh != m_lastVeh || !IS_PED_IN_ANY_VEHICLE(playerPed, false)))
 	{
 		EXPLODE_VEHICLE(m_lastVeh, true, false);
 	}
