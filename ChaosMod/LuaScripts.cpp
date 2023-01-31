@@ -358,7 +358,7 @@ static void ParseScriptEntry(const std::filesystem::directory_entry &entry)
 	lua["APPLY_FORCE_TO_ENTITY"]                = APPLY_FORCE_TO_ENTITY;
 	lua["APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS"] = APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS;
 
-	lua["TeleportPlayer"]                       = TeleportPlayer;
+	lua["TeleportPlayer"]                       = static_cast<void (*)(float, float, float, bool)>(TeleportPlayer);
 	
 	lua["GetAllPeds"]                           = GetAllPedsArray;
 	lua["CreatePoolPed"]                        = CreatePoolPed;
