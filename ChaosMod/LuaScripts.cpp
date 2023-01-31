@@ -18,6 +18,7 @@
 #include "Util/PoolSpawner.h"
 #include "Util/Script.h"
 #include "Util/Vehicle.h"
+#include "Util/Player.h"
 
 #if defined(_MSC_VER)
 #define _LUAFUNC static __forceinline
@@ -357,6 +358,8 @@ static void ParseScriptEntry(const std::filesystem::directory_entry &entry)
 	lua["APPLY_FORCE_TO_ENTITY"]                = APPLY_FORCE_TO_ENTITY;
 	lua["APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS"] = APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS;
 
+	lua["TeleportPlayer"]                       = TeleportPlayer;
+	
 	lua["GetAllPeds"]                           = GetAllPedsArray;
 	lua["CreatePoolPed"]                        = CreatePoolPed;
 
