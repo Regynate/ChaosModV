@@ -140,6 +140,7 @@ namespace TwitchChatVotingProxy.ChaosPipe
             SendMessageToPipe(JsonConvert.SerializeObject(result));
             logger.Debug($"vote result sent to pipe: {e.ChosenOption}");
         }
+        
         /// <summary>
         /// Gets called every pipe tick
         /// </summary>
@@ -201,6 +202,7 @@ namespace TwitchChatVotingProxy.ChaosPipe
             try
             {
                 pipeWriter.Write($"{message}\0");
+                pipe.WaitForPipeDrain();
             } catch (Exception e)
             {
                 logger.Information(e, "error that ocurred when writing pipe");

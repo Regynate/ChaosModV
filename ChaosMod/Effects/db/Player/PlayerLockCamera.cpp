@@ -4,6 +4,12 @@
 
 #include <stdafx.h>
 
+static void OnStop()
+{
+	ENABLE_CONTROL_ACTION(0, 1, true);
+	ENABLE_CONTROL_ACTION(0, 2, true);
+}
+
 static void OnTick()
 {
 	_SET_GAMEPLAY_CAM_RELATIVE_ROTATION(0, 0, 0);
@@ -20,7 +26,7 @@ static void OnTick()
 }
 
 // clang-format off
-REGISTER_EFFECT(nullptr, nullptr, OnTick, EffectInfo
+REGISTER_EFFECT(nullptr, OnStop, OnTick, EffectInfo
 	{
 		.Name = "Lock Camera",
 		.Id = "player_lockcamera",

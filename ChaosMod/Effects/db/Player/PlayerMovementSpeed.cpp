@@ -12,6 +12,7 @@ REGISTER_EFFECT(nullptr, nullptr, OnTickx5, EffectInfo
 		.Name = "5x Movement Speed",
 		.Id = "player_movementx5",
 		.IsTimed = true,
+		.IsShortDuration = true,
 		.EffectCategory = EEffectCategory::Movement
 	}
 );
@@ -29,6 +30,7 @@ REGISTER_EFFECT(nullptr, nullptr, OnTickx10, EffectInfo
 		.Name = "10x Movement Speed",
 		.Id = "player_movementx10",
 		.IsTimed = true,
+		.IsShortDuration = true,
 		.EffectCategory = EEffectCategory::Movement
 	}
 );

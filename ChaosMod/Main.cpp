@@ -173,6 +173,10 @@ static void Init()
 	LOG("Initializing Failsafe");
 	InitComponent<Failsafe>();
 
+	LOG("Initializing Splash Texts");
+	InitComponent<SplashTexts>();
+	GetComponent<SplashTexts>()->ShowInitSplash();
+
 #ifdef WITH_DEBUG_PANEL_SUPPORT
 	if (DoesFileExist("chaosmod\\.enabledebugsocket"))
 	{
@@ -181,7 +185,8 @@ static void Init()
 	}
 #endif
 
-	LOG("Completed init");
+
+	LOG("Completed init!");
 
 	if (ComponentExists<TwitchVoting>() && GetComponent<TwitchVoting>()->IsEnabled() && ComponentExists<SplashTexts>())
 	{
@@ -204,9 +209,6 @@ static void MainRun()
 
 	Reset();
 
-	InitComponent<SplashTexts>();
-	GetComponent<SplashTexts>()->ShowInitSplash();
-
 	ms_bDisableMod = g_OptionsManager.GetConfigValue<bool>("DisableStartup", OPTION_DEFAULT_DISABLE_STARTUP);
 
 	Init();
@@ -216,6 +218,8 @@ static void MainRun()
 	while (true)
 	{
 		WAIT(0);
+
+		DISABLE_CONTROL_ACTION(0, 0x12, true); // block cutscene skips
 
 		// This will run regardless if mod is disabled
 		if (ms_bRunAntiSoftlock)
@@ -303,6 +307,10 @@ namespace Main
 		else if (ulKey == VK_SHIFT)
 		{
 			c_bIsShiftPressed = !bIsUpNow;
+		}
+		else if (ulKey == 0x4B) // K
+		{
+			STOP_CUTSCENE(0);
 		}
 		else if (c_bIsCtrlPressed && !bWasDownBefore)
 		{

@@ -166,3 +166,4 @@ REGISTER_EFFECT(OnStartFake, nullptr, nullptr, EffectInfo
                 .EffectGroupType = EEffectGroupType::WantedLevel
 	}
 );
+// clang-format on

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using static ConfigApp.Effects;
 
 namespace ConfigApp
 {
@@ -296,7 +297,7 @@ namespace ConfigApp
             { "meta_effect_duration_0_5x", new EffectInfo("0.5x Effect Duration", EffectCategory.Meta, true) },
             { "meta_hide_chaos_ui", new EffectInfo("What's Happening??", EffectCategory.Meta, true) },
             { "meta_spawn_multiple_effects", new EffectInfo("Combo Time", EffectCategory.Meta, true) },
-            { "misc_flip_ui", new EffectInfo("Flipped HUD", EffectCategory.Screen, true) },
+            { "screen_flip_ui", new EffectInfo("Flipped HUD", EffectCategory.Screen, true) },
             { "vehs_crumble", new EffectInfo("Crumbling Vehicles", EffectCategory.Vehicle, true, true) },
             { "misc_fps_limit", new EffectInfo("Console Experience", EffectCategory.Misc, true, true) },
             { "meta_nochaos", new EffectInfo("No Chaos", EffectCategory.Meta, true) },
@@ -390,7 +391,31 @@ namespace ConfigApp
             { "timecycle_darkworld", new EffectInfo("A Dark World", EffectCategory.Screen, true, true) },
             { "peds_reflectivedamage", new EffectInfo("Friendly Fire", EffectCategory.Peds, true, true) },
             { "peds_toast", new EffectInfo("You're Toast", EffectCategory.Peds, true) },
-            { "tp_fakex2", new EffectInfo("Fake Fake Teleport", EffectCategory.Player) },
+            { "screen_leaned_camera", new EffectInfo("Leaned Camera", EffectCategory.Screen, true, true) },
+            { "vehs_disappear_on_impact", new EffectInfo("Vehicles Disappear On Impact", EffectCategory.Vehicle, true) },
+            { "screen_maximap", new EffectInfo("Maximap", EffectCategory.Misc, true)},
+            { "vehs_rolling", new EffectInfo("Rolling Stones", EffectCategory.Vehicle, true, true) },
+            { "player_invert_veh_controls", new EffectInfo("Invert Vehicle Controls", EffectCategory.Player, true, true) },
+            { "player_sneeze", new EffectInfo("Bless You", EffectCategory.Player, true, true) },
+            { "misc_fake_spawn", new EffectInfo("Fake Spawn", EffectCategory.Misc) },
+            { "spawn_mime", new EffectInfo("Spawn Murderous Mime", EffectCategory.Peds) },
+            { "player_afk", new EffectInfo("Afk", EffectCategory.Player, true, true) },
+            { "peds_upsidedown", new EffectInfo("Upside Down Peds", EffectCategory.Peds, true)},
+            { "misc_pay_respects", new EffectInfo("Pay Respects", EffectCategory.Misc, true, true) },
+            { "peds_invisible_weps", new EffectInfo("Imaginary Weapons", EffectCategory.Peds, true) },
+            { "player_magnetgravity", new EffectInfo("Pulsating Gravity Field", EffectCategory.Player, true, true) },
+            { "player_movementx10", new EffectInfo("10x Movement Speed", EffectCategory.Player, true, true) },
+            { "player_movementx5", new EffectInfo("5x Movement Speed", EffectCategory.Player, true, true) },
+            { "player_movementx05", new EffectInfo("x0.5 Movement Speed", EffectCategory.Player, true, true) },
+            { "peds_aliens", new EffectInfo("Alien Invasion", EffectCategory.Peds, true) },
+            { "misc_randomgravity", new EffectInfo("Random Gravity", EffectCategory.Misc, true, true) },
+            { "player_3stars", new EffectInfo("3 Wanted Stars", EffectCategory.Player ) },
+            { "player_1star", new EffectInfo("1 Wanted Star", EffectCategory.Player ) },
+            { "player_fakestars", new EffectInfo("Fake Wanted Level", EffectCategory.Player ) },
+            { "vehs_monster_trucks", new EffectInfo("Monster Trucks", EffectCategory.Vehicle, true ) },
+            { "tp_fakex2", new EffectInfo("Fake Fake Teleport", EffectCategory.Player, false) },
+            { "vehs_disassemble", new EffectInfo("Disassemble Current Vehicle", EffectCategory.Vehicle) },
+            { "vehs_detach_wheel", new EffectInfo("Detach Random Wheel", EffectCategory.Vehicle) }
         };
     }
 }
