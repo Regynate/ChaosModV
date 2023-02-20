@@ -96,8 +96,8 @@ static void OnStart()
 	{
 		WAIT(0);
 	}
-	m_lastTick       = GET_GAME_TIMER();
-	m_timeReserve    = WAIT_TIME;
+	m_lastTick    = GET_GAME_TIMER();
+	m_timeReserve = WAIT_TIME;
 }
 
 // clang-format off

@@ -18,9 +18,9 @@ static void OnStart()
 			int boneIndex = Memory::GetBoneIndexByFragIndex(veh, i);
 
 			// vehicle clips through the ground if these get removed
-			if (boneIndex != GET_ENTITY_BONE_INDEX_BY_NAME(veh, "chassis") &&
-			    boneIndex != GET_ENTITY_BONE_INDEX_BY_NAME(veh, "chassis_lowlod") &&
-			    boneIndex != GET_ENTITY_BONE_INDEX_BY_NAME(veh, "chassis_dummy"))
+			if (boneIndex != GET_ENTITY_BONE_INDEX_BY_NAME(veh, "chassis")
+			    && boneIndex != GET_ENTITY_BONE_INDEX_BY_NAME(veh, "chassis_lowlod")
+			    && boneIndex != GET_ENTITY_BONE_INDEX_BY_NAME(veh, "chassis_dummy"))
 			{
 				Memory::DetachBone(veh, boneIndex);
 			}
@@ -30,8 +30,8 @@ static void OnStart()
 
 // clang-format off
 REGISTER_EFFECT(OnStart, nullptr, nullptr, EffectInfo
-{
-	.Name = "Disassemble Current Vehicle",
-	.Id = "vehs_disassemble"
-}
+	{
+		.Name = "Disassemble Current Vehicle",
+		.Id = "vehs_disassemble"
+	}
 );

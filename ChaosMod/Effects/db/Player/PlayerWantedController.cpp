@@ -1,7 +1,7 @@
 #include <stdafx.h>
 
-#include "Memory/Hooks/ScriptThreadRunHook.h"
 #include "Components/EffectDispatcher.h"
+#include "Memory/Hooks/ScriptThreadRunHook.h"
 
 static void OnStartFive()
 {
@@ -16,7 +16,8 @@ REGISTER_EFFECT(OnStartFive, nullptr, nullptr, EffectInfo
 	{
 		.Name = "5 Wanted Stars",
 		.Id = "player_5stars",
-		.IncompatibleWith = { "player_neverwanted" }
+		.IncompatibleWith = { "player_neverwanted" },
+                .EffectGroupType = EEffectGroupType::WantedLevel
 	}
 );
 // clang-format on
@@ -34,7 +35,8 @@ REGISTER_EFFECT(OnStartPlusTwo, nullptr, nullptr, EffectInfo
 	{
 		.Name = "+2 Wanted Stars",
 		.Id = "player_plus2stars",
-		.IncompatibleWith = { "player_neverwanted" }
+		.IncompatibleWith = { "player_neverwanted" },
+                .EffectGroupType = EEffectGroupType::WantedLevel
 	}
 );
 // clang-format on
@@ -50,7 +52,8 @@ REGISTER_EFFECT(nullptr, nullptr, OnTickNeverWanted, EffectInfo
 	{
 		.Name = "Never Wanted",
 		.Id = "player_neverwanted",
-		.IsTimed = true
+		.IsTimed = true,
+                .EffectGroupType = EEffectGroupType::WantedLevel
 	}
 );
 // clang-format on
@@ -68,7 +71,8 @@ REGISTER_EFFECT(OnStartThree, nullptr, nullptr, EffectInfo
 	{
 		.Name = "3 Wanted Stars",
 		.Id = "player_3stars",
-		.IncompatibleWith = { "player_neverwanted" }
+		.IncompatibleWith = { "player_neverwanted" },
+                .EffectGroupType = EEffectGroupType::WantedLevel
 	}
 );
 // clang-format on
@@ -86,12 +90,13 @@ REGISTER_EFFECT(OnStartOne, nullptr, nullptr, EffectInfo
 	{
 		.Name = "1 Wanted Star",
 		.Id = "player_1star",
-		.IncompatibleWith = { "player_neverwanted" }
+		.IncompatibleWith = { "player_neverwanted" },
+                .EffectGroupType = EEffectGroupType::WantedLevel
 	}
 );
 // clang-format on
 
-static enum WantedLevelType
+enum WantedLevelType
 {
 	SET,
 	ADD
@@ -104,25 +109,24 @@ struct FakeWantedInfo
 	int iStars;
 };
 
-std::vector<FakeWantedInfo> m_fakeWantedLevels = 
-{ 
-	{"5 Wanted Stars", SET, 5}, 
-	{"3 Wanted Stars", SET, 3}, 
-	{"1 Wanted Star", SET, 1}, 
-	{"+2 Wanted Stars", ADD, 2}, 
+static std::vector<FakeWantedInfo> m_fakeWantedLevels = {
+	{ "5 Wanted Stars", SET, 5 },
+	{ "3 Wanted Stars", SET, 3 },
+	{ "1 Wanted Star", SET, 1 },
+	{ "+2 Wanted Stars", ADD, 2 },
 };
 
 static void OnStartFake()
 {
-	FakeWantedInfo selectedInfo = m_fakeWantedLevels.at(g_Random.GetRandomInt(0, m_fakeWantedLevels.size()-1));
+	FakeWantedInfo selectedInfo  = m_fakeWantedLevels.at(g_Random.GetRandomInt(0, m_fakeWantedLevels.size() - 1));
 	WantedLevelType selectedType = selectedInfo.eWantedType;
 
 	Hooks::EnableScriptThreadBlock();
 
 	GetComponent<EffectDispatcher>()->OverrideEffectName("player_fakestars", selectedInfo.szName);
 
-	Player player = PLAYER_ID();
-	int lastLevel = GET_PLAYER_WANTED_LEVEL(player);
+	Player player  = PLAYER_ID();
+	int lastLevel  = GET_PLAYER_WANTED_LEVEL(player);
 	int lastLevelf = GET_FAKE_WANTED_LEVEL();
 
 	switch (selectedType)
@@ -136,9 +140,9 @@ static void OnStartFake()
 	{
 		int wl = [&]()
 		{
-
 			int l = selectedInfo.iStars + (lastLevelf == 0 ? lastLevel : lastLevelf);
-			if (l > 5) l = 5;
+			if (l > 5)
+				l = 5;
 			return l;
 		}();
 		SET_FAKE_WANTED_LEVEL(wl);
@@ -157,6 +161,7 @@ REGISTER_EFFECT(OnStartFake, nullptr, nullptr, EffectInfo
 	{
 		.Name = "Fake Wanted Level",
 		.Id = "player_fakestars",
-		.IncompatibleWith = { "player_neverwanted" }
+		.IncompatibleWith = { "player_neverwanted" },
+                .EffectGroupType = EEffectGroupType::WantedLevel
 	}
 );

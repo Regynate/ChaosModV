@@ -449,7 +449,6 @@ static void OnStartFakeFakeTp()
 	WAIT(g_Random.GetRandomInt(3500, 6000));
 
 	TeleportPlayer(destinationPos);
-	
 	Hooks::DisableScriptThreadBlock();
 }
 
