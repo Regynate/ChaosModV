@@ -340,7 +340,7 @@ namespace Main
 
 		if (ComponentExists<Shortcuts>())
 		{
-			GetComponent<Shortcuts>()->HandleInput(ulKey, bWasDownBefore);
+			GetComponent<Shortcuts>()->HandleInput(ulKey, bWasDownBefore, c_bIsCtrlPressed, c_bIsShiftPressed, bIsWithAlt);
 		}
 	}
 }
