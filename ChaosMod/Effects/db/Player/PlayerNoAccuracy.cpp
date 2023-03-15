@@ -26,7 +26,7 @@ static bool IsWeaponNotMelee(Hash wep)
 
 static void OnStart()
 {
-	fAccuracyMult = g_Random.GetRandomFloat(30.f, 80.f);
+	fAccuracyMult = g_Random.GetRandomFloat(20.f, 80.f);
 }
 
 static void OnStop()
