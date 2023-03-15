@@ -58,7 +58,7 @@ namespace Memory
 
 	inline void SetWeaponDamage(Hash ulHash, float fDamage)
 	{
-		auto infoAddr = GetWeaponInfo(ulHash);
+		auto infoAddr                               = GetWeaponInfo(ulHash);
 		*reinterpret_cast<float *>(infoAddr + 0xB0) = fDamage;
 	}
 
@@ -70,7 +70,7 @@ namespace Memory
 	
 	inline void SetWeaponRange(Hash ulHash, float fRange)
 	{
-		auto infoAddr = GetWeaponInfo(ulHash);
+		auto infoAddr                               = GetWeaponInfo(ulHash);
 		*reinterpret_cast<float*>(infoAddr + 0x28C) = fRange;
 	}
 
@@ -82,7 +82,7 @@ namespace Memory
 
 	inline void SetWeaponBulletsPerBatch(Hash ulHash, int iBullets)
 	{
-		auto infoAddr = GetWeaponInfo(ulHash);
+		auto infoAddr                                   = GetWeaponInfo(ulHash);
 		*reinterpret_cast<uint32_t *>(infoAddr + 0x120) = iBullets;
 	}
 
@@ -92,21 +92,45 @@ namespace Memory
 		return *reinterpret_cast<uint32_t*>(infoAddr + 0x120);
 	}
 
-	inline void SetWeaponSpread(Hash ulHash, float fSpread)
+	inline void SetWeaponBatchSpread(Hash ulHash, float fSpread)
 	{
-		auto infoAddr = GetWeaponInfo(ulHash);
+		auto infoAddr                                = GetWeaponInfo(ulHash);
 		*reinterpret_cast<float*>(infoAddr + 0x0124) = fSpread;
 	}
 
-	inline float GetWeaponSpread(Hash ulHash)
+	inline float GetWeaponBatchSpread(Hash ulHash)
 	{
 		auto infoAddr = GetWeaponInfo(ulHash);
 		return *reinterpret_cast<float*>(infoAddr + 0x0124);
 	}
 
-	inline void SetWeaponForce(Hash ulHash, float fForce)
+	inline void SetWeaponAccuracySpread(Hash ulHash, float fSpread)
+	{
+		auto infoAddr                                 = GetWeaponInfo(ulHash);
+		*reinterpret_cast<float *>(infoAddr + 0x0074) = fSpread;
+	}
+
+	inline float GetWeaponAccuracySpread(Hash ulHash)
 	{
 		auto infoAddr = GetWeaponInfo(ulHash);
+		return *reinterpret_cast<float *>(infoAddr + 0x0074);
+	}
+
+	inline void SetWeaponAccuracy(Hash ulHash, float fAccuracy)
+	{
+		auto infoAddr                               = GetWeaponInfo(ulHash);
+		*reinterpret_cast<float *>(infoAddr + 0x84) = fAccuracy;
+	}
+
+	inline float GetWeaponAccuracy(Hash ulHash)
+	{
+		auto infoAddr = GetWeaponInfo(ulHash);
+		return *reinterpret_cast<float *>(infoAddr + 0x84);
+	}
+
+	inline void SetWeaponForce(Hash ulHash, float fForce)
+	{
+		auto infoAddr                                = GetWeaponInfo(ulHash);
 		*reinterpret_cast<float*>(infoAddr + 0x00D8) = fForce;
 	}
 
