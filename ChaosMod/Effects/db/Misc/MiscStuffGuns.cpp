@@ -3,7 +3,7 @@
 #include "Memory/Physics.h"
 
 #include "Util/Camera.h"
-#include "Util/Weapon.h"
+#include "Memory/Weapon.h"
 
 static void OnTick()
 {
@@ -31,7 +31,7 @@ static void OnTick()
 				spawnRot     = GET_ENTITY_ROTATION(ped, 2);
 			}
 
-			bool isShotgun = Util::IsWeaponShotgun(GET_SELECTED_PED_WEAPON(ped));
+			bool isShotgun = Memory::IsWeaponShotgun(GET_SELECTED_PED_WEAPON(ped));
 			int thingCount = isShotgun ? 3 : 1;
 			for (int i = 0; i < thingCount; i++)
 			{

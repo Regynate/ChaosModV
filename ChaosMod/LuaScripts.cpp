@@ -17,6 +17,7 @@
 #include "Memory/PedModels.h"
 #include "Memory/Snow.h"
 #include "Memory/Vehicle.h"
+#include "Memory/Weapon.h"
 #include "Memory/WeaponPool.h"
 
 #include "Util/Camera.h"
@@ -476,7 +477,7 @@ static void ParseScriptRaw(std::string scriptName, std::string_view script, Pars
 		return LuaVector3(vReturn.x, vReturn.y, vReturn.z);
 	};
 
-	lua["IsWeaponShotgun"]                   = Util::IsWeaponShotgun;
+	lua["IsWeaponShotgun"]                   = Memory::IsWeaponShotgun;
 
 	lua["GetChaosModVersion"]       = []()
 	{
