@@ -17,6 +17,7 @@
 #include "Components/Shortcuts.h"
 #include "Components/SplashTexts.h"
 #include "Components/TwitchVoting.h"
+#include "Components/RemoteDispatcher.h"
 
 #include "Util/File.h"
 #include "Util/OptionsManager.h"
@@ -169,6 +170,9 @@ static void Init()
 
 	LOG("Initializing Twitch voting");
 	InitComponent<TwitchVoting>(rgTextColor);
+
+	LOG("Initializing remote dispatcher");
+	InitComponent<RemoteDispatcher>();
 
 	LOG("Initializing Failsafe");
 	InitComponent<Failsafe>();

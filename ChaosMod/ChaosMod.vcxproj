@@ -89,6 +89,7 @@
   <ItemGroup>
     <ClCompile Include="Components\DebugMenu.cpp" />
     <ClCompile Include="Components\DebugSocket.cpp" />
+    <ClCompile Include="Components\RemoteDispatcher.cpp" />
     <ClCompile Include="Components\Shortcuts.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Components\EffectDispatcher.cpp" />
@@ -420,6 +421,7 @@
     <ClInclude Include="Components\DebugMenu.h" />
     <ClInclude Include="Components\DebugSocket.h" />
     <ClInclude Include="Components\EffectDispatcher.h" />
+    <ClInclude Include="Components\RemoteDispatcher.h" />
     <ClInclude Include="Components\Shortcuts.h" />
     <ClInclude Include="Effects\db\Player\PlayerBlimpStrats.h" />
     <ClInclude Include="Effects\db\Player\PlayerRandomStuntJump.h" />

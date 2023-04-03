@@ -121,6 +121,7 @@ class EffectDispatcher : public Component
 
 	_NODISCARD int GetRemainingTimerTime() const;
 
+	void DispatchEffect(const std::string &&effectId);
 	void DispatchEffect(const EffectIdentifier &effectIdentifier, const char *szSuffix = nullptr,
 	                    bool bAddToLog = true);
 	void DispatchRandomEffect(const char *szSuffix = nullptr);

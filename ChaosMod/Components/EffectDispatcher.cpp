@@ -344,6 +344,20 @@ _NODISCARD int EffectDispatcher::GetRemainingTimerTime() const
 	return std::ceil(m_usEffectSpawnTime / MetaModifiers::m_fTimerSpeedModifier * (1 - m_fTimerPercentage));
 }
 
+void EffectDispatcher::DispatchEffect(const std::string&& effect)
+{
+	for (auto& [effectId, _] : g_dictEnabledEffects)
+	{
+		if (effectId.GetEffectId() == effect)
+		{
+			DispatchEffect(effectId, "", true);
+			return;
+		}
+	}
+
+	LOG("Can't dispatch effect " << effect << ": no such effect");
+}
+
 void EffectDispatcher::DispatchEffect(const EffectIdentifier &effectIdentifier, const char *szSuffix, bool bAddToLog)
 {
 	EffectData &effectData = g_dictEnabledEffects.at(effectIdentifier);
