@@ -11,17 +11,24 @@
 #include "Effects/EnabledEffectsMap.h"
 #include "Effects/MetaModifiers.h"
 
+#include "Memory/Hooks/AudioClearnessHook.h"
+#include "Memory/Hooks/AudioPitchHook.h"
 #include "Memory/Hooks/ShaderHook.h"
 #include "Memory/PedModels.h"
 #include "Memory/Snow.h"
 #include "Memory/Vehicle.h"
 #include "Memory/WeaponPool.h"
 
+#include "Util/Camera.h"
 #include "Util/EntityIterator.h"
 #include "Util/File.h"
+#include "Util/Peds.h"
+#include "Util/Player.h"
 #include "Util/PoolSpawner.h"
 #include "Util/Script.h"
+#include "Util/Types.h"
 #include "Util/Vehicle.h"
+#include "Util/Weapon.h"
 
 #define LUA_NATIVESDEF "chaosmod\\natives_def.lua"
 
@@ -445,6 +452,31 @@ static void ParseScriptRaw(std::string scriptName, std::string_view script, Pars
 
 	lua["EnableScriptThreadBlock"]  = Hooks::EnableScriptThreadBlock;
 	lua["DisableScriptThreadBlock"] = Hooks::DisableScriptThreadBlock;
+	
+	lua["SetAudioPitch"]                           = Hooks::SetAudioPitch;
+	lua["ResetAudioPitch"]                         = Hooks::ResetAudioPitch;
+	lua["SetAudioClearness"]                       = Hooks::SetAudioClearness;
+	lua["ResetAudioClearness"]                     = Hooks::ResetAudioClearness;
+
+	lua["GetGameplayCamOffsetInWorldCoords"] = [](LuaVector3 vOffset)
+	{
+		Vector3 vReturn =
+		    Util::GetGameplayCamOffsetInWorldCoords(Vector3::Init(vOffset.m_fX, vOffset.m_fY, vOffset.m_fZ));
+		return LuaVector3(vReturn.x, vReturn.y, vReturn.z);
+	};
+	lua["GetCoordsFromGameplayCam"] = [](float fDistance)
+	{
+		Vector3 vReturn = Util::GetCoordsFromGameplayCam(fDistance);
+		return LuaVector3(vReturn.x, vReturn.y, vReturn.z);
+	};
+
+	lua["GetCoordAround"] = [](Entity iEntity, float fAngle, float fRadius, float fZOffset, bool bRelative)
+	{
+		Vector3 vReturn = GetCoordAround(iEntity, fAngle, fRadius, fZOffset, bRelative);
+		return LuaVector3(vReturn.x, vReturn.y, vReturn.z);
+	};
+
+	lua["IsWeaponShotgun"]                   = Util::IsWeaponShotgun;
 
 	lua["GetChaosModVersion"]       = []()
 	{
