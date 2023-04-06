@@ -36,6 +36,10 @@ EffectDispatcher::EffectDispatcher(const std::array<BYTE, 3> &rgTimerColor, cons
 	m_usMetaEffectShortDur =
 	    g_OptionsManager.GetConfigValue<int>("MetaShortEffectDur", OPTION_DEFAULT_EFFECT_META_SHORT_TIMED_DUR);
 
+	m_bEnableDistanceBasedEffectDispatch = g_OptionsManager.GetConfigValue<bool>("EnableDistanceBasedEffectDispatch", false);
+	m_fDistanceToActivateEffect = g_OptionsManager.GetConfigValue<int>("DistanceToActivateEffect", 250);
+	m_distanceType = static_cast<TravelledDistanceType>(g_OptionsManager.GetConfigValue<int>("DistanceType", Distance));
+
 	m_iMaxRunningEffects =
 	    g_OptionsManager.GetConfigValue<int>("MaxParallelRunningEffects", OPTION_DEFAULT_MAX_RUNNING_PARALLEL_EFFECTS);
 
@@ -72,14 +76,63 @@ void EffectDispatcher::OnRun()
 
 	UpdateEffects(iDeltaTime);
 
-	if (!m_bPauseTimer)
+	if (!m_bPauseTimer && !m_bEnableDistanceBasedEffectDispatch)
 	{
 		UpdateMetaEffects(iDeltaTime);
 		UpdateTimer(iDeltaTime);
 	}
 
+	if (m_bEnableDistanceBasedEffectDispatch)
+	{
+		UpdateTravelledDistance();
+	}
+
 	DrawTimerBar();
 	DrawEffectTexts();
+}
+
+void EffectDispatcher::UpdateTravelledDistance()
+{
+	Ped player = PLAYER_PED_ID();
+	Vector3 position = GET_ENTITY_COORDS(player, false);
+
+	if (IS_ENTITY_DEAD(player, false))
+	{
+		m_bDeadFlag = true;
+		return;
+	}
+
+	if (m_bDeadFlag)
+	{
+		m_bDeadFlag = false;
+		m_vSavedPosition = GET_ENTITY_COORDS(player, false);
+		return;
+	}
+
+	float distance = GET_DISTANCE_BETWEEN_COORDS(position.x, position.y, position.z, m_vSavedPosition.x,
+	                                             m_vSavedPosition.y, m_vSavedPosition.z, true);
+
+	if (m_distanceType == Displacement)
+	{
+		if (distance >= m_fDistanceToActivateEffect)
+		{
+			DispatchRandomEffect();
+			m_vSavedPosition = position;
+		}
+
+		m_fTimerPercentage = distance / m_fDistanceToActivateEffect;
+	}
+	else if (m_distanceType == Distance)
+	{
+		m_vSavedPosition = position;
+		m_fTimerPercentage += distance / m_fDistanceToActivateEffect;
+
+		if (m_fTimerPercentage >= 1.f)
+		{
+			DispatchRandomEffect();
+			m_fTimerPercentage = 0;
+		}
+	}
 }
 
 void EffectDispatcher::UpdateTimer(int iDeltaTime)

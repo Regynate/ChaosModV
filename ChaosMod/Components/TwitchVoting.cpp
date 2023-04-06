@@ -15,7 +15,8 @@ TwitchVoting::TwitchVoting(const std::array<BYTE, 3> &rgTextColor) : Component()
 	m_bEnableTwitchVoting =
 	    g_OptionsManager.GetTwitchValue<bool>("EnableTwitchVoting", OPTION_DEFAULT_TWITCH_VOTING_ENABLED);
 
-	if (!m_bEnableTwitchVoting)
+	if (!m_bEnableTwitchVoting
+	    || ComponentExists<EffectDispatcher>() && GetComponent<EffectDispatcher>()->IsDispatchingEffectsOnDistance())
 	{
 		return;
 	}
@@ -163,7 +164,7 @@ void TwitchVoting::RestartVoting()
 
 void TwitchVoting::OnRun()
 {
-	if (!m_bEnableTwitchVoting)
+	if (!m_bEnableTwitchVoting || GetComponent<EffectDispatcher>()->IsDispatchingEffectsOnDistance())
 	{
 		return;
 	}

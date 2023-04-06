@@ -55,6 +55,12 @@ class EffectDispatcher : public Component
 		}
 	};
 
+	enum TravelledDistanceType
+	{
+		Distance,
+		Displacement
+	};
+
 	std::array<BYTE, 3> m_rgTimerColor;
 	std::array<BYTE, 3> m_rgTextColor;
 	std::array<BYTE, 3> m_rgEffectTimerColor;
@@ -82,12 +88,18 @@ class EffectDispatcher : public Component
 	std::vector<RegisteredEffect *> m_rgPermanentEffects;
 	std::list<RegisteredEffect *> m_rgDispatchedEffectsLog;
 
-	bool m_bEnableNormalEffectDispatch = true;
+	bool m_bEnableNormalEffectDispatch        = true;
+	bool m_bEnableDistanceBasedEffectDispatch = false;
 
-	DWORD64 m_ullTimer                 = 0;
+	float m_fDistanceToActivateEffect         = 500.f;
+	Vector3 m_vSavedPosition                  = Vector3();
+	bool m_bDeadFlag                          = true;
+	TravelledDistanceType m_distanceType      = Distance;
 
-	bool m_bMetaEffectsEnabled         = true;
-	float m_fMetaEffectTimerPercentage = 0.f;
+	DWORD64 m_ullTimer                        = 0;
+
+	bool m_bMetaEffectsEnabled                = true;
+	float m_fMetaEffectTimerPercentage        = 0.f;
 
 	bool m_bEnableTwitchVoting;
 	ETwitchOverlayMode m_eTwitchOverlayMode;
@@ -108,6 +120,7 @@ class EffectDispatcher : public Component
 	void UpdateTimer(int iDeltaTime);
 	void UpdateEffects(int iDeltaTime);
 	void UpdateMetaEffects(int iDeltaTime);
+	void UpdateTravelledDistance();
 	float GetEffectTopSpace();
 
   public:
@@ -131,6 +144,11 @@ class EffectDispatcher : public Component
 	void ClearMostRecentEffect();
 
 	std::vector<RegisteredEffect *> GetRecentEffects(int distance, std::string_view ignoreEffect = {}) const;
+
+	inline bool IsDispatchingEffectsOnDistance()
+	{
+		return m_bEnableDistanceBasedEffectDispatch;
+	}
 
 	void Reset();
 	void ResetTimer();
