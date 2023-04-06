@@ -29,7 +29,7 @@ void SplashTexts::OnRun()
 }
 
 void SplashTexts::ShowSplash(const std::string &szText, const ScreenTextVector &textPos, float fScale,
-                             ScreenTextColor textColor, float fTime = SPLASH_TEXT_DUR_SECS)
+                             ScreenTextColor textColor, float fTime)
 {
 	m_activeSplashes.emplace_back(szText, textPos, fScale, textColor, fTime);
 }
