@@ -93,7 +93,6 @@ class EffectDispatcher : public Component
 
 	float m_fDistanceToActivateEffect         = 500.f;
 	Vector3 m_vSavedPosition                  = Vector3();
-	bool m_bDeadFlag                          = true;
 	TravelledDistanceType m_distanceType      = Distance;
 
 	DWORD64 m_ullTimer                        = 0;

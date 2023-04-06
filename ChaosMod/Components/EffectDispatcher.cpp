@@ -98,14 +98,6 @@ void EffectDispatcher::UpdateTravelledDistance()
 
 	if (IS_ENTITY_DEAD(player, false))
 	{
-		m_bDeadFlag = true;
-		return;
-	}
-
-	if (m_bDeadFlag)
-	{
-		m_bDeadFlag = false;
-		m_vSavedPosition = GET_ENTITY_COORDS(player, false);
 		return;
 	}
 
@@ -674,6 +666,7 @@ void EffectDispatcher::Reset()
 {
 	ClearEffects();
 	ResetTimer();
+	m_vSavedPosition              = GET_ENTITY_COORDS(PLAYER_PED_ID(), false);
 
 	m_bEnableNormalEffectDispatch = false;
 	m_bMetaEffectsEnabled         = true;

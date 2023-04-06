@@ -23,6 +23,8 @@
 #include "Util/PoolSpawner.h"
 
 static Vector3 ms_vSpawnLocation            = Vector3();
+static Hash ms_eSavedVehicleHash            = 0;
+static float ms_fSavedHeading               = 0.f;
 
 static bool ms_bClearAllEffects             = false;
 static bool ms_bClearEffectsShortcutEnabled = false;
@@ -85,8 +87,17 @@ static void ControlRespawn()
 		PAUSE_DEATH_ARREST_RESTART(true);
 		if (IS_ENTITY_DEAD(player, false))
 		{
+			Vehicle vehicle = 0;
+
+			if (IS_PED_IN_ANY_VEHICLE(player, false))
+			{
+				SET_PED_TO_RAGDOLL(player, 2000, 2000, 0, true, true, false);
+				vehicle = GET_VEHICLE_PED_IS_IN(player, false);
+			}
+
 			while (!IS_SCREEN_FADED_OUT())
 			{
+				GetComponent<EffectDispatcher>()->DrawEffectTexts();
 				WAIT(0);
 			}
 			TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("respawn_controller");
@@ -94,7 +105,7 @@ static void ControlRespawn()
 			ANIMPOSTFX_STOP_ALL();
 			NETWORK_REQUEST_CONTROL_OF_ENTITY(player);
 			NETWORK_RESURRECT_LOCAL_PLAYER(ms_vSpawnLocation.x, ms_vSpawnLocation.y, ms_vSpawnLocation.z,
-			                               GET_ENTITY_HEADING(player), false, false, false);
+			                               ms_fSavedHeading, false, false, false);
 			WAIT(2000);
 			DO_SCREEN_FADE_IN(3500);
 			FORCE_GAME_STATE_PLAYING();
@@ -102,8 +113,21 @@ static void ControlRespawn()
 			DISPLAY_HUD(true);
 			FREEZE_ENTITY_POSITION(player, false);
 
+			if (vehicle)
+			{
+				SET_ENTITY_AS_MISSION_ENTITY(vehicle, true, true);
+				DELETE_ENTITY(&vehicle);
+			}
+
 			GetComponent<EffectDispatcher>()->Reset();
 			ClearEntityPool();
+
+			if (ms_eSavedVehicleHash)
+			{
+				Vehicle vehicle = CREATE_VEHICLE(ms_eSavedVehicleHash, ms_vSpawnLocation.x, ms_vSpawnLocation.y, ms_vSpawnLocation.z,
+				               ms_fSavedHeading, true, false, false);
+				SET_PED_INTO_VEHICLE(player, vehicle, -1);
+			}
 		}
 
 		if (GET_ENTITY_COORDS(player, false).DistanceTo(ms_vSpawnLocation) <= 500)
@@ -414,7 +438,9 @@ namespace Main
 			{
 				if (c_bIsShiftPressed)
 				{
-					ms_vSpawnLocation = Vector3();
+					ms_vSpawnLocation    = Vector3();
+					ms_eSavedVehicleHash = 0;
+					ms_fSavedHeading     = 0.f;
 
 					if (ComponentExists<SplashTexts>())
 					{
@@ -423,7 +449,13 @@ namespace Main
 				}
 				else
 				{
-					ms_vSpawnLocation = GET_ENTITY_COORDS(PLAYER_PED_ID(), false);
+					Ped player           = PLAYER_PED_ID();
+					ms_vSpawnLocation    = GET_ENTITY_COORDS(player, false);
+					ms_eSavedVehicleHash = IS_PED_IN_ANY_VEHICLE(player, false)
+					                         ? GET_ENTITY_MODEL(GET_VEHICLE_PED_IS_IN(player, false))
+					                         : 0;
+
+					ms_fSavedHeading     = GET_ENTITY_HEADING(player);
 
 					if (ComponentExists<SplashTexts>())
 					{
