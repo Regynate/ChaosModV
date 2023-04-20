@@ -45,6 +45,11 @@ namespace Mp3Manager
 {
 	void PlayChaosSoundFile(const std::string &soundFileName)
 	{
+		// don't play sounds while cutscene is active
+		if (IS_CUTSCENE_PLAYING())
+		{
+			return;
+		}
 		if (ms_dictEffectSoundFilesCache.find(soundFileName) == ms_dictEffectSoundFilesCache.end())
 		{
 			HandleDirectory(CHAOS_SOUNDFILES_USER_DIR, soundFileName);
