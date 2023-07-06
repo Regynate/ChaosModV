@@ -1,4 +1,5 @@
 #include <stdafx.h>
+#include <Components/EffectDispatcher.h>
 
 static void OnStart()
 {
@@ -13,7 +14,24 @@ static void OnStart()
 	}
 	else
 	{
+		GetComponent<EffectDispatcher>()->OverrideEffectNameId("player_ignite", "player_ignite");
+
 		START_ENTITY_FIRE(playerPed);
+
+		int startTick = GET_GAME_TIMER();
+
+		while (GET_GAME_TIMER() - startTick < 20000)
+		{
+			LOG(GET_ENTITY_HEALTH(playerPed));
+
+			if (GET_ENTITY_HEALTH(playerPed) < 110)
+			{
+				STOP_ENTITY_FIRE(playerPed);
+				break;
+			}
+
+			WAIT(0);
+		}
 	}
 }
 
@@ -22,7 +40,6 @@ REGISTER_EFFECT(OnStart, nullptr, nullptr, EffectInfo
 	{
 		.Name = "Ignite Player",
 		.Id = "player_ignite",
-		.IncompatibleWith = { "player_invincible" },
-		.EffectGroupType = EEffectGroupType::PlayerKill
+		.IncompatibleWith = { "player_invincible" }
 	}
 );
