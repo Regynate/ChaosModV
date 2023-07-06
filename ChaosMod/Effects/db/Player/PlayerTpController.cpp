@@ -198,6 +198,76 @@ REGISTER_EFFECT(OnStartWaypoint, nullptr, nullptr, EffectInfo
 );
 // clang-format on
 
+static void OnStartWaypointOpposite()
+{
+	Vector3 coords;
+	bool found = false, playerBlip = false;
+	if (IS_WAYPOINT_ACTIVE())
+	{
+		coords     = GET_BLIP_COORDS(GET_FIRST_BLIP_INFO_ID(8));
+		found      = true;
+		playerBlip = true;
+	}
+	else
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			Blip blip = GET_FIRST_BLIP_INFO_ID(i);
+			if (DOES_BLIP_EXIST(blip))
+			{
+				coords = GET_BLIP_COORDS(blip);
+				found  = true;
+
+				break;
+			}
+		}
+	}
+
+	Ped playerPed = PLAYER_PED_ID();
+
+	if (found)
+	{
+		Vector3 playerPos = GET_ENTITY_COORDS(playerPed, false);
+
+		coords            = coords + coords - playerPos;
+
+
+		float z;
+		float groundZ;
+		bool useGroundZ;
+		for (int i = 0; i < 100; i++)
+		{
+			float testZ = (i * 10.f) - 100.f;
+
+			TeleportPlayer(coords.x, coords.y, testZ);
+			if (i % 5 == 0)
+			{
+				WAIT(0);
+			}
+
+			useGroundZ = GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, testZ, &groundZ, false, false);
+			if (useGroundZ)
+			{
+				break;
+			}
+		}
+
+		if (useGroundZ)
+		{
+			TeleportPlayer(coords.x, coords.y, groundZ);
+		}
+	}
+}
+
+// clang-format off
+REGISTER_EFFECT(OnStartWaypointOpposite, nullptr, nullptr, EffectInfo
+	{
+		.Name = "Teleport To The Opposite Side Of Waypoint",
+		.Id = "player_tptowaypointopposite"
+	}
+);
+// clang-format on
+
 static void OnStartFront()
 {
 	Ped playerPed  = PLAYER_PED_ID();
@@ -334,7 +404,8 @@ static const std::vector<std::string_view> fakeTpTypes =
 	"player_tp_store",
 	"player_tptowaypoint",
 	"player_blimp_strats",
-	"player_tp_stunt"
+	"player_tp_stunt", 
+	"player_tptowaypointopposite"
 };
 
 static bool IsValidFakeTpType(int index)
@@ -361,8 +432,9 @@ static Vector3 PerformFakeTeleport(std::string_view effectId)
 	do
 	{
 		fakeTpIndex = g_Random.GetRandomInt(0, fakeTpTypes.size() - 1);
-		fakeTpType  = fakeTpTypes.at(fakeTpIndex);
 	} while (!IsValidFakeTpType(fakeTpIndex));
+
+	fakeTpType  = fakeTpTypes.at(fakeTpIndex);
 
 	GetComponent<EffectDispatcher>()->OverrideEffectNameId(effectId, fakeTpType);
 
@@ -429,6 +501,9 @@ static Vector3 PerformFakeTeleport(std::string_view effectId)
 			WAIT(0);
 		}
 
+		break;
+	case 11: // player_tptowaypointopposite
+		OnStartWaypointOpposite();
 		break;
 	}
 
