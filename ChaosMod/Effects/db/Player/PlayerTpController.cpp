@@ -263,7 +263,8 @@ static void OnStartWaypointOpposite()
 REGISTER_EFFECT(OnStartWaypointOpposite, nullptr, nullptr, EffectInfo
 	{
 		.Name = "Teleport To The Opposite Side Of Waypoint",
-		.Id = "player_tptowaypointopposite"
+		.Id = "player_tptowaypointopposite",
+		.EffectGroupType = EEffectGroupType::Teleport
 	}
 );
 // clang-format on
