@@ -415,6 +415,9 @@ namespace ConfigApp
             { "vehs_spawn_piano", new EffectInfo("Makin' My Way Downtown", EffectCategory.Vehicle) },
             { "peds_screamonshot", new EffectInfo("Drama Queen", EffectCategory.Peds, true) },
             { "peds_blanks", new EffectInfo("Blanks", EffectCategory.Peds, true, true) },
+            { "misc_fakeuturn", new EffectInfo("Fake U-Turn", EffectCategory.Misc) },
+            { "player_tptowaypointopposite", new EffectInfo("Teleport To The Opposite Side Of Waypoint", EffectCategory.Misc) },
+            { "screen_bouncyradar", new EffectInfo("Bouncy Radar", EffectCategory.Screen, true) },
         };
     }
 }
