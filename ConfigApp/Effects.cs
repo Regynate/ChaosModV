@@ -417,6 +417,7 @@ namespace ConfigApp
             { "peds_blanks", new EffectInfo("Blanks", EffectCategory.Peds, true, true) },
             { "misc_fakeuturn", new EffectInfo("Fake U-Turn", EffectCategory.Misc) },
             { "player_tptowaypointopposite", new EffectInfo("Teleport To The Opposite Side Of Waypoint", EffectCategory.Misc) },
+            { "screen_bouncyradar", new EffectInfo("Bouncy Radar", EffectCategory.Screen, true) },
         };
     }
 }
