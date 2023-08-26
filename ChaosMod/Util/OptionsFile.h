@@ -52,6 +52,21 @@ class OptionsFile
 		}
 	}
 
+	inline void WriteFile()
+	{
+		std::ofstream file(m_szFileName, std::ofstream::out | std::ofstream::trunc);
+		if (!file)
+		{
+			LOG("Couldn't write config file " << m_szFileName);
+			return;
+		}
+
+		for (auto& [key, value] : m_dictOptions)
+		{
+			file << key << "=" << value << std::endl;
+		}
+	}
+
 	template <typename T> inline T ReadValue(const std::string &szKey, T defaultValue) const
 	{
 		const auto &szValue = ReadValueString(szKey);
@@ -80,5 +95,22 @@ class OptionsFile
 		{
 			return szDefaultValue;
 		}
+	}
+
+	inline void SetValueString(const std::string& szKey, const std::string& value)
+	{
+		if (m_dictOptions.contains(szKey))
+		{
+			m_dictOptions[szKey] = value;
+		}
+		else
+		{
+			m_dictOptions.emplace(szKey, value);
+		}
+	}
+
+	template <typename T> inline void SetValue(const std::string& szKey, T value)
+	{
+		SetValueString(szKey, std::to_string(value));
 	}
 };

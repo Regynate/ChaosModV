@@ -12,7 +12,7 @@
 #include "Util/Random.h"
 #include "Util/Text.h"
 
-EffectDispatcher::EffectDispatcher(const std::array<BYTE, 3> &rgTimerColor, const std::array<BYTE, 3> &rgTextColor,
+EffectDispatcher::EffectDispatcher(bool bSuspended, const std::array<BYTE, 3> &rgTimerColor, const std::array<BYTE, 3> &rgTextColor,
                                    const std::array<BYTE, 3> &rgEffectTimerColor)
     : Component()
 {
@@ -49,12 +49,7 @@ EffectDispatcher::EffectDispatcher(const std::array<BYTE, 3> &rgTimerColor, cons
 	m_eTwitchOverlayMode = static_cast<ETwitchOverlayMode>(
 	    g_OptionsManager.GetTwitchValue<int>("TwitchVotingOverlayMode", OPTION_DEFAULT_TWITCH_OVERLAY_MODE));
 
-	Reset();
-}
-
-EffectDispatcher::~EffectDispatcher()
-{
-	OnModPauseCleanup();
+	Reset(bSuspended);
 }
 
 void EffectDispatcher::OnModPauseCleanup()
@@ -74,17 +69,20 @@ void EffectDispatcher::OnRun()
 		iDeltaTime = 0;
 	}
 
-	UpdateEffects(iDeltaTime);
-
-	if (!m_bPauseTimer && !m_bEnableDistanceBasedEffectDispatch)
+	if (!m_bPause)
 	{
-		UpdateMetaEffects(iDeltaTime);
-		UpdateTimer(iDeltaTime);
-	}
+		UpdateEffects(iDeltaTime);
 
-	if (m_bEnableDistanceBasedEffectDispatch)
-	{
-		UpdateTravelledDistance();
+		if (!m_bPauseTimer && !m_bEnableDistanceBasedEffectDispatch)
+		{
+			UpdateMetaEffects(iDeltaTime);
+			UpdateTimer(iDeltaTime);
+		}
+
+		if (m_bEnableDistanceBasedEffectDispatch)
+		{
+			UpdateTravelledDistance();
+		}
 	}
 
 	DrawTimerBar();
@@ -662,7 +660,7 @@ std::vector<RegisteredEffect *> EffectDispatcher::GetRecentEffects(int distance,
 	return effects;
 }
 
-void EffectDispatcher::Reset()
+void EffectDispatcher::Reset(bool bSuspended)
 {
 	ClearEffects();
 	ResetTimer();
@@ -672,26 +670,31 @@ void EffectDispatcher::Reset()
 	m_bMetaEffectsEnabled         = true;
 	m_fMetaEffectTimerPercentage  = 0.f;
 
-	for (const auto &[effectIdentifier, effectData] : g_dictEnabledEffects)
+	if (!bSuspended)
 	{
-		if (effectData.TimedType == EEffectTimedType::Permanent)
+		for (const auto &[effectIdentifier, effectData] : g_dictEnabledEffects)
 		{
-			// Always run permanent timed effects in background
-			RegisteredEffect *pRegisteredEffect = GetRegisteredEffect(effectIdentifier);
-
-			if (pRegisteredEffect)
+			if (effectData.TimedType == EEffectTimedType::Permanent)
 			{
-				m_rgPermanentEffects.push_back(pRegisteredEffect);
+				// Always run permanent timed effects in background
+				RegisteredEffect *pRegisteredEffect = GetRegisteredEffect(effectIdentifier);
 
-				EffectThreads::CreateThread(pRegisteredEffect, true);
+				if (pRegisteredEffect)
+				{
+					m_rgPermanentEffects.push_back(pRegisteredEffect);
+
+					EffectThreads::CreateThread(pRegisteredEffect, true);
+				}
+			}
+			else if (!effectData.IsMeta() && !effectData.IsUtility())
+			{
+				// There's at least 1 enabled non-permanent effect, enable timer
+				m_bEnableNormalEffectDispatch = true;
 			}
 		}
-		else if (!effectData.IsMeta() && !effectData.IsUtility())
-		{
-			// There's at least 1 enabled non-permanent effect, enable timer
-			m_bEnableNormalEffectDispatch = true;
-		}
 	}
+
+	m_bSuspended = bSuspended;
 }
 
 void EffectDispatcher::ResetTimer()

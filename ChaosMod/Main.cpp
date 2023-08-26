@@ -17,14 +17,11 @@
 #include "Components/Shortcuts.h"
 #include "Components/SplashTexts.h"
 #include "Components/TwitchVoting.h"
+#include "Components/CrossingChallenge.h"
 
 #include "Util/File.h"
 #include "Util/OptionsManager.h"
 #include "Util/PoolSpawner.h"
-
-static Vector3 ms_vSpawnLocation            = Vector3();
-static Hash ms_eSavedVehicleHash            = 0;
-static float ms_fSavedHeading               = 0.f;
 
 static bool ms_bClearAllEffects             = false;
 static bool ms_bClearEffectsShortcutEnabled = false;
@@ -34,8 +31,6 @@ static bool ms_bEnablePauseTimerShortcut    = false;
 static bool ms_bHaveLateHooksRan            = false;
 static bool ms_bAntiSoftlockShortcutEnabled = false;
 static bool ms_bRunAntiSoftlock             = false;
-
-static bool ms_bWantedLevelFlag             = false;
 
 _NODISCARD static std::array<BYTE, 3> ParseConfigColorString(const std::string &szColorText)
 {
@@ -76,85 +71,8 @@ static void Reset()
 	{
 		pComponent->OnModPauseCleanup();
 	}
-}
 
-static void ControlRespawn()
-{
-	if (!ms_vSpawnLocation.IsDefault())
-	{
-		Ped player = PLAYER_PED_ID();
-		IGNORE_NEXT_RESTART(true);
-		PAUSE_DEATH_ARREST_RESTART(true);
-		if (IS_ENTITY_DEAD(player, false))
-		{
-			Vehicle vehicle = 0;
-
-			if (IS_PED_IN_ANY_VEHICLE(player, false))
-			{
-				SET_PED_TO_RAGDOLL(player, 2000, 2000, 0, true, true, false);
-				vehicle = GET_VEHICLE_PED_IS_IN(player, false);
-			}
-
-			while (!IS_SCREEN_FADED_OUT())
-			{
-				GetComponent<EffectDispatcher>()->DrawEffectTexts();
-				WAIT(0);
-			}
-			TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("respawn_controller");
-			SET_TIME_SCALE(1.f);
-			ANIMPOSTFX_STOP_ALL();
-			NETWORK_REQUEST_CONTROL_OF_ENTITY(player);
-			NETWORK_RESURRECT_LOCAL_PLAYER(ms_vSpawnLocation.x, ms_vSpawnLocation.y, ms_vSpawnLocation.z,
-			                               ms_fSavedHeading, false, false, false);
-			WAIT(2000);
-			DO_SCREEN_FADE_IN(3500);
-			FORCE_GAME_STATE_PLAYING();
-			RESET_PLAYER_ARREST_STATE(player);
-			DISPLAY_HUD(true);
-			FREEZE_ENTITY_POSITION(player, false);
-
-			if (vehicle)
-			{
-				SET_ENTITY_AS_MISSION_ENTITY(vehicle, true, true);
-				DELETE_ENTITY(&vehicle);
-			}
-
-			GetComponent<EffectDispatcher>()->Reset();
-			ClearEntityPool();
-
-			if (ms_eSavedVehicleHash)
-			{
-				Vehicle vehicle = CREATE_VEHICLE(ms_eSavedVehicleHash, ms_vSpawnLocation.x, ms_vSpawnLocation.y, ms_vSpawnLocation.z,
-				               ms_fSavedHeading, true, false, false);
-				SET_PED_INTO_VEHICLE(player, vehicle, -1);
-			}
-		}
-
-		if (GET_ENTITY_COORDS(player, false).DistanceTo(ms_vSpawnLocation) <= 500)
-		{
-			if (!ms_bWantedLevelFlag)
-			{
-				SET_MAX_WANTED_LEVEL(0);
-				CLEAR_PLAYER_WANTED_LEVEL(PLAYER_ID());
-				ms_bWantedLevelFlag = true;
-			}
-		}
-		else
-		{
-			SET_MAX_WANTED_LEVEL(5);
-			ms_bWantedLevelFlag = false;
-		}
-	}
-	else
-	{
-		IGNORE_NEXT_RESTART(false);
-		PAUSE_DEATH_ARREST_RESTART(false);
-		if (ms_bWantedLevelFlag)
-		{
-			SET_MAX_WANTED_LEVEL(5);
-			ms_bWantedLevelFlag = false;
-		}
-	}
+	g_rgComponents.clear();
 }
 
 static void Init()
@@ -244,9 +162,12 @@ static void Init()
 
 	g_Random.SetSeed(g_OptionsManager.GetConfigValue<int>("Seed", 0));
 
-	LOG("Initializing effects dispatcher");
-	InitComponent<EffectDispatcher>(rgTimerColor, rgTextColor, rgEffectTimerColor);
+	bool crossingChallengeEnabled = g_OptionsManager.GetConfigValue<bool>("EnableCrossingChallenge", false);
 
+	LOG("Initializing effects dispatcher");
+	InitComponent<EffectDispatcher>(crossingChallengeEnabled, rgTimerColor, rgTextColor, rgEffectTimerColor);
+
+	LOG("Initializing Debug Menu");
 	InitComponent<DebugMenu>();
 
 	LOG("Initializing shortcuts");
@@ -257,6 +178,12 @@ static void Init()
 
 	LOG("Initializing Failsafe");
 	InitComponent<Failsafe>();
+
+	if (crossingChallengeEnabled)
+	{
+		LOG("Initializing Crossing Challenge");
+		InitComponent<CrossingChallenge>();
+	}
 
 	LOG("Initializing Splash Texts");
 	InitComponent<SplashTexts>();
@@ -306,16 +233,6 @@ static void MainRun()
 
 		DISABLE_CONTROL_ACTION(0, 0x12, true); // block cutscene skips
 
-		if (!ms_bDisableMod)
-		{
-			ControlRespawn();
-		}
-		else if (ms_bWantedLevelFlag)
-		{
-			SET_MAX_WANTED_LEVEL(5);
-			ms_bWantedLevelFlag = false;
-		}
-
 		// This will run regardless if mod is disabled
 		if (ms_bRunAntiSoftlock)
 		{
@@ -354,7 +271,7 @@ static void MainRun()
 			if (ms_bClearAllEffects)
 			{
 				ms_bClearAllEffects = false;
-				GetComponent<EffectDispatcher>()->Reset();
+				GetComponent<EffectDispatcher>()->Reset(GetComponent<EffectDispatcher>()->IsSuspended());
 				ClearEntityPool();
 			}
 		}
@@ -434,35 +351,6 @@ namespace Main
 			{
 				ms_bDisableMod = !ms_bDisableMod;
 			}
-			else if (ulKey == 0x4F) // O
-			{
-				if (c_bIsShiftPressed)
-				{
-					ms_vSpawnLocation    = Vector3();
-					ms_eSavedVehicleHash = 0;
-					ms_fSavedHeading     = 0.f;
-
-					if (ComponentExists<SplashTexts>())
-					{
-						GetComponent<SplashTexts>()->ShowSplash("Spawnpoint disabled", { .86f, .86f }, .8f, { 75, 0, 130 });
-					}
-				}
-				else
-				{
-					Ped player           = PLAYER_PED_ID();
-					ms_vSpawnLocation    = GET_ENTITY_COORDS(player, false);
-					ms_eSavedVehicleHash = IS_PED_IN_ANY_VEHICLE(player, false)
-					                         ? GET_ENTITY_MODEL(GET_VEHICLE_PED_IS_IN(player, false))
-					                         : 0;
-
-					ms_fSavedHeading     = GET_ENTITY_HEADING(player);
-
-					if (ComponentExists<SplashTexts>())
-					{
-						GetComponent<SplashTexts>()->ShowSplash("Spawnpoint set", { .86f, .86f }, .8f, { 75, 0, 130 });
-					}
-				}
-			}
 		}
 
 		if (ComponentExists<DebugMenu>())
@@ -474,5 +362,15 @@ namespace Main
 		{
 			GetComponent<Shortcuts>()->HandleInput(ulKey, bWasDownBefore);
 		}
+
+		if (ComponentExists<CrossingChallenge>())
+		{
+			GetComponent<CrossingChallenge>()->HandleInput(ulKey, bWasDownBefore);
+		}
+	}
+
+	void Stop()
+	{
+		ms_bDisableMod = true;
 	}
 }

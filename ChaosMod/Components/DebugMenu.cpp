@@ -39,15 +39,15 @@ DebugMenu::DebugMenu() : Component()
 	          {
 		          for (int idx = 0;; idx++)
 		          {
-			          if (idx >= a.m_szEffectName.size()
+			          if (idx >= b.m_szEffectName.size()
+			              || std::toupper(b.m_szEffectName[idx]) < std::toupper(a.m_szEffectName[idx]))
+			          {
+				          return false;
+			          }
+			          else if (idx >= a.m_szEffectName.size()
 			              || std::toupper(a.m_szEffectName[idx]) < std::toupper(b.m_szEffectName[idx]))
 			          {
 				          return true;
-			          }
-			          else if (idx >= b.m_szEffectName.size()
-			                   || std::toupper(b.m_szEffectName[idx]) < std::toupper(a.m_szEffectName[idx]))
-			          {
-				          return false;
 			          }
 		          }
 	          });

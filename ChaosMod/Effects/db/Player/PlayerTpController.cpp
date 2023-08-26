@@ -337,20 +337,24 @@ static const std::vector<std::string_view> fakeTpTypes =
 	"player_tp_stunt"
 };
 
-static bool IsValidFakeTpType(int index)
+static bool IsValidFakeTpType(std::string_view type)
 {
-	if (index == 5) // tp_mission
+	auto effectIdentifier = EffectIdentifier(std::string(type));
+	if (!g_dictEnabledEffects.contains(effectIdentifier))
+	{
+		return false;
+	}
+
+	if (type == "tp_mission")
 	{
 		return GetAllMissionBlips().size() > 0;
 	}
-	else if (index == 8) // player_tptowaypoint
+	else if (type == "player_tptowaypoint")
 	{
 		return HasValidWaypointForTp();
 	}
-	else
-	{
-		return true;
-	}
+
+	return true;
 }
 
 static Vector3 PerformFakeTeleport(std::string_view effectId)
@@ -358,11 +362,22 @@ static Vector3 PerformFakeTeleport(std::string_view effectId)
 	std::string_view fakeTpType;
 	int fakeTpIndex;
 
-	do
+	std::vector<std::string_view> validTpTypes;
+
+	for (auto& type : fakeTpTypes)
 	{
-		fakeTpIndex = g_Random.GetRandomInt(0, fakeTpTypes.size() - 1);
-		fakeTpType  = fakeTpTypes.at(fakeTpIndex);
-	} while (!IsValidFakeTpType(fakeTpIndex));
+		if (!IsValidFakeTpType(type))
+		{
+			validTpTypes.emplace_back(type);
+		}
+	}
+
+	if (validTpTypes.empty())
+	{
+		return GET_ENTITY_COORDS(PLAYER_PED_ID(), false);
+	}
+
+	fakeTpType  = validTpTypes.at(g_Random.GetRandomInt(0, validTpTypes.size() - 1));
 
 	GetComponent<EffectDispatcher>()->OverrideEffectNameId(effectId, fakeTpType);
 
@@ -382,43 +397,43 @@ static Vector3 PerformFakeTeleport(std::string_view effectId)
 
 	int oldWantedLevel = GET_PLAYER_WANTED_LEVEL(player);
 
-	switch (fakeTpIndex)
+	switch (GET_HASH_KEY(fakeTpType.data()))
 	{
-	case 0: // tp_lsairport
+	case "tp_lsairport"_hash:
 		SET_PLAYER_WANTED_LEVEL(player, 3, false);
 		SET_PLAYER_WANTED_LEVEL_NOW(player, false);
 		OnStartLSIA();
 		break;
-	case 1: // tp_mazebanktower
+	case "tp_mazebanktower"_hash:
 		OnStartMazeTower();
 		break;
-	case 2: // tp_fortzancudo
+	case "tp_fortzancudo"_hash:
 		SET_PLAYER_WANTED_LEVEL(player, 4, false);
 		SET_PLAYER_WANTED_LEVEL_NOW(player, false);
 		OnStartFortZancudo();
 		break;
-	case 3: // tp_mountchilliad
+	case "tp_mountchilliad"_hash:
 		OnStartMountChilliad();
 		break;
-	case 4: // tp_skyfall
+	case "tp_skyfall "_hash:
 		OnStartSkyFall();
 		break;
-	case 5: // tp_mission
+	case "tp_mission "_hash:
 		OnStartMission();
 		break;
-	case 6: // tp_random
+	case "tp_random "_hash:
 		OnStartRandom();
 		break;
-	case 7: // player_tp_store
+	case "player_tp_store "_hash:
 		OnStartTpRandomStore();
 		break;
-	case 8: // player_tptowaypoint
+	case "player_tptowaypoint "_hash:
 		OnStartWaypoint();
 		break;
-	case 9: // player_blimp_strats
+	case "player_blimp_strats "_hash:
 		OnStartBlimpStrats(false);
 		break;
-	case 10: // player_tp_stunt
+	case "player_tp_stunt"_hash:
 		OnStartMakeRandomStuntJump();
 
 		// Wait for stunt jump to start

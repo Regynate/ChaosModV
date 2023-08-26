@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -44,6 +44,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetExt>.asi</TargetExt>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetExt>.asi</TargetExt>
@@ -90,6 +91,7 @@
     <ClCompile Include="Components\DebugMenu.cpp" />
     <ClCompile Include="Components\DebugSocket.cpp" />
     <ClCompile Include="Components\Shortcuts.cpp" />
+    <ClCompile Include="Components\SplashTexts.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Components\EffectDispatcher.cpp" />
     <ClCompile Include="Effects\db\Meta\MetaAdditionalEffects.cpp" />
@@ -400,7 +402,7 @@
     <ClCompile Include="Memory\Hooks\ShaderHook.cpp" />
     <ClCompile Include="Memory\Memory.cpp" />
     <ClCompile Include="..\vendor\Patterns\Patterns.cpp" />
-    <ClCompile Include="Components\SplashTexts.cpp" />
+    <ClCompile Include="Components\CrossingChallenge.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -421,6 +423,7 @@
     <ClInclude Include="Components\DebugSocket.h" />
     <ClInclude Include="Components\EffectDispatcher.h" />
     <ClInclude Include="Components\Shortcuts.h" />
+    <ClInclude Include="Components\SplashTexts.h" />
     <ClInclude Include="Effects\db\Player\PlayerBlimpStrats.h" />
     <ClInclude Include="Effects\db\Player\PlayerRandomStuntJump.h" />
     <ClInclude Include="Effects\db\Player\PlayerTpToRandomStore.h" />
@@ -463,7 +466,7 @@
     <ClInclude Include="Memory\ViewMatrix.h" />
     <ClInclude Include="Memory\Weapon.h" />
     <ClInclude Include="Memory\WeaponPool.h" />
-    <ClInclude Include="Components\SplashTexts.h" />
+    <ClInclude Include="Components\CrossingChallenge.h" />
     <ClInclude Include="Util\Hash.h" />
     <ClInclude Include="Util\Natives.h" />
     <ClInclude Include="Util\Macros.h" />

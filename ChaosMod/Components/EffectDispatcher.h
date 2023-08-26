@@ -103,6 +103,9 @@ class EffectDispatcher : public Component
 	bool m_bEnableTwitchVoting;
 	ETwitchOverlayMode m_eTwitchOverlayMode;
 
+	bool m_bSuspended = false;
+	bool m_bPause = false;
+
   public:
 	bool m_bPauseTimer              = false;
 
@@ -111,9 +114,8 @@ class EffectDispatcher : public Component
 	float m_fFakeTimerBarPercentage = 0.f;
 
   protected:
-	EffectDispatcher(const std::array<BYTE, 3> &rgTimerColor, const std::array<BYTE, 3> &rgTextColor,
+	EffectDispatcher(bool bSuspended, const std::array<BYTE, 3> &rgTimerColor, const std::array<BYTE, 3> &rgTextColor,
 	                 const std::array<BYTE, 3> &rgEffectTimerColor);
-	virtual ~EffectDispatcher() override;
 
   private:
 	void UpdateTimer(int iDeltaTime);
@@ -144,12 +146,22 @@ class EffectDispatcher : public Component
 
 	std::vector<RegisteredEffect *> GetRecentEffects(int distance, std::string_view ignoreEffect = {}) const;
 
+	inline bool IsSuspended()
+	{
+		return m_bSuspended;
+	}
+
+	inline void SetPaused(bool value)
+	{
+		m_bPause = value;
+	}
+
 	inline bool IsDispatchingEffectsOnDistance()
 	{
 		return m_bEnableDistanceBasedEffectDispatch;
 	}
 
-	void Reset();
+	void Reset(bool bSuspended = false);
 	void ResetTimer();
 
 	void OverrideEffectName(std::string_view effectId, const std::string &szOverrideName);

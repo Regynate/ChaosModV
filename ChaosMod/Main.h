@@ -13,4 +13,5 @@ namespace Main
 	void OnCleanup();
 	void OnKeyboardInput(DWORD ulKey, WORD usRepeats, BYTE ucScanCode, BOOL bIsExtended, BOOL bIsWithAlt,
 	                     BOOL bWasDownBefore, BOOL bIsUpNow);
+	void Stop();
 }

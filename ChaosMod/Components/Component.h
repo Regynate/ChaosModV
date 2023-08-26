@@ -76,7 +76,11 @@ class Component
 
 	virtual ~Component()
 	{
-		g_rgComponents.erase(std::find(g_rgComponents.begin(), g_rgComponents.end(), this));
+		auto i = std::find(g_rgComponents.begin(), g_rgComponents.end(), this);
+		if (i != g_rgComponents.end())
+		{
+			g_rgComponents.erase(i);
+		}
 	}
 
   public:
