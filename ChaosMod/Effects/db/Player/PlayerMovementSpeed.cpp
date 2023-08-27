@@ -21,7 +21,7 @@ REGISTER_EFFECT(nullptr, nullptr, OnTickx5, EffectInfo
 static void OnTickx10()
 {
 	static Ped plr = PLAYER_PED_ID();
-	SET_PED_MOVE_RATE_OVERRIDE(plr, 5.f);
+	SET_PED_MOVE_RATE_OVERRIDE(plr, 10.f);
 }
 
 // clang-format off
@@ -45,7 +45,7 @@ static void OnTickx05()
 // clang-format off
 REGISTER_EFFECT(nullptr, nullptr, OnTickx05, EffectInfo
 	{
-		.Name = "x0.5 Movement Speed",
+		.Name = "0.5x Movement Speed",
 		.Id = "player_movementx05",
 		.IsTimed = true,
 		.IsShortDuration = true,
