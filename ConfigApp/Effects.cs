@@ -411,13 +411,14 @@ namespace ConfigApp
             { "time_local_time", new EffectInfo("Set Time To System Time", EffectCategory.Time) },
             { "peds_not_menendez", new EffectInfo("Not Menendez!", EffectCategory.Peds, true) },
             { "misc_go_to_jail", new EffectInfo("Bad Boys", EffectCategory.Misc) },
-            { "misc_muffled_audio", new EffectInfo("Muffled Audio", EffectCategory.Misc, true) },
+            { "misc_audio_muffled", new EffectInfo("Muffled Audio", EffectCategory.Misc, true) },
             { "vehs_spawn_piano", new EffectInfo("Makin' My Way Downtown", EffectCategory.Vehicle) },
             { "peds_screamonshot", new EffectInfo("Drama Queen", EffectCategory.Peds, true) },
             { "peds_blanks", new EffectInfo("Blanks", EffectCategory.Peds, true, true) },
             { "misc_fakeuturn", new EffectInfo("Fake U-Turn", EffectCategory.Misc) },
             { "player_tptowaypointopposite", new EffectInfo("Teleport To The Opposite Side Of Waypoint", EffectCategory.Misc) },
             { "screen_bouncyradar", new EffectInfo("Bouncy Radar", EffectCategory.Screen, true) },
+            { "misc_solid_props", new EffectInfo("Solid Props", EffectCategory.Misc, true) },
         };
     }
 }
