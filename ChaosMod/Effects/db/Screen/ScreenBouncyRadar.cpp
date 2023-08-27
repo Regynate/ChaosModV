@@ -2,7 +2,9 @@
 
 #include "Memory/UI.h"
 
-static float xOffset, yOffset, xVelocity, yVelocity, xMin, xMax, yMin, yMax;
+static float xOffset, yOffset, xVelocityBase, yVelocityBase, xVelocity, yVelocity, xMin, xMax, yMin, yMax;
+
+static int lastTick;
 
 static void OnStart()
 {
@@ -27,26 +29,43 @@ static void OnStart()
 	xOffset   = 0.f;
 	yOffset   = 0.f;
 
-	xVelocity = g_Random.GetRandomFloat(0.0025f, 0.01f) * (g_Random.GetRandomInt(0, 1) ? -1 : 1);
-	yVelocity = g_Random.GetRandomFloat(0.0025f, 0.01f) * (g_Random.GetRandomInt(0, 1) ? -1 : 1);
+	xVelocityBase = g_Random.GetRandomFloat(0.5f, 1.f);
+	yVelocityBase = g_Random.GetRandomFloat(0.5f, 1.f);
+
+	xVelocity     = xVelocityBase * (g_Random.GetRandomInt(0, 1) ? -1 : 1);
+	yVelocity     = yVelocityBase * (g_Random.GetRandomInt(0, 1) ? -1 : 1);
+
+	lastTick  = GET_GAME_TIMER();
 }
 
 static void OnTick()
 {
-	if (xOffset < xMin || xOffset > xMax)
+	int curTick = GET_GAME_TIMER();
+
+	if (xOffset < xMin)
 	{
-		xVelocity *= -1;
+		xVelocity = xVelocityBase;
+	}
+	else if (xOffset > xMax)
+	{
+		xVelocity = -xVelocityBase;
 	}
 
-	if (yOffset < yMin || yOffset > yMax)
+	if (yOffset < yMin)
 	{
-		yVelocity *= -1;
+		yVelocity = yVelocityBase;
+	}
+	else if (yOffset > yMax)
+	{
+		yVelocity = -yVelocityBase;
 	}
 
-	xOffset += xVelocity;
-	yOffset += yVelocity;
+	xOffset += xVelocity * (curTick - lastTick) / 2000;
+	yOffset += yVelocity * (curTick - lastTick) / 2000;
 
 	Memory::SetRadarOffset(xOffset, yOffset);
+
+	lastTick = curTick;
 }
 
 static void OnStop()
