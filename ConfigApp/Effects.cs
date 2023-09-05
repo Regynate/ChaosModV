@@ -431,6 +431,7 @@ namespace ConfigApp
             { "misc_solid_props", new EffectInfo("Solid Props", EffectCategory.Misc, true) },
             { "misc_grounded", new EffectInfo("Grounded", EffectCategory.Misc, true) },
             { "veh_boostbrake", new EffectInfo("Boost Braking", EffectCategory.Vehicle, true) },
+            { "player_gopro", new EffectInfo("GoPro Footage", EffectCategory.Player, true) },
         };
     }
 }
