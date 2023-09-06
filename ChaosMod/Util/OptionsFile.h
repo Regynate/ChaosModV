@@ -1,84 +1,110 @@
 #pragma once
 
-#include "Logging.h"
-#include "TryParse.h"
+#include "Util/Logging.h"
+#include "Util/Text.h"
+#include "Util/TryParse.h"
 
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 class OptionsFile
 {
   private:
-	const char *m_szFileName;
-	std::unordered_map<std::string, std::string> m_dictOptions;
+	const char *m_FileName;
+	std::vector<const char *> m_CompatFileNames;
+	std::unordered_map<std::string, std::string> m_Options;
 
   public:
-	OptionsFile(const char *szFileName) : m_szFileName(szFileName)
+	OptionsFile(const char *fileName, std::vector<const char *> compatFileNames = {})
+	    : m_FileName(fileName), m_CompatFileNames(compatFileNames)
 	{
 		Reset();
 	}
 
 	void Reset()
 	{
-		m_dictOptions.clear();
+		m_Options.clear();
 
-		bool bExists = true;
-
-		std::ifstream file(m_szFileName);
-		if (file.fail())
+		auto readData = [&](const char *fileName)
 		{
-			LOG("Config file " << m_szFileName << " not found!");
-
-			return;
-		}
-
-		char cBuffer[256];
-		while (file.getline(cBuffer, 256))
-		{
-			std::string szLine(cBuffer);
-			std::string szKey = szLine.substr(0, szLine.find("="));
-
-			// Ignore line if there's no "="
-			if (szLine == szKey)
+			std::ifstream file(fileName);
+			if (file.fail())
 			{
-				continue;
+				return false;
 			}
 
-			std::string szValue =
-			    szLine.substr(szLine.find("=") + 1).substr(0, szLine.find('\n')); // Also do trimming of newline
+			std::string line;
+			line.resize(128);
+			while (file.getline(line.data(), 128))
+			{
+				const auto &key = StringTrim(line.substr(0, line.find("=")));
 
-			m_dictOptions.emplace(szKey, szValue);
+				// Ignore line if there's no "="
+				if (line == key)
+				{
+					continue;
+				}
+
+				const auto &value = StringTrim(
+				    line.substr(line.find("=") + 1).substr(0, line.find('\n'))); // Also do trimming of newline
+
+				m_Options.emplace(key, value);
+			}
+
+			return true;
+		};
+
+		if (!readData(m_FileName))
+		{
+			bool dataRead = false;
+			for (auto compatFileName : m_CompatFileNames)
+			{
+				if ((dataRead = readData(compatFileName)))
+				{
+					break;
+				}
+			}
+
+			if (!dataRead)
+			{
+				LOG("Config file " << m_FileName << " not found!");
+			}
 		}
 	}
 
-	template <typename T> inline T ReadValue(const std::string &szKey, T defaultValue) const
+	template <typename T> inline T ReadValue(const std::vector<std::string> &keys, T defaultValue) const
 	{
-		const auto &szValue = ReadValueString(szKey);
-
-		if (!szValue.empty())
+		for (const auto &key : keys)
 		{
-			T result;
-			if (Util::TryParse<T>(szValue, result))
+			const auto &result = m_Options.find(key);
+
+			if (result != m_Options.end() && !result->second.empty())
 			{
-				return result;
+				T parsedResult;
+				if (Util::TryParse<T>(result->second, parsedResult))
+				{
+					return parsedResult;
+				}
 			}
 		}
 
 		return defaultValue;
 	}
 
-	inline std::string ReadValueString(const std::string &szKey, const std::string &szDefaultValue = {}) const
+	inline std::string ReadValueString(const std::vector<std::string> &keys, const std::string &defaultValue = {}) const
 	{
-		const auto &result = m_dictOptions.find(szKey);
+		for (const auto &key : keys)
+		{
+			const auto &result = m_Options.find(key);
 
-		if (result != m_dictOptions.end())
-		{
-			return result->second;
+			if (result != m_Options.end())
+			{
+				return result->second;
+			}
 		}
-		else
-		{
-			return szDefaultValue;
-		}
+
+		return defaultValue;
 	}
 };

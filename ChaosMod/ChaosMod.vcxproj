@@ -55,9 +55,10 @@
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions);CURL_STATICLIB;NOMINMAX;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.;../vendor</AdditionalIncludeDirectories>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -72,24 +73,24 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions);CURL_STATICLIB;NOMINMAX;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.;../vendor</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4099;4244;4267</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);winmm.lib;dbghelp.lib;d3dcompiler.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);winmm.lib;dbghelp.lib;d3dcompiler.lib;XInput.lib</AdditionalDependencies>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Components\DebugMenu.cpp" />
     <ClCompile Include="Components\DebugSocket.cpp" />
-    <ClCompile Include="Components\Shortcuts.cpp" />
+    <ClCompile Include="Components\EffectShortcuts.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Components\EffectDispatcher.cpp" />
     <ClCompile Include="Effects\db\Meta\MetaAdditionalEffects.cpp" />
@@ -160,6 +161,7 @@
     <ClCompile Include="Effects\db\Peds\PedsUpsideDown.cpp" />
     <ClCompile Include="Effects\db\Peds\PedsToast.cpp" />
     <ClCompile Include="Effects\db\Player\PlayerDeadEye.cpp" />
+    <ClCompile Include="Effects\db\Misc\MiscEsp.cpp" />
     <ClCompile Include="Effects\db\Player\PlayerGravitySphere.cpp" />
     <ClCompile Include="Effects\db\Player\PlayerGTA2.cpp" />
     <ClCompile Include="Effects\db\Player\PlayerHacking.cpp" />
@@ -389,7 +391,7 @@
     <ClCompile Include="Effects\db\Vehs\VehsSpawnIESultan.cpp" />
     <ClCompile Include="Effects\db\Weather\WeatherController.cpp" />
     <ClCompile Include="Components\Failsafe.cpp" />
-    <ClCompile Include="LuaScripts.cpp" />
+    <ClCompile Include="Components\LuaScripts.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Memory\Hooks\AudioClearnessHook.cpp" />
     <ClCompile Include="Memory\Hooks\ApplyChangeSetEntryHook.cpp" />
@@ -407,13 +409,17 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Effects\EffectThreads.cpp" />
-    <ClCompile Include="Components\TwitchVoting.cpp" />
-    <ClCompile Include="Mp3Manager.cpp" />
+    <ClCompile Include="Components\Voting.cpp" />
+    <ClCompile Include="Components\Mp3Manager.cpp" />
     <ClCompile Include="Util\PoolSpawner.cpp" />
+    <ClCompile Include="Components\KeyStates.cpp" />
+    <ClCompile Include="Components\HelpTextQueue.cpp" />
+    <ClCompile Include="Memory\Hooks\GetLabelTextHook.cpp" />
+    <ClCompile Include="Components\Workshop.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\vendor\lua\lua54.lib" />
-    <Library Include="..\vendor\minhook\build\VC16\lib\Release\libMinHook.x64.lib" />
+    <Library Include="..\vendor\minhook\build\VC17\lib\Release\libMinHook.x64.lib" />
     <Library Include="..\vendor\scripthookv\lib\ScriptHookV.lib" />
   </ItemGroup>
   <ItemGroup>
@@ -421,27 +427,28 @@
     <ClInclude Include="Components\DebugMenu.h" />
     <ClInclude Include="Components\DebugSocket.h" />
     <ClInclude Include="Components\EffectDispatcher.h" />
-    <ClInclude Include="Components\Shortcuts.h" />
+    <ClInclude Include="Components\EffectShortcuts.h" />
+    <ClInclude Include="Effects\EffectCategory.h" />
     <ClInclude Include="Effects\db\Player\PlayerBlimpStrats.h" />
     <ClInclude Include="Effects\db\Player\PlayerRandomStuntJump.h" />
     <ClInclude Include="Effects\db\Player\PlayerTpToRandomStore.h" />
-    <ClInclude Include="Effects\EEffectCategory.h" />
     <ClInclude Include="Effects\EffectConfig.h" />
-    <ClInclude Include="Effects\EEffectAttributes.h" />
+    <ClInclude Include="Effects\EffectAttributes.h" />
     <ClInclude Include="Effects\EffectData.h" />
-    <ClInclude Include="Effects\EEffectExecutionType.h" />
+    <ClInclude Include="Effects\EffectExecutionType.h" />
     <ClInclude Include="Effects\EffectGroups.h" />
     <ClInclude Include="Effects\Effect.h" />
     <ClInclude Include="Effects\EffectIdentifier.h" />
     <ClInclude Include="Effects\EffectsInfo.h" />
-    <ClInclude Include="Effects\MetaModifiers.h" />
-    <ClInclude Include="Effects\EEffectTimedType.h" />
+    <ClInclude Include="Components\MetaModifiers.h" />
+    <ClInclude Include="Effects\EffectTimedType.h" />
     <ClInclude Include="Effects\EnabledEffectsMap.h" />
     <ClInclude Include="Components\Failsafe.h" />
     <ClInclude Include="Lib\scrThread.h" />
-    <ClInclude Include="LuaScripts.h" />
+    <ClInclude Include="Components\LuaScripts.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Memory\Audio.h" />
+    <ClInclude Include="Memory\Drawing.h" />
     <ClInclude Include="Memory\Entity.h" />
     <ClInclude Include="Memory\EntityFragments.h" />
     <ClInclude Include="Memory\Gravity.h" />
@@ -465,6 +472,8 @@
     <ClInclude Include="Memory\Weapon.h" />
     <ClInclude Include="Memory\WeaponPool.h" />
     <ClInclude Include="Components\SplashTexts.h" />
+    <ClInclude Include="Memory\WorldToScreen.h" />
+    <ClInclude Include="Util\Color.h" />
     <ClInclude Include="Util\Hash.h" />
     <ClInclude Include="Util\Natives.h" />
     <ClInclude Include="Util\Macros.h" />
@@ -473,7 +482,7 @@
     <ClInclude Include="Util\Random.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Effects\EffectThreads.h" />
-    <ClInclude Include="Components\TwitchVoting.h" />
+    <ClInclude Include="Components\Voting.h" />
     <ClInclude Include="Util\Camera.h" />
     <ClInclude Include="Util\CrashHandler.h" />
     <ClInclude Include="Util\EntityIterator.h" />
@@ -481,8 +490,9 @@
     <ClInclude Include="Util\Logging.h" />
     <ClInclude Include="Util\Peds.h" />
     <ClInclude Include="Util\Text.h" />
+    <ClInclude Include="Util\ScriptText.h" />
     <ClInclude Include="Util\Model.h" />
-    <ClInclude Include="Mp3Manager.h" />
+    <ClInclude Include="Components\Mp3Manager.h" />
     <ClInclude Include="Util\OptionsManager.h" />
     <ClInclude Include="Util\PoolSpawner.h" />
     <ClInclude Include="Util\Script.h" />
@@ -491,7 +501,13 @@
     <ClInclude Include="Util\Types.h" />
     <ClInclude Include="Util\Vehicle.h" />
     <ClInclude Include="Util\Weapon.h" />
+    <ClInclude Include="Components\Workshop.h" />
     <ClInclude Include="Info.h" />
+    <ClInclude Include="Components\KeyStates.h" />
+    <ClInclude Include="Util\Events.h" />
+    <ClInclude Include="Util\HelpText.h" />
+    <ClInclude Include="Components\HelpTextQueue.h" />
+    <ClInclude Include="Memory\Hooks\GetLabelTextHook.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ChaosMod.rc" />

@@ -20,7 +20,7 @@ REGISTER_EFFECT(OnStartLSIA, nullptr, nullptr, EffectInfo
 	{
 		.Name = "Teleport To LS Airport",
 		.Id = "tp_lsairport",
-		.EffectGroupType = EEffectGroupType::Teleport
+		.EffectGroupType = EffectGroupType::Teleport
 	}
 );
 // clang-format on
@@ -35,7 +35,7 @@ REGISTER_EFFECT(OnStartMazeTower, nullptr, nullptr, EffectInfo
 	{
 		.Name = "Teleport To Top Of Maze Bank Tower",
 		.Id = "tp_mazebanktower",
-		.EffectGroupType = EEffectGroupType::Teleport
+		.EffectGroupType = EffectGroupType::Teleport
 	}
 );
 // clang-format on
@@ -57,7 +57,7 @@ REGISTER_EFFECT(OnStartFortZancudo, nullptr, nullptr, EffectInfo
 	{
 		.Name = "Teleport To Fort Zancudo",
 		.Id = "tp_fortzancudo",
-		.EffectGroupType = EEffectGroupType::Teleport
+		.EffectGroupType = EffectGroupType::Teleport
 	}
 );
 // clang-format on
@@ -79,7 +79,7 @@ REGISTER_EFFECT(OnStartMountChilliad, nullptr, nullptr, EffectInfo
 	{
 		.Name = "Teleport To Mount Chiliad",
 		.Id = "tp_mountchilliad",
-		.EffectGroupType = EEffectGroupType::Teleport
+		.EffectGroupType = EffectGroupType::Teleport
 	}
 );
 // clang-format on
@@ -94,7 +94,7 @@ REGISTER_EFFECT(OnStartSkyFall, nullptr, nullptr, EffectInfo
 	{
 		.Name = "Teleport To Heaven",
 		.Id = "tp_skyfall",
-		.EffectGroupType = EEffectGroupType::Teleport
+		.EffectGroupType = EffectGroupType::Teleport
 	}
 );
 // clang-format on
@@ -328,7 +328,7 @@ REGISTER_EFFECT(OnStartRandom, nullptr, nullptr, EffectInfo
 	{
 		.Name = "Teleport To Random Location",
 		.Id = "tp_random",
-		.EffectGroupType = EEffectGroupType::Teleport
+		.EffectGroupType = EffectGroupType::Teleport
 	}
 );
 // clang-format on
@@ -541,7 +541,8 @@ static void OnStartFakeTp()
 REGISTER_EFFECT(OnStartFakeTp, nullptr, nullptr, EffectInfo
 	{
 		.Name = "Fake Teleport",
-		.Id = "tp_fake"
+		.Id = "tp_fake",
+		.HideRealNameOnStart = true
 	}
 );
 // clang-format on
@@ -552,7 +553,10 @@ static void OnStartFakeFakeTp()
 
 	Vector3 destinationPos = PerformFakeTeleport("tp_fakex2");
 
-	GetComponent<EffectDispatcher>()->OverrideEffectNameId("tp_fakex2", "tp_fake");
+	if (ComponentExists<EffectDispatcher>())
+	{
+		GetComponent<EffectDispatcher>()->OverrideEffectNameId("tp_fakex2", "tp_fake");
+	}
 
 	WAIT(g_Random.GetRandomInt(3500, 6000));
 
@@ -565,6 +569,7 @@ static void OnStartFakeFakeTp()
 REGISTER_EFFECT(OnStartFakeFakeTp, nullptr, nullptr, EffectInfo
 	{
 		.Name = "Fake Fake Teleport",
-		.Id = "tp_fakex2"
+		.Id = "tp_fakex2",
+		.HideRealNameOnStart = true
 	}
 );

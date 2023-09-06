@@ -6,6 +6,16 @@
 static void OnStop()
 {
 	SET_GRAVITY_LEVEL(0);
+
+	for (auto ped : GetAllPeds())
+	{
+		SET_ENTITY_INVINCIBLE(ped, false);
+	}
+
+	for (auto veh : GetAllVehs())
+	{
+		SET_ENTITY_INVINCIBLE(veh, false);
+	}
 }
 
 static void OnTickLow()
@@ -20,7 +30,7 @@ REGISTER_EFFECT(nullptr, OnStop, OnTickLow, EffectInfo
 		.Id = "lowgravity",
 		.IsTimed = true,
 		.IsShortDuration = true,
-		.EffectCategory = EEffectCategory::Gravity
+		.EffectCategory = EffectCategory::Gravity
 	}
 );
 // clang-format on
@@ -37,7 +47,7 @@ REGISTER_EFFECT(nullptr, OnStop, OnTickVeryLow, EffectInfo
 		.Id = "verylowgravity",
 		.IsTimed = true,
 		.IsShortDuration = true,
-		.EffectCategory = EEffectCategory::Gravity
+		.EffectCategory = EffectCategory::Gravity
 	}
 );
 // clang-format on
@@ -69,7 +79,7 @@ REGISTER_EFFECT(nullptr, OnStop, OnTickInsane, EffectInfo
 		.Id = "insanegravity",
 		.IsTimed = true,
 		.IsShortDuration = true,
-		.EffectCategory = EEffectCategory::Gravity
+		.EffectCategory = EffectCategory::Gravity
 	}
 );
 // clang-format on
@@ -106,7 +116,7 @@ REGISTER_EFFECT(OnStartInvert, OnStop, OnTickInvert, EffectInfo
 		.Id = "invertgravity",
 		.IsTimed = true,
 		.IsShortDuration = true,
-		.EffectCategory = EEffectCategory::Gravity
+		.EffectCategory = EffectCategory::Gravity
 	}
 );
 // clang-format on
@@ -126,6 +136,8 @@ static void OnTickSideways()
 
 	for (auto ped : GetAllPeds())
 	{
+		SET_ENTITY_INVINCIBLE(ped, true);
+
 		if (!IS_PED_IN_ANY_VEHICLE(ped, false))
 		{
 			SET_PED_TO_RAGDOLL(ped, 1000, 1000, 0, true, true, false);
@@ -143,6 +155,8 @@ static void OnTickSideways()
 
 	for (auto veh : GetAllVehs())
 	{
+		SET_ENTITY_INVINCIBLE(veh, true);
+
 		Memory::ApplyForceToEntityCenterOfMass(veh, 1, sidewaysGravityForce.x, sidewaysGravityForce.y,
 		                                       sidewaysGravityForce.z, false, false, true, false);
 	}
@@ -155,7 +169,7 @@ REGISTER_EFFECT(OnStartSideways, OnStop, OnTickSideways, EffectInfo
 		.Id = "misc_sideways_gravity",
 		.IsTimed = true,
 		.IsShortDuration = true,
-		.EffectCategory = EEffectCategory::Gravity
+		.EffectCategory = EffectCategory::Gravity
 	}
 );
 // clang-format on
@@ -179,6 +193,8 @@ static void OnTickRandom()
 
 	for (auto ped : GetAllPeds())
 	{
+		SET_ENTITY_INVINCIBLE(ped, true);
+
 		if (!IS_PED_IN_ANY_VEHICLE(ped, false))
 		{
 			SET_PED_TO_RAGDOLL(ped, 1000, 1000, 0, true, true, false);
@@ -208,6 +224,6 @@ REGISTER_EFFECT(nullptr, OnStop, OnTickRandom, EffectInfo
 		.Id = "misc_randomgravity",
 		.IsTimed = true,
 		.IsShortDuration = true,
-		.EffectCategory  = EEffectCategory::Gravity
+		.EffectCategory  = EffectCategory::Gravity
 	}
 );

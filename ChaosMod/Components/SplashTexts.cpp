@@ -1,53 +1,72 @@
 #include <stdafx.h>
 
-#include "Info.h"
 #include "SplashTexts.h"
+
+#include "Info.h"
+
+#include "Util/OptionsManager.h"
+
+static bool ms_InitalSplashShown = false;
+
+SplashTexts::SplashTexts()
+{
+	m_EnableSplashTexts =
+	    g_OptionsManager.GetConfigValue({ "EnableModSplashTexts" }, OPTION_DEFAULT_ENABLE_SPLASH_TEXTS);
+
+	if (ms_InitalSplashShown)
+	{
+		return;
+	}
+
+	ShowSplash("Chaos Mod v" MOD_VERSION "\n\nspecial build for "
+		+ (g_Random.GetRandomInt(0, 4) == 4 ? "Matto" : "DarkViperAU"
+		+ "\n\nSee credits.txt for a list of contributors", { .2f, .3f }, .65f, { 60, 245, 190 });
+#ifdef _DEBUG
+	ShowSplash("DEBUG BUILD!", { .2f, .5f }, .7f, { 255, 0, 0 });
+#endif
+
+	ms_InitalSplashShown = true;
+}
 
 void SplashTexts::OnModPauseCleanup()
 {
-	m_activeSplashes.clear();
+	m_ActiveSplashes.clear();
 }
 
 void SplashTexts::OnRun()
 {
-	float fFrameTime = GET_FRAME_TIME();
+	float frameTime = GET_FRAME_TIME();
 
-	for (std::list<SplashText>::iterator it = m_activeSplashes.begin(); it != m_activeSplashes.end();)
+	for (std::list<SplashText>::iterator it = m_ActiveSplashes.begin(); it != m_ActiveSplashes.end();)
 	{
-		DrawScreenText(it->m_szText, it->m_textPos, it->m_fScale, it->m_textColor, true);
-		it->m_fTime -= fFrameTime;
+		DrawScreenText(it->Text, it->TextPos, it->Scale, it->TextColor, true);
+		it->Time -= frameTime;
 
-		if (it->m_fTime <= 0)
+		if (it->Time <= 0)
 		{
-			it = m_activeSplashes.erase(it);
+			it = m_ActiveSplashes.erase(it);
 		}
 		else
 		{
 			it++;
 		}
-	} 
+	}
 }
 
-void SplashTexts::ShowSplash(const std::string &szText, const ScreenTextVector &textPos, float fScale,
-                             ScreenTextColor textColor, float fTime = SPLASH_TEXT_DUR_SECS)
+void SplashTexts::ShowSplash(const std::string &text, const ScreenTextVector &textPos, float scale,
+                             ScreenTextColor textColor, std::uint8_t time)
 {
-	m_activeSplashes.emplace_back(szText, textPos, fScale, textColor, fTime);
+	if (!m_EnableSplashTexts)
+	{
+		return;
+	}
+
+	m_ActiveSplashes.emplace_back(text, textPos, scale, textColor, time);
 }
 
-void SplashTexts::ShowInitSplash()
+void SplashTexts::ShowVotingSplash()
 {
-	ShowSplash(std::string("Chaos Mod v" MOD_VERSION " - special build for ")
-	               + (g_Random.GetRandomInt(0, 4) == 4 ? "Matto" : "DarkViperAU")
-	               + "\n\nSee credits.txt for a list of contributors",
-	           { .25f, .3f }, .65f, { 60, 245, 190 });
-#ifdef _DEBUG
-	ShowSplash("DEBUG BUILD!", { .2f, .5f }, .7f, { 255, 0, 0 });
-#endif
-}
-
-void SplashTexts::ShowTwitchVotingSplash()
-{
-	ShowSplash("Twitch Voting Enabled!", { .86f, .7f }, .8f, { 255, 100, 100 });
+	ShowSplash("Voting Enabled!", { .86f, .7f }, .8f, { 255, 100, 100 });
 }
 
 void SplashTexts::ShowClearEffectsSplash()

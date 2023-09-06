@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Effects/EEffectCategory.h"
-#include "Effects/EEffectTimedType.h"
+#include "Effects/EffectCategory.h"
 #include "Effects/EffectData.h"
 #include "Effects/EffectGroups.h"
 #include "Effects/EffectIdentifier.h"
+#include "Effects/EffectTimedType.h"
 #include "Effects/EffectsInfo.h"
 
 #include "Util/OptionsFile.h"
@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-enum EEffectType : int;
+enum EffectType : int;
 struct EffectData;
 
 namespace EffectConfig
@@ -22,73 +22,90 @@ namespace EffectConfig
 		bool isInQuotes = false;
 		if (input.length() > 0)
 		{
-			for (size_t curIdx = 0; curIdx < input.length(); curIdx++)
+			for (size_t i = 0; i < input.length(); i++)
 			{
-				if (input[curIdx] == '\"')
+				if (input[i] == '\"')
 				{
 					isInQuotes = !isInQuotes;
 				}
-				else if (!isInQuotes && input[curIdx] == ',')
+				else if (!isInQuotes && input[i] == ',')
 				{
-					return curIdx;
+					return i;
 				}
 			}
 		}
 		return -1;
 	}
 
-	inline void ReadConfig(const char *szConfigPath, auto &out)
+	inline void ReadConfig(const char *configPath, auto &out, std::vector<const char *> compatConfigPaths = {})
 	{
-		OptionsFile effectsFile(szConfigPath);
+		OptionsFile effectsFile(configPath, compatConfigPaths);
 
-		for (auto &[effectId, effectInfo] : g_dictEffectsMap)
+		for (auto &[effectId, effectInfo] : g_EffectsMap)
 		{
-			// Default EffectData values
-			// Enabled, TimedType, CustomTime (-1 = Disabled), Weight, Permanent, ExcludedFromVoting, "Dummy for
-			// name-override", Shortcut
-			std::vector<int> rgValues = { true, static_cast<int>(EEffectTimedType::Unk), -1, 5, false, false, 0, 0 };
-			// HACK: Store EffectCustomName seperately
-			std::string szValueEffectName;
-
-			auto szValue = effectsFile.ReadValueString(std::string(effectId));
-			if (!szValue.empty())
+			struct ConfigValues
 			{
-				size_t ullSplitIndex = GetNextDelimiterOffset(szValue);
+				// Declared as named struct outside the union because MSVC doesn't like default initialization in
+				// unnamed structs inside unions
+				struct DetailedValues
+				{
+					alignas(int) bool Enabled              = true;
+					alignas(int) EffectTimedType TimedType = EffectTimedType::NotTimed;
+					alignas(int) int CustomTime            = 0;
+					alignas(int) int WeightMult            = 0;
+					alignas(int) bool Permanent            = false;
+					alignas(int) bool ExcludedFromVoting   = false;
+					alignas(int) char Placeholder;
+					alignas(int) int ShortcutKeycode = 0;
+				};
+				union
+				{
+					std::array<int, 8> ValuesRaw;
+					DetailedValues Values {};
+				};
+			} configValues;
+			// HACK: Store EffectCustomName seperately
+			std::string valueEffectName;
+
+			auto value = effectsFile.ReadValueString({ std::string(effectId) });
+			if (!value.empty())
+			{
+				size_t splitIndex = GetNextDelimiterOffset(value);
 				for (int j = 0;; j++)
 				{
 					// Effect-Name override
 					if (j == 6)
 					{
-						std::string szSplit = szValue.substr(0, ullSplitIndex);
+						auto split = value.substr(0, splitIndex);
 						// Trim surrounding quotations
-						if (szSplit.length() >= 2 && szSplit[0] == '\"' && szSplit[szSplit.length() - 1] == '\"')
+						if (split.length() >= 2 && split[0] == '\"' && split[split.length() - 1] == '\"')
 						{
-							szSplit = szSplit.substr(1, szSplit.size() - 2);
+							split = split.substr(1, split.size() - 2);
 						}
 						// Names can't be "0" to support older configs
-						if (!szSplit.empty() && szSplit != "0")
+						if (!split.empty() && split != "0")
 						{
-							szValueEffectName = szSplit;
+							valueEffectName = split;
 						}
 					}
 					else
 					{
-						const std::string &szSplit = szValue.substr(0, ullSplitIndex);
+						const auto &split = value.substr(0, splitIndex);
 
-						Util::TryParse<int>(szSplit, rgValues[j]);
+						Util::TryParse<int>(split, configValues.ValuesRaw[j]);
 					}
 
-					if (ullSplitIndex == szValue.npos)
+					if (splitIndex == value.npos)
 					{
 						break;
 					}
 
-					szValue       = szValue.substr(ullSplitIndex + 1);
-					ullSplitIndex = GetNextDelimiterOffset(szValue);
+					value      = value.substr(splitIndex + 1);
+					splitIndex = GetNextDelimiterOffset(value);
 				}
 			}
 
-			if (!rgValues[0]) // enabled == false
+			if (!configValues.Values.Enabled)
 			{
 				continue;
 			}
@@ -96,52 +113,56 @@ namespace EffectConfig
 			EffectData effectData;
 			if (!effectInfo.IsTimed)
 			{
-				effectData.TimedType = EEffectTimedType::NotTimed;
+				effectData.TimedType = EffectTimedType::NotTimed;
 			}
-			else if (rgValues[4])
+			else if (configValues.Values.Permanent)
 			{
-				effectData.TimedType = EEffectTimedType::Permanent;
+				effectData.TimedType = EffectTimedType::Permanent;
 			}
-			else if (rgValues[2] > -1)
+			else if (configValues.Values.CustomTime > 0)
 			{
-				effectData.TimedType  = EEffectTimedType::Custom;
-				effectData.CustomTime = rgValues[2];
+				effectData.TimedType  = EffectTimedType::Custom;
+				effectData.CustomTime = configValues.Values.CustomTime;
 			}
 			else
 			{
-				effectData.TimedType = static_cast<EEffectTimedType>(
-				    static_cast<EEffectTimedType>(rgValues[1]) == EEffectTimedType::Unk ? effectInfo.IsShortDuration
-				                                                                        : rgValues[1]);
+				effectData.TimedType =
+				    configValues.Values.TimedType == EffectTimedType::NotTimed
+				        ? (effectInfo.IsShortDuration ? EffectTimedType::Short : EffectTimedType::Normal)
+				        : configValues.Values.TimedType;
 			}
 
-			effectData.WeightMult = rgValues[3];
-			effectData.Weight     = effectData.WeightMult; // Set initial effect weight to WeightMult
-			effectData.SetAttribute(EEffectAttributes::ExcludedFromVoting, rgValues[5]);
-			effectData.SetAttribute(EEffectAttributes::IsMeta, effectInfo.ExecutionType == EEffectExecutionType::Meta);
-			effectData.Name            = effectInfo.Name;
-#ifdef _DEBUG
-			effectData.ShortcutKeycode = effectInfo.DebugShortcutKeycode ? effectInfo.DebugShortcutKeycode : rgValues[7];
-#else
-			effectData.ShortcutKeycode = rgValues[7];
-#endif
-			if (!szValueEffectName.empty())
+			if (configValues.Values.WeightMult > 0)
 			{
-				effectData.SetAttribute(EEffectAttributes::HasCustomName, true);
-				effectData.CustomName = szValueEffectName;
+				effectData.WeightMult = configValues.Values.WeightMult;
+			}
+			effectData.Weight = effectData.WeightMult; // Set initial effect weight to WeightMult
+			effectData.SetAttribute(EffectAttributes::ExcludedFromVoting, configValues.Values.ExcludedFromVoting);
+			effectData.SetAttribute(EffectAttributes::IsMeta, effectInfo.ExecutionType == EffectExecutionType::Meta);
+			effectData.Name = effectInfo.Name;
+			effectData.SetAttribute(EffectAttributes::HideRealNameOnStart, effectInfo.HideRealNameOnStart);
+#ifdef _DEBUG
+			effectData.ShortcutKeycode =
+			    effectInfo.DebugShortcutKeycode ? effectInfo.DebugShortcutKeycode : configValues.Values.ShortcutKeycode;
+#else
+			effectData.ShortcutKeycode = configValues.Values.ShortcutKeycode;
+#endif
+			if (!valueEffectName.empty())
+			{
+				effectData.CustomName = valueEffectName;
 			}
 			effectData.Id             = effectInfo.Id;
 			effectData.EffectCategory = effectInfo.EffectCategory;
 
 			for (auto effectType : effectInfo.IncompatibleWith)
 			{
-				effectData.IncompatibleIds.push_back(g_dictEffectsMap.at(effectType).Id);
+				effectData.IncompatibleIds.push_back(g_EffectsMap.at(effectType).Id);
 			}
 
-			if (effectInfo.EffectGroupType != EEffectGroupType::None)
+			if (effectInfo.EffectGroupType != EffectGroupType::None)
 			{
-				effectData.GroupType =
-				    g_dictEffectGroups.find(g_dictEffectTypeToGroup.at(effectInfo.EffectGroupType))->first;
-				g_dictEffectGroupMemberCount[effectData.GroupType]++;
+				effectData.GroupType = g_EffectGroups.find(g_EffectTypeToGroup.at(effectInfo.EffectGroupType))->first;
+				g_EffectGroups[effectData.GroupType].MemberCount++;
 			}
 
 			out.emplace(EffectIdentifier(std::string(effectId)), effectData);

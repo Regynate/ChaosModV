@@ -49,6 +49,6 @@ REGISTER_EFFECT(nullptr, nullptr, OnTickx05, EffectInfo
 		.Id = "player_movementx05",
 		.IsTimed = true,
 		.IsShortDuration = true,
-		.EffectCategory = EEffectCategory::Movement
+		.EffectCategory = EffectCategory::Movement
 	}
 );

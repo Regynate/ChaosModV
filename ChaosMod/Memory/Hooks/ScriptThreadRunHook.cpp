@@ -12,109 +12,56 @@
 
 #include <scripthookv/inc/main.h>
 
-static bool ms_bEnabledHook                     = false;
-static int ms_iOnlineVehicleMeasureEnableGlobal = 0;
-static bool ms_bSearchedForMissionStateGlobal   = false;
+static bool ms_EnabledHook                         = false;
 
-static Handle FindScriptPattern(const std::string &pattern, rage::scrProgram *program)
-{
-	DWORD codeBlocksSize = (program->m_nCodeSize + 0x3FFF) >> 14;
-	for (int i = 0; i < codeBlocksSize; i++)
-	{
-		auto handle = Memory::FindPattern(
-		    pattern,
-		    { program->m_pCodeBlocks[i],
-		      program->m_pCodeBlocks[i] + (i == codeBlocksSize - 1 ? program->m_nCodeSize : program->PAGE_SIZE) });
-		if (handle.IsValid())
-		{
-			return handle;
-		}
-	}
-
-	return Handle();
-}
+static DWORD ms_OnlineVehicleDespawnScriptThreadId = 0;
+static DWORD64 ms_OnlineVehicleDespawnPatchAddr    = 0;
+static std::array<BYTE, 3> ms_OnlineVehicleDespawnPatchOrigBytes;
 
 __int64 (*OG_rage__scrThread__Run)(rage::scrThread *);
 __int64 HK_rage__scrThread__Run(rage::scrThread *thread)
 {
+	if (!Hooks::OnScriptThreadRun.Fire(thread))
+	{
+		return 0;
+	}
+
 	if (!strcmp(thread->GetName(), "shop_controller"))
 	{
-		if (!ms_iOnlineVehicleMeasureEnableGlobal)
+		auto threadId = thread->GetThreadId();
+		if (ms_OnlineVehicleDespawnScriptThreadId != threadId)
 		{
-			auto program = Memory::ScriptThreadToProgram(thread);
-			if (program->m_pCodeBlocks)
+			LOG("New shop_controller script instance with thread ID " << threadId << "!");
+
+			ms_OnlineVehicleDespawnScriptThreadId = threadId;
+			ms_OnlineVehicleDespawnPatchAddr      = 0;
+
+			auto program                          = Memory::ScriptThreadToProgram(thread);
+			if (program->m_CodeBlocks)
 			{
-				Handle handle;
-				if (getGameVersion() < VER_1_0_2802_0)
-				{
-					// Thanks to drp4lyf
-					handle = FindScriptPattern("2D ? ? 00 00 2C 01 ? ? 56 04 00 6E 2E ? 01 5F ? ? ? ? 04 00 6E 2E ? 01",
-					                           program);
-				}
-				else
-				{
-					// Thanks to LeeC22
-					handle = FindScriptPattern("2D 01 04 00 00 2C 01 01 F8 56 ? ? 71 2E 01 01 62", program);
-				}
+				// Thanks to rainbomizer
+				auto handle = Memory::FindScriptPattern("2D ? ? 00 ? 38 00 5D ? ? ? 06 56 ? ? 2E 01 00", program);
 
 				if (!handle.IsValid())
 				{
 					LOG("Error while bypassing online vehicle despawn mechanism; spawned online vehicles will "
-					    "despawn!");
+					    "despawn (unless already patched)!");
 				}
 				else
 				{
-					ms_iOnlineVehicleMeasureEnableGlobal = handle.At(17).Value<int>() & 0xFFFFFF;
+					ms_OnlineVehicleDespawnPatchAddr = handle.Addr() + 12;
+					memcpy_s(ms_OnlineVehicleDespawnPatchOrigBytes.data(), ms_OnlineVehicleDespawnPatchOrigBytes.size(),
+					         reinterpret_cast<void *>(ms_OnlineVehicleDespawnPatchAddr), 3);
 
-					LOG("Online vehicle despawn mechanism successfully bypassed (Global: "
-					    << ms_iOnlineVehicleMeasureEnableGlobal << ")");
+					Memory::Write<BYTE>(reinterpret_cast<BYTE *>(ms_OnlineVehicleDespawnPatchAddr), 0, 3);
+
+					LOG("Online vehicle despawn mechanism successfully bypassed");
 				}
 			}
-
-			// Don't try again if it failed the first time
-			if (!ms_iOnlineVehicleMeasureEnableGlobal)
-			{
-				ms_iOnlineVehicleMeasureEnableGlobal = -1;
-			}
-		}
-
-		if (ms_iOnlineVehicleMeasureEnableGlobal > 0)
-		{
-			*Memory::GetGlobalPtr(ms_iOnlineVehicleMeasureEnableGlobal) = 1;
 		}
 	}
 
-	if (!ms_bSearchedForMissionStateGlobal && !Failsafe::GetGlobalIndex() && !strcmp(thread->GetName(), "main"))
-	{
-		auto program = Memory::ScriptThreadToProgram(thread);
-		if (program->m_pCodeBlocks)
-		{
-			ms_bSearchedForMissionStateGlobal = true;
-
-			Handle handle;
-			if (getGameVersion() < VER_1_0_2802_0)
-			{
-				handle = FindScriptPattern("2D ? ? 00 00 25 0D 60 ? ? ? 6D 5E", program);
-			}
-			else
-			{
-				handle = FindScriptPattern("2D ? ? 00 00 25 0D 63 ? ? ? 70 61", program);
-			}
-
-			if (!handle.IsValid())
-			{
-				LOG("Fail state global not found; Failsafe can not be enabled!");
-			}
-			else
-			{
-				Failsafe::SetGlobalIndex(handle.At(8).Value<int>() & 0xFFFFFF);
-
-				LOG("Fail state global found (Global: " << Failsafe::GetGlobalIndex() << ")");
-			}
-		}
-	}
-
-	if (ms_bEnabledHook)
+	if (ms_EnabledHook)
 	{
 		auto scriptName = thread->GetName();
 		// Scripthook (most likely) relies on these to run our script thread
@@ -144,13 +91,22 @@ static bool OnHook()
 	return true;
 }
 
-static RegisterHook registerHook(OnHook, nullptr, "rage::scrThread::Run");
+static void OnCleanup()
+{
+	if (ms_OnlineVehicleDespawnPatchAddr)
+	{
+		memcpy_s(reinterpret_cast<void *>(ms_OnlineVehicleDespawnPatchAddr), 3,
+		         ms_OnlineVehicleDespawnPatchOrigBytes.data(), ms_OnlineVehicleDespawnPatchOrigBytes.size());
+	}
+}
+
+static RegisterHook registerHook(OnHook, OnCleanup, "rage::scrThread::Run");
 
 namespace Hooks
 {
 	void EnableScriptThreadBlock()
 	{
-		ms_bEnabledHook = true;
+		ms_EnabledHook = true;
 
 		// Fix the player switch effects when enabling
 		ANIMPOSTFX_STOP_ALL();
@@ -159,6 +115,6 @@ namespace Hooks
 
 	void DisableScriptThreadBlock()
 	{
-		ms_bEnabledHook = false;
+		ms_EnabledHook = false;
 	}
 }

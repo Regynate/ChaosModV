@@ -22,16 +22,14 @@ static void OnStart()
 
 		while (GET_GAME_TIMER() - startTick < 20000)
 		{
-			LOG(GET_ENTITY_HEALTH(playerPed));
-
 			if (GET_ENTITY_HEALTH(playerPed) < 110)
 			{
-				STOP_ENTITY_FIRE(playerPed);
 				break;
 			}
 
 			WAIT(0);
 		}
+		STOP_ENTITY_FIRE(playerPed);
 	}
 }
 

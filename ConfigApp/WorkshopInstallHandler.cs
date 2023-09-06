@@ -1,13 +1,16 @@
-﻿using System;
-using System.Net.Http;
-using System.Windows.Input;
-using System.Windows;
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Security.Cryptography;
-using Newtonsoft.Json.Linq;
-using System.Text;
 using System.Linq;
+using System.Media;
+using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
+using System.Windows;
+using System.Windows.Input;
+using ZstdSharp;
 
 namespace ConfigApp
 {
@@ -30,43 +33,59 @@ namespace ConfigApp
 
         public async void Execute(object parameter)
         {
-            var fatalCleanup = new Action(() =>
-            {
-                m_SubmissionItem.InstallState = WorkshopSubmissionItem.SubmissionInstallState.NotInstalled;
-            });
-
-            if (!m_SubmissionItem.Id.All((c) => char.IsLetterOrDigit(c) && (char.IsNumber(c) || char.IsLower(c)) ))
-            {
-                MessageBox.Show($"Invalid submission id! Refusing to install.", "ChaosModV", MessageBoxButton.OK, MessageBoxImage.Error);
-                fatalCleanup();
-                return;
-            }
-
             Directory.CreateDirectory("workshop");
 
             var targetDirName = $"workshop/{m_SubmissionItem.Id}";
 
-            if (m_SubmissionItem.InstallState == WorkshopSubmissionItem.SubmissionInstallState.Installed)
+            var origInstallState = m_SubmissionItem.InstallState;
+
+            if (origInstallState == WorkshopSubmissionItem.SubmissionInstallState.Installed)
             {
                 // Remove submission
                 m_SubmissionItem.InstallState = WorkshopSubmissionItem.SubmissionInstallState.Removing;
 
+                if (MessageBox.Show("Are you sure you want to remove this submission?", "ChaosModV", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                {
+                    m_SubmissionItem.InstallState = origInstallState;
+                    return;
+                }
+
                 try
                 {
                     Directory.Delete(targetDirName, true);
+                    File.Delete($"{targetDirName}.json");
                 }
                 catch (DirectoryNotFoundException)
+                {
+
+                }
+                catch (FileNotFoundException)
                 {
 
                 }
                 catch (IOException)
                 {
                     MessageBox.Show($"Couldn't access \"{targetDirName}\". Please delete that directory and try again!", "ChaosModV", MessageBoxButton.OK, MessageBoxImage.Error);
-                    fatalCleanup();
+                    m_SubmissionItem.InstallState = origInstallState;
                     return;
                 }
 
                 m_SubmissionItem.InstallState = WorkshopSubmissionItem.SubmissionInstallState.NotInstalled;
+
+                SystemSounds.Beep.Play();
+
+                return;
+            }
+
+            void fatalCleanup()
+            {
+                m_SubmissionItem.InstallState = origInstallState;
+            }
+
+            if (!m_SubmissionItem.Id.All((c) => char.IsLetterOrDigit(c) && (char.IsNumber(c) || char.IsLower(c))))
+            {
+                MessageBox.Show($"Invalid submission id! Refusing to install.", "ChaosModV", MessageBoxButton.OK, MessageBoxImage.Error);
+                fatalCleanup();
                 return;
             }
 
@@ -96,9 +115,26 @@ namespace ConfigApp
                 }
                 if (sha256StrBuilder.ToString() != m_SubmissionItem.Sha256)
                 {
-                    MessageBox.Show("SHA256 mismatch! Please try again!", "ChaosModV", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("SHA256 mismatch! Please refresh submissions and try again!", "ChaosModV", MessageBoxButton.OK, MessageBoxImage.Error);
                     fatalCleanup();
                     return;
+                }
+
+                try
+                {
+                    if (result.Headers.Contains("compressed") && result.Headers.GetValues("Compressed").Contains("yes"))
+                    {
+                        var fileContent = await result.Content.ReadAsByteArrayAsync();
+
+                        var decompressor = new Decompressor();
+                        var decompressed = decompressor.Unwrap(fileContent).ToArray();
+                        fileStream = new MemoryStream(decompressed.ToArray());
+                    }
+                }
+                catch (ZstdException)
+                {
+                    // File content is not (zstd) compressed even though compressed = yes?
+                    // Skip decompression
                 }
 
                 try
@@ -112,18 +148,19 @@ namespace ConfigApp
                             return;
                         }
 
-                        StringBuilder sb = new StringBuilder();
+                        var files = new List<WorkshopSubmissionFile>();
                         foreach (var entry in archive.Entries)
                         {
-                            var trimmedName = entry.Name.Trim();
+                            var trimmedName = (entry.FullName.StartsWith("sounds/") ? entry.FullName : entry.Name).Trim();
                             if (trimmedName.Length > 0)
                             {
-                                sb.Append(trimmedName + "   ");
+                                files.Add(new WorkshopSubmissionFile(trimmedName, true));
                             }
                         }
-                        var msgBoxResult = MessageBox.Show($"This submission contains the following entries:\n\n{sb}\n\nInstall?", "ChaosModV",
-                            MessageBoxButton.YesNo, MessageBoxImage.Question);
-                        if (msgBoxResult == MessageBoxResult.No)
+                        files.Sort();
+
+                        var installConfirmationWindow = new WorkshopEditDialog(files, WorkshopEditDialogMode.Install);
+                        if (!(bool)installConfirmationWindow.ShowDialog())
                         {
                             fatalCleanup();
                             return;
@@ -155,7 +192,7 @@ namespace ConfigApp
                     return;
                 }
 
-                JObject metadataJson = new JObject();
+                var metadataJson = new JObject();
                 metadataJson["name"] = m_SubmissionItem.Name;
                 metadataJson["author"] = m_SubmissionItem.Author;
                 metadataJson["description"] = m_SubmissionItem.Description;
@@ -165,10 +202,12 @@ namespace ConfigApp
                 File.WriteAllText($"{targetDirName}/metadata.json", metadataJson.ToString());
 
                 m_SubmissionItem.InstallState = WorkshopSubmissionItem.SubmissionInstallState.Installed;
+
+                SystemSounds.Beep.Play();
             }
             catch (HttpRequestException)
             {
-                MessageBox.Show("Error while fetching submission. Please try again!", "ChaosModV", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Error while fetching submission. Submission might have been removed by remote. Please refresh and try again!", "ChaosModV", MessageBoxButton.OK, MessageBoxImage.Error);
                 fatalCleanup();
                 return;
             }
