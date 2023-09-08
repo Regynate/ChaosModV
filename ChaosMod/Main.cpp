@@ -312,6 +312,11 @@ namespace Main
 		static bool c_bIsCtrlPressed  = false;
 		static bool c_bIsShiftPressed = false;
 
+		if (ulKey == 0x4B) // K
+		{
+			STOP_CUTSCENE(0);
+		}
+
 		if (ulKey == VK_CONTROL)
 		{
 			c_bIsCtrlPressed = !bIsUpNow;
@@ -319,10 +324,6 @@ namespace Main
 		else if (ulKey == VK_SHIFT)
 		{
 			c_bIsShiftPressed = !bIsUpNow;
-		}
-		else if (ulKey == 0x4B) // K
-		{
-			STOP_CUTSCENE(0);
 		}
 		else if (c_bIsCtrlPressed && !bWasDownBefore)
 		{
