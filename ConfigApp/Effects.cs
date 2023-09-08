@@ -416,7 +416,7 @@ namespace ConfigApp
             { "peds_screamonshot", new EffectInfo("Drama Queen", EffectCategory.Peds, true) },
             { "peds_blanks", new EffectInfo("Blanks", EffectCategory.Peds, true, true) },
             { "misc_fakeuturn", new EffectInfo("Fake U-Turn", EffectCategory.Misc) },
-            { "player_tptowaypointopposite", new EffectInfo("Teleport To The Opposite Side Of Waypoint", EffectCategory.Misc) },
+            { "player_tptowaypointopposite", new EffectInfo("Teleport To The Opposite Side Of Waypoint", EffectCategory.Player) },
             { "screen_bouncyradar", new EffectInfo("Bouncy Radar", EffectCategory.Screen, true) },
             { "misc_solid_props", new EffectInfo("Solid Props", EffectCategory.Misc, true) },
         };

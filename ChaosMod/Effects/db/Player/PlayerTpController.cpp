@@ -431,13 +431,12 @@ static bool IsValidFakeTpType(std::string_view type)
 static Vector3 PerformFakeTeleport(std::string_view effectId)
 {
 	std::string_view fakeTpType;
-	int fakeTpIndex;
 
 	std::vector<std::string_view> validTpTypes;
 
 	for (auto& type : fakeTpTypes)
 	{
-		if (!IsValidFakeTpType(type))
+		if (IsValidFakeTpType(type))
 		{
 			validTpTypes.emplace_back(type);
 		}
@@ -486,22 +485,22 @@ static Vector3 PerformFakeTeleport(std::string_view effectId)
 	case "tp_mountchilliad"_hash:
 		OnStartMountChilliad();
 		break;
-	case "tp_skyfall "_hash:
+	case "tp_skyfall"_hash:
 		OnStartSkyFall();
 		break;
-	case "tp_mission "_hash:
+	case "tp_mission"_hash:
 		OnStartMission();
 		break;
-	case "tp_random "_hash:
+	case "tp_random"_hash:
 		OnStartRandom();
 		break;
-	case "player_tp_store "_hash:
+	case "player_tp_store"_hash:
 		OnStartTpRandomStore();
 		break;
-	case "player_tptowaypoint "_hash:
+	case "player_tptowaypoint"_hash:
 		OnStartWaypoint();
 		break;
-	case "player_blimp_strats "_hash:
+	case "player_blimp_strats"_hash:
 		OnStartBlimpStrats(false);
 		break;
 	case "player_tp_stunt"_hash:
