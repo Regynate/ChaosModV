@@ -41,6 +41,8 @@ namespace ConfigApp.Tabs
         private TextBox m_DistanceBasedDispatchDistance;
         private ComboBox m_DistanceBasedDispatchType;
 
+        private CheckBox m_EnableCrossingChallenge;
+
         private ColorPicker GenerateCommonColorPicker(Color defaultColor)
         {
             return new ColorPicker()
@@ -134,6 +136,11 @@ namespace ConfigApp.Tabs
                     "Displacement"
                 }
             });
+            grid.PopRow();
+
+            grid.PopRow();
+
+            grid.PushRowSpacedPair("Enable Crossing Challenge™", m_EnableCrossingChallenge = Utils.GenerateCommonCheckBox());
 
             scrollViewer.Content = grid.Grid;
 
@@ -187,6 +194,8 @@ namespace ConfigApp.Tabs
 
             m_DistanceBasedDispatchDistance.Text = OptionsManager.ConfigFile.ReadValue("DistanceToActivateEffect", "250");
             m_DistanceBasedDispatchType.SelectedIndex = OptionsManager.ConfigFile.ReadValueInt("DistanceType", 0);
+
+            m_EnableCrossingChallenge.IsChecked = OptionsManager.ConfigFile.ReadValueBool("EnableCrossingChallenge", false);
         }
 
         public override void OnSaveValues()
@@ -224,6 +233,8 @@ namespace ConfigApp.Tabs
 
             OptionsManager.ConfigFile.WriteValue("DistanceToActivateEffect", m_DistanceBasedDispatchDistance.Text);
             OptionsManager.ConfigFile.WriteValue("DistanceType", m_DistanceBasedDispatchType.SelectedIndex);
+
+            OptionsManager.ConfigFile.WriteValue("EnableCrossingChallenge", m_EnableCrossingChallenge.IsChecked.Value);
         }
     }
 }
