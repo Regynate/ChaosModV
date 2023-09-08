@@ -7,6 +7,16 @@ namespace ConfigApp
     {
         public struct EffectInfo
         {
+            public string Name { get; set; } = null;
+            public EffectCategory EffectCategory { get; set; } = EffectCategory.Unknown;
+            public bool IsTimed { get; set; } = false;
+            public bool IsShort { get; set; } = false;
+
+            public EffectInfo()
+            {
+
+            }
+
             public EffectInfo(string name, EffectCategory effectCategory, bool isTimed = false, bool isShort = false)
             {
                 Name = name;
@@ -14,15 +24,11 @@ namespace ConfigApp
                 IsTimed = isTimed;
                 IsShort = isShort;
             }
-
-            public readonly string Name;
-            public readonly EffectCategory EffectCategory;
-            public readonly bool IsTimed;
-            public readonly bool IsShort;
         }
 
         public enum EffectCategory
         {
+            Unknown = -1,
             Player,
             Vehicle,
             Peds,
@@ -35,8 +41,11 @@ namespace ConfigApp
 
         public enum EffectTimedType
         {
-            TimedNormal,
-            TimedShort
+            Permanent = -3,
+            Custom, // Not used here, CustomTime is set to something other than 0 instead
+            NotTimed,
+            Normal,
+            Short,
         }
 
         public static readonly Dictionary<string, EffectInfo> EffectsMap = new Dictionary<string, EffectInfo>()
@@ -379,7 +388,7 @@ namespace ConfigApp
             { "peds_smoketrails", new EffectInfo("Smoke Trails", EffectCategory.Peds, true) },
             { "misc_nowaypoint", new EffectInfo("Remove Waypoint", EffectCategory.Misc) },
             { "timecycle_fuzzy", new EffectInfo("Static", EffectCategory.Screen, true, true) },
-            { "peds_hotcougars", new EffectInfo("Hot Cougars In Your Area", EffectCategory.Peds, true, true) },          
+            { "peds_hotcougars", new EffectInfo("Hot Cougars In Your Area", EffectCategory.Peds, true, true) },
             { "peds_grapple_guns", new EffectInfo("Gravity Guns", EffectCategory.Peds, true) },
             { "timecycle_darkworld", new EffectInfo("A Dark World", EffectCategory.Screen, true, true) },
             { "peds_toast", new EffectInfo("You're Toast", EffectCategory.Peds, true) },

@@ -1,10 +1,10 @@
-﻿using System.Drawing;
+﻿using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Windows;
+using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
-using System.Windows;
-using System.Diagnostics;
-using System.Windows.Input;
-using System.ComponentModel;
 
 namespace ConfigApp
 {
@@ -34,7 +34,9 @@ namespace ConfigApp
         }
         private SubmissionInstallState m_InstallState = SubmissionInstallState.NotInstalled;
 
-        public SubmissionInstallState InstallState { get
+        public SubmissionInstallState InstallState
+        {
+            get
             {
                 return m_InstallState;
             }
@@ -47,10 +49,12 @@ namespace ConfigApp
                     case SubmissionInstallState.NotInstalled:
                         InstallButtonText = "Install";
                         InstallButtonEnabled = true;
+                        SettingsButtonVisibility = Visibility.Hidden;
                         break;
                     case SubmissionInstallState.Installed:
                         InstallButtonText = "Remove";
                         InstallButtonEnabled = true;
+                        SettingsButtonVisibility = Visibility.Visible;
                         break;
                     case SubmissionInstallState.Installing:
                         InstallButtonText = "Installing";
@@ -59,6 +63,7 @@ namespace ConfigApp
                     case SubmissionInstallState.UpdateAvailable:
                         InstallButtonText = "Update";
                         InstallButtonEnabled = true;
+                        SettingsButtonVisibility = Visibility.Visible;
                         break;
                     case SubmissionInstallState.Removing:
                         InstallButtonText = "Removing";
@@ -68,10 +73,13 @@ namespace ConfigApp
 
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(InstallButtonText)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(InstallButtonEnabled)));
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SettingsButtonVisibility)));
             }
         }
 
-        public ICommand InstallButtonCommand {
+        public ICommand InstallButtonCommand
+        {
             get
             {
                 return new WorkshopInstallHandler(this);
@@ -88,13 +96,25 @@ namespace ConfigApp
             }
         }
 
+        public ICommand SettingsButtonCommand
+        {
+            get
+            {
+                return new WorkshopSettingsHandler(this);
+            }
+        }
+        public Visibility SettingsButtonVisibility { get; private set; } = Visibility.Hidden;
+
         public WorkshopSubmissionItem()
         {
             if (ms_DefaultIcon == null)
             {
                 using (Icon ico = Icon.ExtractAssociatedIcon(Process.GetCurrentProcess().MainModule.FileName))
                 {
-                    ms_DefaultIcon = Imaging.CreateBitmapSourceFromHIcon(ico.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                    if (ico != null)
+                    {
+                        ms_DefaultIcon = Imaging.CreateBitmapSourceFromHIcon(ico.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                    }
                 }
             }
 
