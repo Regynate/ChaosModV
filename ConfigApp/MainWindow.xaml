@@ -132,9 +132,6 @@
             <Button x:Name="update_available_button" Content="GTA5-Mods" Width="100" Height="40" Grid.Column="2"
                     HorizontalAlignment="Left" VerticalAlignment="Center"
                     Visibility="Hidden" Click="OpenModPageEvent" />
-            <Button x:Name="user_reset" Content="Reset" Width="100" Height="40" Grid.Column="3"
-                    VerticalAlignment="Center"
-                    Click="user_reset_Click" />
             <Button x:Name="user_save" Content="Save" Width="100" Height="40" Grid.Column="4"
                     VerticalAlignment="Center"
                     Click="user_save_Click" />
