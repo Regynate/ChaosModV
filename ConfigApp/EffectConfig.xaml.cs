@@ -50,9 +50,11 @@ namespace ConfigApp
                 {
                     case EffectTimedType.Normal:
                         effectconf_timer_type.SelectedIndex = 0;
+                        effectconf_timer_time.Text = "90";
                         break;
                     case EffectTimedType.Short:
                         effectconf_timer_type.SelectedIndex = 1;
+                        effectconf_timer_time.Text = "30";
                         break;
                     case EffectTimedType.Permanent:
                         effectconf_timer_type.SelectedIndex = 2;
