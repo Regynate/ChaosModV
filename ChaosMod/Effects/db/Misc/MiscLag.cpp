@@ -52,23 +52,6 @@ static void OnTickLag()
 
 			for (const auto &pair : m_toTpPeds)
 			{
-				const Ped &ped       = pair.first;
-
-				Vector3 vel          = GET_ENTITY_VELOCITY(ped);
-				float heading        = GET_ENTITY_HEADING(ped);
-
-				const Vector3 &tpPos = pair.second;
-
-				SET_ENTITY_COORDS_NO_OFFSET(ped, tpPos.x, tpPos.y, tpPos.z, false, false, false);
-
-				SET_ENTITY_HEADING(ped, heading);
-				SET_ENTITY_VELOCITY(ped, vel.x, vel.y, vel.z);
-			}
-
-			m_toTpPeds.clear();
-
-			for (const auto &pair : m_toTpVehs)
-			{
 				const Vehicle &veh = pair.first;
 
 				Vector3 vel        = GET_ENTITY_VELOCITY(veh);
@@ -89,8 +72,6 @@ static void OnTickLag()
 				SET_ENTITY_VELOCITY(veh, vel.x, vel.y, vel.z);
 
 				SET_VEHICLE_FORWARD_SPEED(veh, forwardSpeed);
-
-				SET_VEHICLE_ENGINE_ON(veh, true, true, false);
 			}
 
 			m_toTpVehs.clear();
