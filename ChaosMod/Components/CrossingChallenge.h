@@ -11,6 +11,12 @@
 class CrossingChallenge : public Component
 {
   private:
+	struct WeaponInfo
+	{
+		Hash hash;
+		int ammo;
+	};
+
 	OptionsFile m_fConfigFile { "chaosmod\\crossing.ini" };
 
 	int m_iHelpMessageTick          = -1;
@@ -33,8 +39,8 @@ class CrossingChallenge : public Component
 	int m_iClockHours               = 0;
 	int m_iClockMinutes             = 0;
 	int m_iClockSeconds             = 0;
-	Hash m_hStartWeapon             = 0;
 	int m_iStartWeaponAmmo          = 0;
+	std::vector<WeaponInfo> m_rgStartWeapons;
 
 	bool m_bEndEnabled              = false;
 	Vector3 m_vEndLocation          = Vector3();

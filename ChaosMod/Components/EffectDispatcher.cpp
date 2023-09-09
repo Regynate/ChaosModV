@@ -389,6 +389,11 @@ _NODISCARD int EffectDispatcher::GetRemainingTimerTime() const
 
 void EffectDispatcher::DispatchEffect(const EffectIdentifier &effectIdentifier, const char *szSuffix, bool bAddToLog)
 {
+	if (m_bPause)
+	{
+		return;
+	}
+
 	EffectData &effectData = g_dictEnabledEffects.at(effectIdentifier);
 	if (effectData.TimedType == EEffectTimedType::Permanent)
 	{

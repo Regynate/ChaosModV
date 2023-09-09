@@ -443,7 +443,7 @@ _NODISCARD bool TwitchVoting::IsEnabled() const
 
 bool TwitchVoting::HandleMsg(const std::string &szMsg)
 {
-	if (szMsg != "ping")
+	if (szMsg != "ping" && !szMsg.starts_with("currentvotes"))
 	{
 		LOG("Recieved message: " << szMsg);
 	}
@@ -509,7 +509,10 @@ bool TwitchVoting::HandleMsg(const std::string &szMsg)
 
 void TwitchVoting::SendToPipe(std::string &&szMsg)
 {
-	LOG("Sending message: " << szMsg);
+	if (szMsg != "getcurrentvotes")
+	{
+		LOG("Sending message: " << szMsg);
+	}
 
 	szMsg += "\n";
 	WriteFile(m_hPipeHandle, szMsg.c_str(), szMsg.length(), NULL, NULL);

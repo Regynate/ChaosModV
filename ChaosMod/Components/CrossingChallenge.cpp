@@ -1,6 +1,7 @@
 #include <stdafx.h>
 
 #include "Main.h"
+#include "Memory/WeaponPool.h"
 #include "EffectDispatcher.h"
 #include "CrossingChallenge.h"
 
@@ -21,9 +22,9 @@ void CrossingChallenge::SetStartParams()
 	_SET_WEATHER_TYPE_TRANSITION(m_hStartWeatherType1, m_hStartWeatherType2, m_fStartWeatherPercent);
 	SET_CLOCK_TIME(m_iClockHours, m_iClockMinutes, m_iClockSeconds);
 	REMOVE_ALL_PED_WEAPONS(player, false);
-	if (m_hStartWeapon)
+	for (WeaponInfo weapon : m_rgStartWeapons)
 	{
-		GIVE_WEAPON_TO_PED(player, m_hStartWeapon, m_iStartWeaponAmmo, false, true);
+		GIVE_WEAPON_TO_PED(player, weapon.hash, weapon.ammo, false, false);
 	}
 }
 
@@ -150,32 +151,45 @@ void CrossingChallenge::ControlPassed()
 		ShowPassedScaleform();
 		break;
 	case 2:
+		if (ComponentExists<EffectDispatcher>())
+		{
+			GetComponent<EffectDispatcher>()->SetPaused(false);
+		}
 		Main::Stop();
 		break;
 	}
+}
+
+std::string GetWeaponOptionName(Hash weapon)
+{
+	std::ostringstream oss;
+
+	oss << "StartWeapon_" << weapon;
+
+	return oss.str();
 }
 
 void CrossingChallenge::SaveConfig()
 {
 	LOG("Saving");
 
-	m_fConfigFile.SetValue<bool>("StartEnabled", 		  m_bStartEnabled       );
-	m_fConfigFile.SetValue<float>("StartLocationX", 	  m_vStartLocation.x      );
+	m_fConfigFile.SetValue<bool>("StartEnabled", m_bStartEnabled);
+	m_fConfigFile.SetValue<float>("StartLocationX", m_vStartLocation.x);
 	m_fConfigFile.SetValue<float>("StartLocationY", m_vStartLocation.y);
 	m_fConfigFile.SetValue<float>("StartLocationZ", m_vStartLocation.z);
-	m_fConfigFile.SetValue<Hash>("StartVehicle",		  m_hStartVehicleHash   );
-	m_fConfigFile.SetValue<float>("StartHeading", 		  m_fStartHeading       );
-	m_fConfigFile.SetValue<float>("StartCameraHeading",  m_fStartCameraHeading );
-	m_fConfigFile.SetValue<Hash>("StartWeather1",		  m_hStartWeatherType1  );
-	m_fConfigFile.SetValue<Hash>("StartWeather2",		  m_hStartWeatherType2  );
+	m_fConfigFile.SetValue<Hash>("StartVehicle", m_hStartVehicleHash);
+	m_fConfigFile.SetValue<float>("StartHeading", m_fStartHeading);
+	m_fConfigFile.SetValue<float>("StartCameraHeading", m_fStartCameraHeading);
+	m_fConfigFile.SetValue<Hash>("StartWeather1", m_hStartWeatherType1);
+	m_fConfigFile.SetValue<Hash>("StartWeather2", m_hStartWeatherType2);
 	m_fConfigFile.SetValue<float>("StartWeatherPercent", m_fStartWeatherPercent);
-	m_fConfigFile.SetValue<int>("StartHours",			  m_iClockHours         );
-	m_fConfigFile.SetValue<int>("StartMinutes",		  m_iClockMinutes       );
-	m_fConfigFile.SetValue<int>("StartSeconds",		  m_iClockSeconds       );
-	m_fConfigFile.SetValue<Hash>("StartWeapon",		  m_hStartWeapon        );
-	if (m_hStartWeapon)
+	m_fConfigFile.SetValue<int>("StartHours", m_iClockHours);
+	m_fConfigFile.SetValue<int>("StartMinutes", m_iClockMinutes);
+	m_fConfigFile.SetValue<int>("StartSeconds", m_iClockSeconds);
+	
+	for (WeaponInfo weapon : m_rgStartWeapons)
 	{
-		m_fConfigFile.SetValue<int>("StartAmmo", m_iStartWeaponAmmo);
+		m_fConfigFile.SetValue<int>(GetWeaponOptionName(weapon.hash), weapon.ammo);
 	}
 
 	m_fConfigFile.SetValue<bool>("EndEnabled", m_bEndEnabled);
@@ -205,10 +219,15 @@ void CrossingChallenge::CaptureStart()
 	m_iClockHours   = GET_CLOCK_HOURS();
 	m_iClockMinutes = GET_CLOCK_MINUTES();
 	m_iClockSeconds = GET_CLOCK_SECONDS();
-	m_hStartWeapon  = GET_SELECTED_PED_WEAPON(player);
-	if (m_hStartWeapon)
+	
+	m_rgStartWeapons.clear();
+
+	for (Hash weapon : Memory::GetAllWeapons())
 	{
-		GET_AMMO_IN_CLIP(player, m_hStartWeapon, &m_iStartWeaponAmmo);
+		if (HAS_PED_GOT_WEAPON(player, weapon, false))
+		{
+			m_rgStartWeapons.emplace_back(WeaponInfo { weapon, GET_AMMO_IN_PED_WEAPON(player, weapon) });
+		}
 	}
 
 	SaveConfig();
@@ -240,10 +259,14 @@ CrossingChallenge::CrossingChallenge()
 		m_iClockHours          = m_fConfigFile.ReadValue<int>("StartHours", 0);
 		m_iClockMinutes        = m_fConfigFile.ReadValue<int>("StartMinutes", 0);
 		m_iClockSeconds        = m_fConfigFile.ReadValue<int>("StartSeconds", 0);
-		m_hStartWeapon         = m_fConfigFile.ReadValue<Hash>("StartWeapon", 0);
-		if (m_hStartWeapon)
+
+		for (Hash hash : Memory::GetAllWeapons())
 		{
-			m_iStartWeaponAmmo = m_fConfigFile.ReadValue<int>("StartAmmo", 0);
+			int ammo = m_fConfigFile.ReadValue<int>(GetWeaponOptionName(hash), -1);
+			if (ammo >= 0)
+			{
+				m_rgStartWeapons.emplace_back(WeaponInfo { hash, ammo });
+			}
 		}
 	}
 
@@ -286,7 +309,7 @@ bool CrossingChallenge::IsEndValid()
 {
 	return !m_bEndEnabled || !m_bStartEnabled
 	    || GET_DISTANCE_BETWEEN_COORDS(m_vStartLocation.x, m_vStartLocation.y, 0, 
-									   m_vEndLocation.x, m_vEndLocation.y, 0, false) > m_fEndRadius * 1.5f;
+									   m_vEndLocation.x, m_vEndLocation.y, 0, false) > m_fEndRadius + 5.f;
 }
 
 void CrossingChallenge::ShowEndCylinder()
@@ -304,6 +327,7 @@ void CrossingChallenge::ShowEndCylinder()
 void CrossingChallenge::IncreaseEndRadius()
 {
 	m_fEndRadius += 1.f;
+	SaveConfig();
 }
 
 void CrossingChallenge::DecreaseEndRadius()
@@ -312,6 +336,7 @@ void CrossingChallenge::DecreaseEndRadius()
 	{
 		m_fEndRadius -= 1.f;
 	}
+	SaveConfig();
 }
 
 void CrossingChallenge::ShowHint(const std::string &text)
@@ -345,7 +370,6 @@ void CrossingChallenge::ShowHelpButtons()
 	}
 
 	CALL_SCALEFORM_MOVIE_METHOD(m_hButtonsScaleformHandle, "CLEAR_ALL");
-	CALL_SCALEFORM_MOVIE_METHOD_WITH_NUMBER(m_hButtonsScaleformHandle, "SET_CLEAR_SPACE", 200, -1.0, -1.0, -1.0, -1.0);
 
 	int i = 0;
 
@@ -368,9 +392,9 @@ void CrossingChallenge::ShowHelpButtons()
 	AddButton(m_hButtonsScaleformHandle, i++, "t_Q", "Capture finish point");
 	AddButton(m_hButtonsScaleformHandle, i++, "t_E", "Capture starting point");
 
-	CALL_SCALEFORM_MOVIE_METHOD(m_hButtonsScaleformHandle, "DRAW_INSTRUCTIONAL_BUTTONS");
-
 	CALL_SCALEFORM_MOVIE_METHOD_WITH_NUMBER(m_hButtonsScaleformHandle, "SET_BACKGROUND_COLOUR", 0, 0, 0, 80, -1.0);
+
+	CALL_SCALEFORM_MOVIE_METHOD(m_hButtonsScaleformHandle, "DRAW_INSTRUCTIONAL_BUTTONS");
 
 
 	DRAW_SCALEFORM_MOVIE_FULLSCREEN(m_hButtonsScaleformHandle, 255, 255, 255, 255, 0);
@@ -453,7 +477,7 @@ void CrossingChallenge::OnRun()
 			}
 
 			SetStartParams();
-			SET_BLIP_DISPLAY(m_bStartBlip, 0);
+			REMOVE_BLIP(&m_bStartBlip);
 
 			DO_SCREEN_FADE_IN(1000);
 		}

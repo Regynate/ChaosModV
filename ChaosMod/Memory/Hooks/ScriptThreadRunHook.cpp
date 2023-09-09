@@ -12,13 +12,13 @@
 
 #include <scripthookv/inc/main.h>
 
-static bool ms_EnabledHook                      = false;
+static bool ms_bEnabledHook                      = false;
 
-static bool ms_RanOnlineVehicleDespawnPatch     = false;
+static bool ms_bRanOnlineVehicleDespawnPatch     = false;
 static DWORD64 ms_OnlineVehicleDespawnPatchAddr = 0;
 static std::array<BYTE, 3> ms_OnlineVehicleDespawnPatchOrigBytes;
 
-static bool ms_SearchedForMissionStateGlobal = false;
+static bool ms_bSearchedForMissionStateGlobal = false;
 
 static Handle FindScriptPattern(const std::string &pattern, rage::scrProgram *program)
 {
@@ -43,12 +43,12 @@ __int64 HK_rage__scrThread__Run(rage::scrThread *thread)
 {
 	if (!strcmp(thread->GetName(), "shop_controller"))
 	{
-		if (!ms_RanOnlineVehicleDespawnPatch)
+		if (!ms_bRanOnlineVehicleDespawnPatch)
 		{
-			ms_RanOnlineVehicleDespawnPatch = true;
+			ms_bRanOnlineVehicleDespawnPatch = true;
 
 			auto program                    = Memory::ScriptThreadToProgram(thread);
-			if (program->m_CodeBlocks)
+			if (program->m_pCodeBlocks)
 			{
 				// Thanks to rainbomizer
 				auto handle = FindScriptPattern("2D ? ? 00 ? 38 00 5D ? ? ? 06 56 ? ? 2E 01 00", program);
