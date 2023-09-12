@@ -428,6 +428,7 @@ namespace ConfigApp
             { "player_tptowaypointopposite", new EffectInfo("Teleport To The Opposite Side Of Waypoint", EffectCategory.Player) },
             { "screen_bouncyradar", new EffectInfo("Bouncy Radar", EffectCategory.Screen, true) },
             { "misc_solid_props", new EffectInfo("Solid Props", EffectCategory.Misc, true) },
+            { "misc_grounded", new EffectInfo("Grounded", EffectCategory.Misc, true) },
         };
     }
 }
