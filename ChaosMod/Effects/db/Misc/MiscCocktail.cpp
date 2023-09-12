@@ -2,9 +2,9 @@
 // effect by veloscocity
 //
 
+#include "Memory/Gravity.h"
 #include <math.h>
 #include <stdafx.h>
-#include "Memory/Gravity.h"
 
 static float x, y;
 
