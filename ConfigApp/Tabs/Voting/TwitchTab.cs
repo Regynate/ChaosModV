@@ -68,7 +68,7 @@ namespace ConfigApp.Tabs.Voting
 
         public override void OnLoadValues()
         {
-            m_EnableTwitchVoting.IsChecked = OptionsManager.TwitchFile.ReadValueBool("EnableVotingTwitch", false);
+            m_EnableTwitchVoting.IsChecked = OptionsManager.TwitchFile.ReadValueBool("EnableTwitchVoting", false);
             SetElementsEnabled(m_EnableTwitchVoting.IsChecked.GetValueOrDefault());
 
             m_ChannelName.Text = OptionsManager.TwitchFile.ReadValue("TwitchChannelName");
@@ -79,7 +79,7 @@ namespace ConfigApp.Tabs.Voting
 
         public override void OnSaveValues()
         {
-            OptionsManager.TwitchFile.WriteValue("EnableVotingTwitch", m_EnableTwitchVoting.IsChecked.Value);
+            OptionsManager.TwitchFile.WriteValue("EnableTwitchVoting", m_EnableTwitchVoting.IsChecked.Value);
 
             OptionsManager.TwitchFile.WriteValue("TwitchChannelName", m_ChannelName.Text);
             OptionsManager.TwitchFile.WriteValue("TwitchUserName", m_UserName.Text);
