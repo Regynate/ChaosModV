@@ -39,12 +39,12 @@ static void OnTick()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStart, nullptr, OnTick, EffectInfo
+REGISTER_EFFECT(nullptr, nullptr, OnTick, EffectInfo
 	{
 		.Name = "Cocktail Shaker",
 		.Id = "cocktail_shaker",
 		.IsTimed = true,
         .IsShortDuration = true,
-		.EffectCategory = EffectCategory::Gravity,
+		.EffectCategory = EEffectCategory::Gravity,
 	}
 );
