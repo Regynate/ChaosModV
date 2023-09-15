@@ -39,7 +39,7 @@ static void SetupCamera()
 	Vector3 boneCoords = GET_PED_BONE_COORDS(playerPed, boneId, 0, 0, 0);
 	eCamera     = CREATE_CAM_WITH_PARAMS("DEFAULT_SCRIPTED_CAMERA", boneCoords.x, boneCoords.y, boneCoords.z, 0, 0, 0, 60,
 	                                   false, 2);
-	ATTACH_CAM_TO_PED_BONE(eCamera, playerPed, GET_PED_BONE_INDEX(playerPed, boneId), 0.f, 0.f, 0.f, false);
+	ATTACH_CAM_TO_PED_BONE(eCamera, playerPed, GET_PED_BONE_INDEX(playerPed, boneId), 0.1f, 0.f, 0.2f, false);
 
 	SET_CAM_NEAR_CLIP(eCamera, 0.2);
 	SET_CAM_AFFECTS_AIMING(eCamera, false);
@@ -84,7 +84,7 @@ static void OnTick()
 		    {
 			    Ped playerPed   = PLAYER_PED_ID();
 			    Vector3 boneRot = _GET_ENTITY_BONE_ROTATION(playerPed, GET_PED_BONE_INDEX(playerPed, boneId));
-			    SET_CAM_ROT(eCamera, boneRot.x, boneRot.y, boneRot.z, 2);
+			    SET_CAM_ROT(eCamera, boneRot.x, boneRot.y + 90.f, boneRot.z, 2);
 			}
 			break;
 		//Recovery

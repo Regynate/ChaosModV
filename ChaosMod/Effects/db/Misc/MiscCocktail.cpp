@@ -10,7 +10,7 @@ static float x, y;
 
 static DWORD lastTick = 0;
 
-static void OnTick()
+static void OnStart()
 {
 	Ped playerPed = PLAYER_PED_ID();
 	float rot =
@@ -18,13 +18,18 @@ static void OnTick()
 	                                                               : playerPed); // Shake perpendicular to the player
 	x             = SIN(360 - rot) * 1.33;
 	y             = -COS(360 - rot) * 1.33;
+}
 
+static void OnTick()
+{
 	DWORD curTick = GetTickCount();
 	if (lastTick < curTick - 500)
 	{
 		lastTick = curTick;
 		x        = -x;
 		y        = -y;
+
+		LOG(x << " " << y);
 	}
 
 	for (auto object : GetAllProps())
@@ -39,7 +44,7 @@ static void OnTick()
 }
 
 // clang-format off
-REGISTER_EFFECT(nullptr, nullptr, OnTick, EffectInfo
+REGISTER_EFFECT(OnStart, nullptr, OnTick, EffectInfo
 	{
 		.Name = "Cocktail Shaker",
 		.Id = "cocktail_shaker",
