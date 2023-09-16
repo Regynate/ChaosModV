@@ -106,12 +106,10 @@
     <ClCompile Include="Effects\db\Misc\MiscAirstrike.cpp" />
     <ClCompile Include="Effects\db\Misc\MiscBlackHole.cpp" />
     <ClCompile Include="Effects\db\Misc\MiscBlackout.cpp" />
-    <ClCompile Include="Effects\db\Misc\MiscCocktail.cpp" />
     <ClCompile Include="Effects\db\Misc\MiscEarthquake.cpp" />
     <ClCompile Include="Effects\db\Misc\MiscFpsLimit.cpp" />
     <ClCompile Include="Effects\db\Misc\MiscGhostWorld.cpp" />
     <ClCompile Include="Effects\db\Misc\MiscGoToJail.cpp" />
-    <ClCompile Include="Effects\db\Misc\MiscGrounded.cpp" />
     <ClCompile Include="Effects\db\Misc\MiscHighPitch.cpp" />
     <ClCompile Include="Effects\db\Misc\MiscJumpyProps.cpp" />
     <ClCompile Include="Effects\db\Misc\MiscLowPitch.cpp" />
@@ -194,7 +192,6 @@
     <ClCompile Include="Effects\db\Screen\ScreenDVDScreensaver.cpp" />
     <ClCompile Include="Effects\db\Screen\ScreenFlipCamera.cpp" />
     <ClCompile Include="Effects\db\Screen\ScreenFlipUI.cpp" />
-    <ClCompile Include="Effects\db\Screen\ScreenRealFirstPerson.cpp" />
     <ClCompile Include="Effects\db\Screen\ScreenHeatVision.cpp" />
     <ClCompile Include="Effects\db\Screen\ScreenLeanedCamera.cpp" />
     <ClCompile Include="Effects\db\Screen\ScreenMaximap.cpp" />
@@ -223,7 +220,6 @@
     <ClCompile Include="Effects\db\Screen\Shaders\ScreenShaderTextureless.cpp" />
     <ClCompile Include="Effects\db\Screen\Shaders\ScreenShaderTnPanel.cpp" />
     <ClCompile Include="Effects\db\Screen\Shaders\ScreenShaderWarpedCam.cpp" />
-    <ClCompile Include="Effects\db\Vehs\VehsBoostBraking.cpp" />
     <ClCompile Include="Effects\db\Vehs\VehsCrumble.cpp" />
     <ClCompile Include="Effects\db\Vehs\VehsDetachWheel.cpp" />
     <ClCompile Include="Effects\db\Vehs\VehsDisassemble.cpp" />

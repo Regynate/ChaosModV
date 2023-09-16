@@ -231,8 +231,6 @@ static void MainRun()
 	{
 		WAIT(0);
 
-		DISABLE_CONTROL_ACTION(0, 0x12, true); // block cutscene skips
-
 		// This will run regardless if mod is disabled
 		if (ms_bRunAntiSoftlock)
 		{
@@ -311,11 +309,6 @@ namespace Main
 	{
 		static bool c_bIsCtrlPressed  = false;
 		static bool c_bIsShiftPressed = false;
-
-		if (ulKey == 0x4B) // K
-		{
-			STOP_CUTSCENE(0);
-		}
 
 		if (ulKey == VK_CONTROL)
 		{

@@ -196,7 +196,7 @@ void TwitchVoting::OnRun()
 	{
 		m_ullLastVotesFetchTime = ullCurTick;
 
-		if (m_bIsVotingRunning && m_bEnableTwitchChanceSystem
+		if (m_bIsVotingRunning
 		    && m_eTwitchOverlayMode == ETwitchOverlayMode::OverlayIngame)
 		{
 			// Get current vote status to display procentages on screen
@@ -403,30 +403,7 @@ void TwitchVoting::OnRun()
 			std::ostringstream oss;
 			oss << pChoosableEffect->m_iMatch << ": " << pChoosableEffect->m_szEffectName;
 
-			// Also show chance percentages if chance system is enabled
-			if (m_bEnableTwitchChanceSystem)
-			{
-				float fPercentage;
-				if (iTotalVotes == 0)
-				{
-					fPercentage = 100 / m_rgEffectChoices.size() * .01f;
-				}
-				else
-				{
-					int iChanceVotes =
-					    pChoosableEffect->m_iChanceVotes + (m_bEnableVotingChanceSystemRetainChance ? 1 : 0);
-
-					fPercentage =
-					    !iChanceVotes
-					        ? .0f
-					        : std::roundf(static_cast<float>(iChanceVotes) / static_cast<float>(iTotalVotes) * 100.f)
-					              / 100.f;
-				}
-
-				oss << " (" << fPercentage * 100.f << "%)";
-			}
-
-			oss << std::endl;
+			oss << " (" << pChoosableEffect->m_iChanceVotes << ")" << std::endl;
 
 			DrawScreenText(oss.str(), { .95f, fY }, .41f, { m_rgTextColor[0], m_rgTextColor[1], m_rgTextColor[2] },
 			               true, EScreenTextAdjust::Right, { .0f, .95f }, true);
