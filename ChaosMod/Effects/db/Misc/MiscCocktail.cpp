@@ -28,8 +28,6 @@ static void OnTick()
 		lastTick = curTick;
 		x        = -x;
 		y        = -y;
-
-		LOG(x << " " << y);
 	}
 
 	for (auto object : GetAllProps())
