@@ -134,7 +134,14 @@ namespace EffectConfig
 
 			for (auto effectType : effectInfo.IncompatibleWith)
 			{
-				effectData.IncompatibleIds.push_back(g_dictEffectsMap.at(effectType).Id);
+				if (g_dictEffectsMap.contains(effectType))
+				{
+					effectData.IncompatibleIds.push_back(g_dictEffectsMap.at(effectType).Id);
+				}
+				else
+				{
+					LOG("Warning: effect" << effectId << " has invalid incompatible effect ID: " << effectType);
+				}
 			}
 
 			if (effectInfo.EffectGroupType != EEffectGroupType::None)
