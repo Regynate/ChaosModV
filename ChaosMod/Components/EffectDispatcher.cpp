@@ -36,7 +36,7 @@ EffectDispatcher::EffectDispatcher(bool bSuspended, const std::array<BYTE, 3> &r
 	m_usMetaEffectShortDur =
 	    g_OptionsManager.GetConfigValue<int>("MetaShortEffectDur", OPTION_DEFAULT_EFFECT_META_SHORT_TIMED_DUR);
 
-	m_bEnableDistanceBasedEffectDispatch = g_OptionsManager.GetConfigValue<bool>("EnableDistanceBasedEffectDispatch", true);
+	m_bEnableDistanceBasedEffectDispatch = g_OptionsManager.GetConfigValue<bool>("EnableDistanceBasedEffectDispatch", false);
 	m_fDistanceToActivateEffect = g_OptionsManager.GetConfigValue<int>("DistanceToActivateEffect", 250);
 	m_distanceType = static_cast<TravelledDistanceType>(g_OptionsManager.GetConfigValue<int>("DistanceType", Distance));
 
