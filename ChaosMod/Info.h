@@ -1,1 +1,3 @@
-#define MOD_VERSION "1.11.5"
+#pragma once
+
+#define MOD_VERSION "2.1-devel"
