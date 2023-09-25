@@ -58,6 +58,7 @@ namespace ConfigApp
             { "player_heal", new EffectInfo("HESOYAM", EffectCategory.Player) },
             { "player_ignite", new EffectInfo("Ignite Player", EffectCategory.Player) },
             { "spawn_grieferjesus", new EffectInfo("Spawn Griefer Jesus", EffectCategory.Peds) },
+            { "spawn_companionjesus", new EffectInfo("Spawn Companion Jesus", EffectCategory.Peds) },
             { "peds_spawnimrage", new EffectInfo("Spawn Impotent Rage", EffectCategory.Peds) },
             { "spawn_grieferjesus2", new EffectInfo("Spawn Extreme Griefer Jesus", EffectCategory.Peds) },
             { "peds_ignite", new EffectInfo("Ignite All Nearby Peds", EffectCategory.Peds) },
