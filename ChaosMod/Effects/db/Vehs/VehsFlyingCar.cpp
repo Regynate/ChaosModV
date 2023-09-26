@@ -1,5 +1,5 @@
 /*
-    Effect by Last0xygen
+    Effect by Last0xygen, modified
 */
 
 #include <stdafx.h>
@@ -22,28 +22,28 @@ static void OnTick()
 		float maxSpeed     = GET_VEHICLE_MODEL_ESTIMATED_MAX_SPEED(GET_ENTITY_MODEL(veh));
 		float forwardSpeed = GET_ENTITY_SPEED_VECTOR(veh, true).y;
 		
-		if (currentSpeed < maxSpeed * 0.3f)
+		if (currentSpeed < maxSpeed * 0.3f && GET_ENTITY_HEIGHT_ABOVE_GROUND(veh) < 10.f)
 		{
 			return;
 		}
-
+		
 		float deltaSpeed = 10.f * GET_FRAME_TIME();
 		Vector3 vel      = GET_ENTITY_VELOCITY(veh);
 
 		if (IS_CONTROL_PRESSED(0, 87)) // Forward
 		{
-			vel = vec * (currentSpeed + deltaSpeed);
+			vel = vec * (forwardSpeed + deltaSpeed);
 		}
-		else if (IS_CONTROL_PRESSED(0, 88)) // Brake
+		else if (IS_CONTROL_PRESSED(0, 88) && forwardSpeed > 0) // Brake
 		{
-			vel = vec * (currentSpeed - deltaSpeed);
+			vel = vec * (forwardSpeed - deltaSpeed);
 		}
 		else if (forwardSpeed >= maxSpeed * 0.8f)
 		{
-			vel = vec * (currentSpeed - deltaSpeed * 0.2f);
+			vel = vec * (forwardSpeed - deltaSpeed * 0.2f);
 		}
 
-		float length = VMAG(vel.x, vel.y, vel.x);
+		float length = VMAG(vel.x, vel.y, 0);
 
 		if (length > maxSpeed * 3.f)
 		{
@@ -51,6 +51,11 @@ static void OnTick()
 		}
 
 		SET_ENTITY_VELOCITY(veh, vel.x, vel.y, vel.z);
+
+		if (currentSpeed < maxSpeed * 0.4f)
+		{
+			return;
+		}
 
 		float deltaAngle = 100.f * GET_FRAME_TIME();
 
