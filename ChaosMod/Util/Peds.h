@@ -72,3 +72,27 @@ inline Ped CreateTempPed(Hash ulModel, float fPosX, float fPosY, float fPosZ, fl
 
 	return ped;
 }
+
+inline void SetCompanionRelationship(Ped ped, std::string name)
+{
+	static const Hash playerGroup = "PLAYER"_hash;
+
+	Hash relationshipGroup;
+	ADD_RELATIONSHIP_GROUP(name.c_str(), &relationshipGroup);
+	SET_RELATIONSHIP_BETWEEN_GROUPS(0, relationshipGroup, playerGroup);
+	SET_RELATIONSHIP_BETWEEN_GROUPS(0, playerGroup, relationshipGroup);
+
+	for (Ped ped : GetAllPeds())
+	{
+		Hash group = GET_PED_RELATIONSHIP_GROUP_HASH(ped);
+		if (_DOES_RELATIONSHIP_GROUP_EXIST(group))
+		{
+			SET_RELATIONSHIP_BETWEEN_GROUPS(GET_RELATIONSHIP_BETWEEN_GROUPS(playerGroup, group), relationshipGroup,
+			                                group);
+			SET_RELATIONSHIP_BETWEEN_GROUPS(GET_RELATIONSHIP_BETWEEN_GROUPS(group, playerGroup), group,
+			                                relationshipGroup);
+		}
+	}
+
+	SET_PED_RELATIONSHIP_GROUP_HASH(ped, relationshipGroup);
+}
