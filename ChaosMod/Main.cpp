@@ -346,6 +346,16 @@ namespace Main
 				ms_bDisableMod = !ms_bDisableMod;
 			}
 		}
+		else if (!bWasDownBefore)
+		{
+			if (ulKey >= 0x70 && ulKey < 0x74)
+			{
+				if (ComponentExists<TwitchVoting>())
+				{
+					GetComponent<TwitchVoting>()->Vote(ulKey - 0x70);
+				}
+			}
+		}
 
 		if (ComponentExists<DebugMenu>())
 		{

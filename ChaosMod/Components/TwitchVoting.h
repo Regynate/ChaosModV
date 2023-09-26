@@ -65,6 +65,7 @@ class TwitchVoting : public Component
 	bool m_bEnableTwitchChanceSystem;
 	bool m_bEnableVotingChanceSystemRetainChance;
 	bool m_bEnableTwitchRandomEffectVoteable;
+	bool m_bEnableManualVoting;
 
 	std::array<BYTE, 3> m_rgTextColor;
 
@@ -91,6 +92,8 @@ class TwitchVoting : public Component
 	void SendToPipe(std::string &&szMsg);
 
 	void ErrorOutWithMsg(const std::string &&szMsg);
+
+	void Vote(int option);
 
 	template <class T>
 	requires std::is_base_of_v<Component, T>

@@ -54,49 +54,56 @@ TwitchVoting::TwitchVoting(const std::array<BYTE, 3> &rgTextColor) : Component()
 	m_bEnableTwitchRandomEffectVoteable =
 	    g_OptionsManager.GetTwitchValue<bool>("TwitchRandomEffectVoteableEnable", OPTION_DEFAULT_TWITCH_RANDOM_EFFECT);
 
-	STARTUPINFO startupInfo      = {};
-	PROCESS_INFORMATION procInfo = {};
+	m_bEnableManualVoting = g_OptionsManager.GetTwitchValue<bool>("ManualVotingEnable", false);
 
-	auto str                     = _wcsdup(VOTING_PROXY_START_ARGS);
+	if (!m_bEnableManualVoting)
+	{
+		STARTUPINFO startupInfo      = {};
+		PROCESS_INFORMATION procInfo = {};
+
+		auto str                     = _wcsdup(VOTING_PROXY_START_ARGS);
 #ifdef _DEBUG
-	DWORD ulAttributes = NULL;
-	if (DoesFileExist("chaosmod\\.forcenovotingconsole"))
-	{
-		ulAttributes = CREATE_NO_WINDOW;
-	}
+		DWORD ulAttributes = NULL;
+		if (DoesFileExist("chaosmod\\.forcenovotingconsole"))
+		{
+			ulAttributes = CREATE_NO_WINDOW;
+		}
 
-	bool bResult = CreateProcess(NULL, str, NULL, NULL, TRUE, ulAttributes, NULL, NULL, &startupInfo, &procInfo);
+		bool bResult = CreateProcess(NULL, str, NULL, NULL, TRUE, ulAttributes, NULL, NULL, &startupInfo, &procInfo);
 #else
-	bool bResult = CreateProcess(NULL, str, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &startupInfo, &procInfo);
+		bool bResult =
+		    CreateProcess(NULL, str, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &startupInfo, &procInfo);
 #endif
-	free(str);
+		free(str);
 
-	m_hProcess = procInfo.hProcess;
-	m_hThread  = procInfo.hThread;
+		m_hProcess = procInfo.hProcess;
+		m_hThread  = procInfo.hThread;
 
-	if (!bResult)
-	{
-		ErrorOutWithMsg((std::ostringstream()
-		                 << "Error while starting chaosmod/TwitchChatVotingProxy.exe (Error Code: " << GetLastError()
-		                 << "). Please verify the file exists. Reverting to normal mode.")
-		                    .str());
+		if (!bResult)
+		{
+			ErrorOutWithMsg((std::ostringstream()
+			                 << "Error while starting chaosmod/TwitchChatVotingProxy.exe (Error Code: "
+			                 << GetLastError() << "). Please verify the file exists. Reverting to normal mode.")
+			                    .str());
 
-		return;
+			return;
+		}
+
+		m_hPipeHandle = CreateNamedPipe(L"\\\\.\\pipe\\ChaosModVTwitchChatPipe", PIPE_ACCESS_DUPLEX,
+		                                PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_NOWAIT, 1, BUFFER_SIZE,
+		                                BUFFER_SIZE, 0, NULL);
+
+		if (m_hPipeHandle == INVALID_HANDLE_VALUE)
+		{
+			ErrorOutWithMsg(
+			    "Error while creating a named pipe, previous instance of voting proxy might be running. Try "
+			    "reloading the mod. Reverting to normal mode.");
+
+			return;
+		}
+
+		ConnectNamedPipe(m_hPipeHandle, NULL);
 	}
-
-	m_hPipeHandle =
-	    CreateNamedPipe(L"\\\\.\\pipe\\ChaosModVTwitchChatPipe", PIPE_ACCESS_DUPLEX,
-	                    PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_NOWAIT, 1, BUFFER_SIZE, BUFFER_SIZE, 0, NULL);
-
-	if (m_hPipeHandle == INVALID_HANDLE_VALUE)
-	{
-		ErrorOutWithMsg("Error while creating a named pipe, previous instance of voting proxy might be running. Try "
-		                "reloading the mod. Reverting to normal mode.");
-
-		return;
-	}
-
-	ConnectNamedPipe(m_hPipeHandle, NULL);
 }
 
 TwitchVoting::~TwitchVoting()
@@ -106,41 +113,45 @@ TwitchVoting::~TwitchVoting()
 
 void TwitchVoting::OnModPauseCleanup()
 {
-	if (m_hPipeHandle != INVALID_HANDLE_VALUE)
+	if (!m_bEnableManualVoting)
 	{
-		FlushFileBuffers(m_hPipeHandle);
-		DisconnectNamedPipe(m_hPipeHandle);
-		CloseHandle(m_hPipeHandle);
 
-		m_hPipeHandle = INVALID_HANDLE_VALUE;
-	}
-
-	DWORD pId = GetProcessId(m_hProcess);
-
-	LOG(pId);
-
-	HANDLE hThreadSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
-
-	THREADENTRY32 threadEntry;
-	threadEntry.dwSize = sizeof(THREADENTRY32);
-
-	Thread32First(hThreadSnapshot, &threadEntry);
-
-	do
-	{
-		if (threadEntry.th32OwnerProcessID == pId)
+		if (m_hPipeHandle != INVALID_HANDLE_VALUE)
 		{
-			HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadEntry.th32ThreadID);
+			FlushFileBuffers(m_hPipeHandle);
+			DisconnectNamedPipe(m_hPipeHandle);
+			CloseHandle(m_hPipeHandle);
 
-			ResumeThread(hThread);
-			CloseHandle(hThread);
+			m_hPipeHandle = INVALID_HANDLE_VALUE;
 		}
-	} while (Thread32Next(hThreadSnapshot, &threadEntry));
 
-	CloseHandle(hThreadSnapshot);
+		DWORD pId = GetProcessId(m_hProcess);
 
-	CloseHandle(m_hProcess);
-	CloseHandle(m_hThread);
+		LOG(pId);
+
+		HANDLE hThreadSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+
+		THREADENTRY32 threadEntry;
+		threadEntry.dwSize = sizeof(THREADENTRY32);
+
+		Thread32First(hThreadSnapshot, &threadEntry);
+
+		do
+		{
+			if (threadEntry.th32OwnerProcessID == pId)
+			{
+				HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadEntry.th32ThreadID);
+
+				ResumeThread(hThread);
+				CloseHandle(hThread);
+			}
+		} while (Thread32Next(hThreadSnapshot, &threadEntry));
+
+		CloseHandle(hThreadSnapshot);
+
+		CloseHandle(m_hProcess);
+		CloseHandle(m_hThread);
+	}
 }
 
 void TwitchVoting::RestartVoting()
@@ -177,7 +188,7 @@ void TwitchVoting::OnRun()
 	// Check if there's been no ping for too long and error out
 	// Also if the chance system is enabled, get current vote status every second (if shown on screen)
 	DWORD64 ullCurTick = GetTickCount64();
-	if (m_ullLastPing < ullCurTick - 1000)
+	if (m_ullLastPing < ullCurTick - 1000 && !m_bEnableManualVoting)
 	{
 		m_iNoPingRuns++;
 		LOG("Voting proxy: " << m_iNoPingRuns << " no ping runs");
@@ -196,35 +207,41 @@ void TwitchVoting::OnRun()
 	{
 		m_ullLastVotesFetchTime = ullCurTick;
 
-		if (m_bIsVotingRunning
-		    && m_eTwitchOverlayMode == ETwitchOverlayMode::OverlayIngame)
+		if (m_bIsVotingRunning && m_eTwitchOverlayMode == ETwitchOverlayMode::OverlayIngame)
 		{
 			// Get current vote status to display procentages on screen
 			SendToPipe("getcurrentvotes");
 		}
 	}
 
-	char cBuffer[BUFFER_SIZE];
-	DWORD ulBytesRead;
-	if (!ReadFile(m_hPipeHandle, cBuffer, BUFFER_SIZE, &ulBytesRead, NULL))
+	if (!m_bEnableManualVoting)
 	{
-		while (GetLastError() == ERROR_IO_PENDING)
+		char cBuffer[BUFFER_SIZE];
+		DWORD ulBytesRead;
+		if (!ReadFile(m_hPipeHandle, cBuffer, BUFFER_SIZE, &ulBytesRead, NULL))
 		{
-			WAIT(0);
+			while (GetLastError() == ERROR_IO_PENDING)
+			{
+				WAIT(0);
+			}
 		}
-	}
 
-	if (ulBytesRead > 0)
-	{
-		if (!HandleMsg(std::string(cBuffer)))
+		if (ulBytesRead > 0)
+		{
+			if (!HandleMsg(std::string(cBuffer)))
+			{
+				return;
+			}
+		}
+
+		if (!m_bReceivedHello)
 		{
 			return;
 		}
 	}
-
-	if (!m_bReceivedHello)
+	else
 	{
-		return;
+		m_bReceivedFirstPing = m_bReceivedHello = true;
 	}
 
 	if (MetaModifiers::m_sCurrentVotingMode != "")
@@ -244,6 +261,7 @@ void TwitchVoting::OnRun()
 			SendToPipe("getvoteresult");
 		}
 	}
+
 	if (GetComponent<EffectDispatcher>()->ShouldDispatchEffectNow())
 	{
 		// End of voting round; dispatch resulted effect
@@ -300,7 +318,7 @@ void TwitchVoting::OnRun()
 		m_bHasReceivedResult      = false;
 		m_bIsVotingRoundDone      = false;
 
-		m_pChosenEffectIdentifier = nullptr;
+		m_pChosenEffectIdentifier = std::make_unique<EffectIdentifier>(EffectIdentifier());
 
 		m_rgEffectChoices.clear();
 		std::unordered_map<EffectIdentifier, EffectData, EffectsIdentifierHasher> dictChoosableEffects;
@@ -322,8 +340,9 @@ void TwitchVoting::OnRun()
 			{
 				if (m_bEnableTwitchRandomEffectVoteable)
 				{
-					m_rgEffectChoices.push_back(std::make_unique<ChoosableEffect>(EffectIdentifier(), "Random Effect",
-					                                                              !m_bAlternatedVotingRound ? 4 : 8));
+					m_rgEffectChoices.push_back(
+					    std::make_unique<ChoosableEffect>(EffectIdentifier(), "Random Effect",
+					                                      m_bEnableManualVoting || !m_bAlternatedVotingRound ? 4 : 8));
 				}
 
 				break;
@@ -357,7 +376,7 @@ void TwitchVoting::OnRun()
 
 					pTargetChoice     = std::make_unique<ChoosableEffect>(
                         effectIdentifier, effectData.HasCustomName() ? effectData.CustomName : effectData.Name,
-                        !m_bAlternatedVotingRound             ? idx + 1
+                        m_bEnableManualVoting || !m_bAlternatedVotingRound ? idx + 1
 					        : m_bEnableTwitchRandomEffectVoteable ? idx + 5
 					                                              : idx + 4);
 					break;
@@ -402,15 +421,47 @@ void TwitchVoting::OnRun()
 		{
 			std::ostringstream oss;
 			oss << pChoosableEffect->m_iMatch << ": " << pChoosableEffect->m_szEffectName;
+			
+			auto color = m_rgTextColor;
+			
+			if (m_bEnableManualVoting)
+			{
+				if (pChoosableEffect->m_iChanceVotes > 0)
+				{
+					color = { 102, 255, 153 };
+				}
+			}
+			else
+			{
+				oss << " (" << pChoosableEffect->m_iChanceVotes << ")" << std::endl;
+			}
 
-			oss << " (" << pChoosableEffect->m_iChanceVotes << ")" << std::endl;
-
-			DrawScreenText(oss.str(), { .95f, fY }, .41f, { m_rgTextColor[0], m_rgTextColor[1], m_rgTextColor[2] },
+			DrawScreenText(oss.str(), { .95f, fY }, .41f, { color[0], color[1], color[2] },
 			               true, EScreenTextAdjust::Right, { .0f, .95f }, true);
 
 			fY += .05f;
 		}
 	}
+}
+
+void TwitchVoting::Vote(int option)
+{
+	if (!m_bEnableManualVoting || option < 0 || option >= 4)
+	{
+		return;
+	}
+
+	if (option != 3)
+	{
+		m_pChosenEffectIdentifier = std::make_unique<EffectIdentifier>(m_rgEffectChoices[option]->m_EffectIdentifier);
+	}
+
+	for (int i = 0; i < 4; i++)
+	{
+		m_rgEffectChoices[i]->m_iChanceVotes = 0;
+	}
+
+	m_rgEffectChoices[option]->m_iChanceVotes = 1;
 }
 
 _NODISCARD bool TwitchVoting::IsEnabled() const
@@ -486,6 +537,11 @@ bool TwitchVoting::HandleMsg(const std::string &szMsg)
 
 void TwitchVoting::SendToPipe(std::string &&szMsg)
 {
+	if (m_bEnableManualVoting)
+	{
+		return;
+	}
+
 	if (szMsg != "getcurrentvotes")
 	{
 		LOG("Sending message: " << szMsg);
