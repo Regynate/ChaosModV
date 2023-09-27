@@ -141,6 +141,7 @@ void CrossingChallenge::ControlPassed()
 			}
 			m_iPassedScaleformTick = GET_GAME_TIMER();
 			PLAY_MISSION_COMPLETE_AUDIO("MICHAEL_SMALL_01");
+			SET_ENTITY_INVINCIBLE(PLAYER_PED_ID(), true);
 		}
 		else
 		{
@@ -151,6 +152,7 @@ void CrossingChallenge::ControlPassed()
 		ShowPassedScaleform();
 		break;
 	case 2:
+		SET_ENTITY_INVINCIBLE(PLAYER_PED_ID(), false);
 		if (ComponentExists<EffectDispatcher>())
 		{
 			GetComponent<EffectDispatcher>()->SetPaused(false);
