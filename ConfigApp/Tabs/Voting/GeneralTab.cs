@@ -21,6 +21,8 @@ namespace ConfigApp.Tabs.Voting
         private CheckBox m_EnableProportionalVoting;
         private CheckBox m_EnableProportionalVotingRetainInitialChance;
 
+        private CheckBox m_EnableManualVoting;
+
         private void SetupSettingsGrid(ChaosGrid grid)
         {
             grid.PushNewColumn(new GridLength(340f));
@@ -109,6 +111,8 @@ namespace ConfigApp.Tabs.Voting
                 MaxLength = 1
             });
 
+            bodyGrid.PushRowSpacedPair("Enable Manual Voting", m_EnableManualVoting = Utils.GenerateCommonCheckBox());
+
             m_Grids.Add(bodyGrid.Grid);
 
             PushRowElement(bodyGrid.Grid);
@@ -131,7 +135,7 @@ namespace ConfigApp.Tabs.Voting
             m_Grids.Add(footerGrid.Grid);
 
             PushRowElement(footerGrid.Grid);
-
+            
             SetGridsEnabled(false);
         }
 
@@ -150,6 +154,8 @@ namespace ConfigApp.Tabs.Voting
 
             m_EnableProportionalVoting.IsChecked = OptionsManager.TwitchFile.ReadValueBool("TwitchVotingChanceSystem", false);
             m_EnableProportionalVotingRetainInitialChance.IsChecked = OptionsManager.TwitchFile.ReadValueBool("TwitchVotingChanceSystemRetainChance", true);
+
+            m_EnableManualVoting.IsChecked = OptionsManager.TwitchFile.ReadValueBool("ManualVotingEnable", true);
         }
 
         public override void OnSaveValues()
@@ -166,6 +172,8 @@ namespace ConfigApp.Tabs.Voting
 
             OptionsManager.TwitchFile.WriteValue("TwitchVotingChanceSystem", m_EnableProportionalVoting.IsChecked.Value);
             OptionsManager.TwitchFile.WriteValue("TwitchVotingChanceSystemRetainChance", m_EnableProportionalVotingRetainInitialChance.IsChecked.Value);
+            
+            OptionsManager.TwitchFile.WriteValue("ManualVotingEnable", m_EnableManualVoting.IsChecked.Value);
         }
     }
 }

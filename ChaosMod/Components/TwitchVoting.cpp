@@ -54,7 +54,7 @@ TwitchVoting::TwitchVoting(const std::array<BYTE, 3> &rgTextColor) : Component()
 	m_bEnableTwitchRandomEffectVoteable =
 	    g_OptionsManager.GetTwitchValue<bool>("TwitchRandomEffectVoteableEnable", OPTION_DEFAULT_TWITCH_RANDOM_EFFECT);
 
-	m_bEnableManualVoting = g_OptionsManager.GetTwitchValue<bool>("ManualVotingEnable", false);
+	m_bEnableManualVoting = g_OptionsManager.GetTwitchValue<bool>("ManualVotingEnable", true);
 
 	if (!m_bEnableManualVoting)
 	{
