@@ -173,6 +173,184 @@ void TwitchVoting::RestartVoting()
 	}
 }
 
+void TwitchVoting::EndVotingRound()
+{
+	if (!m_pChosenEffectIdentifier)
+	{
+		auto ullCurTick = GetTickCount64();
+
+		if (ullCurTick > m_ullLastNoEffectRecieved + 1000)
+		{
+			m_iNoEffectRecievedRuns++;
+			m_ullLastNoEffectRecieved = ullCurTick;
+
+			LOG("No voting option recieved: " << m_iNoEffectRecievedRuns << " seconds");
+		}
+		if (m_iNoEffectRecievedRuns >= 5)
+		{
+			LOG("No voting option recieved; restarting");
+
+			RestartVoting();
+		}
+		return;
+	}
+
+	m_iNoEffectRecievedRuns = 0;
+
+	// Should be random effect voteable, so just dispatch random effect
+	if (m_pChosenEffectIdentifier->GetEffectId().empty())
+	{
+		GetComponent<EffectDispatcher>()->DispatchRandomEffect();
+	}
+	else
+	{
+		GetComponent<EffectDispatcher>()->DispatchEffect(*m_pChosenEffectIdentifier);
+	}
+	GetComponent<EffectDispatcher>()->ResetTimer();
+
+	if (MetaModifiers::m_ucAdditionalEffectsToDispatch > 0)
+	{
+		for (int i = 0; i < MetaModifiers::m_ucAdditionalEffectsToDispatch; i++)
+		{
+			GetComponent<EffectDispatcher>()->DispatchRandomEffect();
+		}
+	}
+
+	m_bIsVotingRoundDone = true;
+}
+
+void TwitchVoting::StartNewVotingRound()
+{
+	// New voting round
+
+	m_bIsVotingRunning        = true;
+	m_bHasReceivedResult      = false;
+	m_bIsVotingRoundDone      = false;
+
+	m_pChosenEffectIdentifier = std::make_unique<EffectIdentifier>(EffectIdentifier());
+
+	m_rgEffectChoices.clear();
+	std::unordered_map<EffectIdentifier, EffectData, EffectsIdentifierHasher> dictChoosableEffects;
+	for (auto &pair : g_dictEnabledEffects)
+	{
+		auto &[effectIdentifier, effectData] = pair;
+
+		if (!effectData.IsMeta() && !effectData.IsExcludedFromVoting() && !effectData.IsUtility()
+		    && !effectData.IsHidden())
+		{
+			dictChoosableEffects.emplace(effectIdentifier, effectData);
+		}
+	}
+
+	for (int idx = 0; idx < 4; idx++)
+	{
+		// 4th voteable is for random effect (if enabled)
+		if (idx == 3)
+		{
+			if (m_bEnableTwitchRandomEffectVoteable)
+			{
+				m_rgEffectChoices.push_back(std::make_unique<ChoosableEffect>(
+				    EffectIdentifier(), "Random Effect", m_bEnableManualVoting || !m_bAlternatedVotingRound ? 4 : 8));
+			}
+
+			break;
+		}
+
+		float fTotalWeight = 0.f;
+		for (const auto &pair : dictChoosableEffects)
+		{
+			const EffectData &effectData = pair.second;
+
+			fTotalWeight += GetEffectWeight(effectData);
+		}
+
+		float fChosen = g_Random.GetRandomFloat(0.f, fTotalWeight);
+
+		fTotalWeight  = 0.f;
+
+		std::unique_ptr<ChoosableEffect> pTargetChoice;
+
+		for (auto &pair : dictChoosableEffects)
+		{
+			auto &[effectIdentifier, effectData] = pair;
+
+			fTotalWeight += GetEffectWeight(effectData);
+
+			if (fChosen <= fTotalWeight)
+			{
+				// Set weight of this effect 0, EffectDispatcher::DispatchEffect will increment it immediately by
+				// EffectWeightMult
+				effectData.Weight = 0;
+
+				pTargetChoice     = std::make_unique<ChoosableEffect>(
+                    effectIdentifier, effectData.HasCustomName() ? effectData.CustomName : effectData.Name,
+                    m_bEnableManualVoting || !m_bAlternatedVotingRound ? idx + 1
+				        : m_bEnableTwitchRandomEffectVoteable              ? idx + 5
+				                                                           : idx + 4);
+				break;
+			}
+		}
+
+		EffectIdentifier effectIdentifier = pTargetChoice->m_EffectIdentifier;
+
+		m_rgEffectChoices.push_back(std::move(pTargetChoice));
+		dictChoosableEffects.erase(effectIdentifier);
+	}
+
+	std::ostringstream oss;
+	oss << "vote";
+	for (const auto &pChoosableEffect : m_rgEffectChoices)
+	{
+		oss << ":" << pChoosableEffect->m_szEffectName;
+	}
+	SendToPipe(oss.str());
+
+	m_bAlternatedVotingRound = !m_bAlternatedVotingRound;
+}
+
+void TwitchVoting::DisplayVotes()
+{
+	// Print voteables on screen
+
+	// Count total votes if chance system is enabled
+	int iTotalVotes = 0;
+	if (m_bEnableTwitchChanceSystem)
+	{
+		for (const auto &pChoosableEffect : m_rgEffectChoices)
+		{
+			int iChanceVotes = pChoosableEffect->m_iChanceVotes + (m_bEnableVotingChanceSystemRetainChance ? 1 : 0);
+
+			iTotalVotes += iChanceVotes;
+		}
+	}
+
+	float fY = .1f;
+	for (const auto &pChoosableEffect : m_rgEffectChoices)
+	{
+		std::ostringstream oss;
+		oss << pChoosableEffect->m_iMatch << ": " << pChoosableEffect->m_szEffectName;
+
+		auto color = m_rgTextColor;
+
+		if (m_bEnableManualVoting)
+		{
+			if (pChoosableEffect->m_iChanceVotes > 0)
+			{
+				color = { 102, 255, 153 };
+			}
+		}
+		else
+		{
+			oss << " (" << pChoosableEffect->m_iChanceVotes << ")" << std::endl;
+		}
+
+		DrawScreenText(oss.str(), { .95f, fY }, .41f, { color[0], color[1], color[2] }, true, EScreenTextAdjust::Right,
+		               { .0f, .95f }, true);
+
+		fY += .05f;
+	}
+}
+
 void TwitchVoting::OnRun()
 {
 	if (!m_bEnableTwitchVoting || GetComponent<EffectDispatcher>()->IsDispatchingEffectsOnDistance())
@@ -264,183 +442,19 @@ void TwitchVoting::OnRun()
 
 	if (GetComponent<EffectDispatcher>()->ShouldDispatchEffectNow())
 	{
-		// End of voting round; dispatch resulted effect
-
-		if (!m_pChosenEffectIdentifier)
-		{
-			if (ullCurTick > m_ullLastNoEffectRecieved + 1000)
-			{
-				m_iNoEffectRecievedRuns++;
-				m_ullLastNoEffectRecieved = ullCurTick;
-
-				LOG("No voting option recieved: " << m_iNoEffectRecievedRuns << " seconds");
-			}
-			if (m_iNoEffectRecievedRuns >= 5)
-			{
-				LOG("No voting option recieved; restarting");
-
-				RestartVoting();
-			}
-			return;
-		}
-
-		m_iNoEffectRecievedRuns = 0;
-
-		// Should be random effect voteable, so just dispatch random effect
-		if (m_pChosenEffectIdentifier->GetEffectId().empty())
-		{
-			GetComponent<EffectDispatcher>()->DispatchRandomEffect();
-		}
-		else
-		{
-			GetComponent<EffectDispatcher>()->DispatchEffect(*m_pChosenEffectIdentifier);
-		}
-		GetComponent<EffectDispatcher>()->ResetTimer();
-
-		if (MetaModifiers::m_ucAdditionalEffectsToDispatch > 0)
-		{
-			for (int i = 0; i < MetaModifiers::m_ucAdditionalEffectsToDispatch; i++)
-			{
-				GetComponent<EffectDispatcher>()->DispatchRandomEffect();
-			}
-		}
-
-		m_bIsVotingRoundDone = true;
+		EndVotingRound();
 	}
 	else if (!m_bIsVotingRunning && m_bReceivedFirstPing
 	         && (m_iTwitchSecsBeforeVoting == 0
 	             || GetComponent<EffectDispatcher>()->GetRemainingTimerTime() <= m_iTwitchSecsBeforeVoting)
 	         && m_bIsVotingRoundDone)
 	{
-		// New voting round
-
-		m_bIsVotingRunning        = true;
-		m_bHasReceivedResult      = false;
-		m_bIsVotingRoundDone      = false;
-
-		m_pChosenEffectIdentifier = std::make_unique<EffectIdentifier>(EffectIdentifier());
-
-		m_rgEffectChoices.clear();
-		std::unordered_map<EffectIdentifier, EffectData, EffectsIdentifierHasher> dictChoosableEffects;
-		for (auto &pair : g_dictEnabledEffects)
-		{
-			auto &[effectIdentifier, effectData] = pair;
-
-			if (!effectData.IsMeta() && !effectData.IsExcludedFromVoting() && !effectData.IsUtility()
-			    && !effectData.IsHidden())
-			{
-				dictChoosableEffects.emplace(effectIdentifier, effectData);
-			}
-		}
-
-		for (int idx = 0; idx < 4; idx++)
-		{
-			// 4th voteable is for random effect (if enabled)
-			if (idx == 3)
-			{
-				if (m_bEnableTwitchRandomEffectVoteable)
-				{
-					m_rgEffectChoices.push_back(
-					    std::make_unique<ChoosableEffect>(EffectIdentifier(), "Random Effect",
-					                                      m_bEnableManualVoting || !m_bAlternatedVotingRound ? 4 : 8));
-				}
-
-				break;
-			}
-
-			float fTotalWeight = 0.f;
-			for (const auto &pair : dictChoosableEffects)
-			{
-				const EffectData &effectData = pair.second;
-
-				fTotalWeight += GetEffectWeight(effectData);
-			}
-
-			float fChosen = g_Random.GetRandomFloat(0.f, fTotalWeight);
-
-			fTotalWeight  = 0.f;
-
-			std::unique_ptr<ChoosableEffect> pTargetChoice;
-
-			for (auto &pair : dictChoosableEffects)
-			{
-				auto &[effectIdentifier, effectData] = pair;
-
-				fTotalWeight += GetEffectWeight(effectData);
-
-				if (fChosen <= fTotalWeight)
-				{
-					// Set weight of this effect 0, EffectDispatcher::DispatchEffect will increment it immediately by
-					// EffectWeightMult
-					effectData.Weight = 0;
-
-					pTargetChoice     = std::make_unique<ChoosableEffect>(
-                        effectIdentifier, effectData.HasCustomName() ? effectData.CustomName : effectData.Name,
-                        m_bEnableManualVoting || !m_bAlternatedVotingRound ? idx + 1
-					        : m_bEnableTwitchRandomEffectVoteable ? idx + 5
-					                                              : idx + 4);
-					break;
-				}
-			}
-
-			EffectIdentifier effectIdentifier = pTargetChoice->m_EffectIdentifier;
-
-			m_rgEffectChoices.push_back(std::move(pTargetChoice));
-			dictChoosableEffects.erase(effectIdentifier);
-		}
-
-		std::ostringstream oss;
-		oss << "vote";
-		for (const auto &pChoosableEffect : m_rgEffectChoices)
-		{
-			oss << ":" << pChoosableEffect->m_szEffectName;
-		}
-		SendToPipe(oss.str());
-
-		m_bAlternatedVotingRound = !m_bAlternatedVotingRound;
+		StartNewVotingRound();
 	}
 
 	if (m_bIsVotingRunning && m_eTwitchOverlayMode == ETwitchOverlayMode::OverlayIngame)
 	{
-		// Print voteables on screen
-
-		// Count total votes if chance system is enabled
-		int iTotalVotes = 0;
-		if (m_bEnableTwitchChanceSystem)
-		{
-			for (const auto &pChoosableEffect : m_rgEffectChoices)
-			{
-				int iChanceVotes = pChoosableEffect->m_iChanceVotes + (m_bEnableVotingChanceSystemRetainChance ? 1 : 0);
-
-				iTotalVotes += iChanceVotes;
-			}
-		}
-
-		float fY = .1f;
-		for (const auto &pChoosableEffect : m_rgEffectChoices)
-		{
-			std::ostringstream oss;
-			oss << pChoosableEffect->m_iMatch << ": " << pChoosableEffect->m_szEffectName;
-			
-			auto color = m_rgTextColor;
-			
-			if (m_bEnableManualVoting)
-			{
-				if (pChoosableEffect->m_iChanceVotes > 0)
-				{
-					color = { 102, 255, 153 };
-				}
-			}
-			else
-			{
-				oss << " (" << pChoosableEffect->m_iChanceVotes << ")" << std::endl;
-			}
-
-			DrawScreenText(oss.str(), { .95f, fY }, .41f, { color[0], color[1], color[2] },
-			               true, EScreenTextAdjust::Right, { .0f, .95f }, true);
-
-			fY += .05f;
-		}
+		DisplayVotes();
 	}
 }
 
@@ -462,6 +476,10 @@ void TwitchVoting::Vote(int option)
 	}
 
 	m_rgEffectChoices[option]->m_iChanceVotes = 1;
+
+	EndVotingRound();
+	StartNewVotingRound();
+	GetComponent<EffectDispatcher>()->ResetTimer();
 }
 
 _NODISCARD bool TwitchVoting::IsEnabled() const

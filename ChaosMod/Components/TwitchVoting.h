@@ -77,6 +77,10 @@ class TwitchVoting : public Component
 
 	void RestartVoting();
 
+	void EndVotingRound();
+	void StartNewVotingRound();
+	void DisplayVotes();
+
   protected:
 	TwitchVoting(const std::array<BYTE, 3> &rgTextColor);
 	virtual ~TwitchVoting() override;
