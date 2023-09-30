@@ -6,6 +6,10 @@
 #include <math.h>
 #include <stdafx.h>
 
+#include "Memory/Gravity.h"
+
+#define PI 3.14159265
+
 static float x, y;
 
 static DWORD lastTick = 0;
@@ -47,7 +51,7 @@ REGISTER_EFFECT(OnStart, nullptr, OnTick, EffectInfo
 		.Name = "Cocktail Shaker",
 		.Id = "cocktail_shaker",
 		.IsTimed = true,
-        .IsShortDuration = true,
+		.IsShortDuration = true,
 		.EffectCategory = EEffectCategory::Gravity,
 	}
 );
