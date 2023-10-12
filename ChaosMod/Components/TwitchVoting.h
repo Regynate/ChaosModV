@@ -77,7 +77,7 @@ class TwitchVoting : public Component
 
 	void RestartVoting();
 
-	void EndVotingRound();
+	void EndVotingRound(bool);
 	void StartNewVotingRound();
 	void DisplayVotes();
 

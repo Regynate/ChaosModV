@@ -173,7 +173,7 @@ void TwitchVoting::RestartVoting()
 	}
 }
 
-void TwitchVoting::EndVotingRound()
+void TwitchVoting::EndVotingRound(bool resetTimer = true)
 {
 	if (!m_pChosenEffectIdentifier)
 	{
@@ -206,7 +206,11 @@ void TwitchVoting::EndVotingRound()
 	{
 		GetComponent<EffectDispatcher>()->DispatchEffect(*m_pChosenEffectIdentifier);
 	}
-	GetComponent<EffectDispatcher>()->ResetTimer();
+
+	if (resetTimer)
+	{
+		GetComponent<EffectDispatcher>()->ResetTimer();
+	}
 
 	if (MetaModifiers::m_ucAdditionalEffectsToDispatch > 0)
 	{
@@ -428,21 +432,33 @@ void TwitchVoting::OnRun()
 		MetaModifiers::m_sCurrentVotingMode = "";
 	}
 
-	if (GetComponent<EffectDispatcher>()->GetRemainingTimerTime() <= 1 && !m_bHasReceivedResult)
+	if (!m_bEnableManualVoting)
 	{
-		// Get vote result 1 second before effect is supposed to dispatch
-
-		if (m_bIsVotingRunning)
+		if (GetComponent<EffectDispatcher>()->GetRemainingTimerTime() <= 1 && !m_bHasReceivedResult)
 		{
-			m_bIsVotingRunning = false;
+			// Get vote result 1 second before effect is supposed to dispatch
 
-			SendToPipe("getvoteresult");
+			if (m_bIsVotingRunning)
+			{
+				m_bIsVotingRunning = false;
+
+				SendToPipe("getvoteresult");
+			}
 		}
 	}
 
 	if (GetComponent<EffectDispatcher>()->ShouldDispatchEffectNow())
 	{
-		EndVotingRound();
+		m_bIsVotingRunning = false;
+
+		if (!m_bIsVotingRoundDone)
+		{
+			EndVotingRound();
+		}
+		else
+		{
+			GetComponent<EffectDispatcher>()->ResetTimer();
+		}
 	}
 	else if (!m_bIsVotingRunning && m_bReceivedFirstPing
 	         && (m_iTwitchSecsBeforeVoting == 0
@@ -465,6 +481,11 @@ void TwitchVoting::Vote(int option)
 		return;
 	}
 
+	if (m_bIsVotingRoundDone)
+	{
+		return;
+	}
+
 	if (option != 3)
 	{
 		m_pChosenEffectIdentifier = std::make_unique<EffectIdentifier>(m_rgEffectChoices[option]->m_EffectIdentifier);
@@ -476,10 +497,7 @@ void TwitchVoting::Vote(int option)
 	}
 
 	m_rgEffectChoices[option]->m_iChanceVotes = 1;
-
-	EndVotingRound();
-	StartNewVotingRound();
-	GetComponent<EffectDispatcher>()->ResetTimer();
+	EndVotingRound(false);
 }
 
 _NODISCARD bool TwitchVoting::IsEnabled() const
