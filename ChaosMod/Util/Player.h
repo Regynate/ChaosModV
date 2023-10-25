@@ -2,6 +2,8 @@
 
 #include "Natives.h"
 
+#include "Components/EffectDispatcher.h"
+
 inline void TeleportPlayer(float fPosX, float fPosY, float fPosZ, bool bNoOffset = false)
 {
 	Ped playerPed      = PLAYER_PED_ID();
@@ -47,4 +49,44 @@ inline void TeleportPlayer(float fPosX, float fPosY, float fPosZ, bool bNoOffset
 inline void TeleportPlayer(const Vector3 &coords, bool bNoOffset = false)
 {
 	TeleportPlayer(coords.x, coords.y, coords.z, bNoOffset);
+}
+
+inline void TeleportPlayerFindZ(float x, float y)
+{
+	bool shouldPause = GetComponent<EffectDispatcher>()->IsDispatchingEffectsOnDistance()
+	                && !GetComponent<EffectDispatcher>()->m_bPauseTimer;
+
+	if (shouldPause)
+	{
+		GetComponent<EffectDispatcher>()->m_bPauseTimer = true;
+	}
+
+	float groundZ;
+	bool useGroundZ;
+	for (int i = 0; i < 100; i++)
+	{
+		float testZ = (i * 10.f) - 100.f;
+
+		TeleportPlayer(x, y, testZ);
+		if (i % 5 == 0)
+		{
+			WAIT(0);
+		}
+
+		useGroundZ = GET_GROUND_Z_FOR_3D_COORD(x, y, testZ, &groundZ, false, false);
+		if (useGroundZ)
+		{
+			break;
+		}
+	}
+
+	if (shouldPause)
+	{
+		GetComponent<EffectDispatcher>()->m_bPauseTimer = false;
+	}
+
+	if (useGroundZ)
+	{
+		TeleportPlayer(x, y, groundZ);
+	}
 }

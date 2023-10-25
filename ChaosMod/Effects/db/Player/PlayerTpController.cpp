@@ -150,42 +150,12 @@ static void OnStartWaypoint()
 		float z;
 		if (!playerBlip)
 		{
-			z = coords.z;
+			TeleportPlayer(coords.x, coords.y, coords.z);
 		}
 		else
 		{
-			float groundZ;
-			bool useGroundZ;
-			for (int i = 0; i < 100; i++)
-			{
-				float testZ = (i * 10.f) - 100.f;
-
-				TeleportPlayer(coords.x, coords.y, testZ);
-				if (i % 5 == 0)
-				{
-					WAIT(0);
-				}
-
-				useGroundZ = GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, testZ, &groundZ, false, false);
-				if (useGroundZ)
-				{
-					break;
-				}
-			}
-
-			if (useGroundZ)
-			{
-				z = groundZ;
-			}
-			else
-			{
-				Vector3 playerPos = GET_ENTITY_COORDS(playerPed, false);
-
-				z                 = playerPos.z;
-			}
+			TeleportPlayerFindZ(coords.x, coords.y);
 		}
-
-		TeleportPlayer(coords.x, coords.y, z);
 	}
 }
 
@@ -231,31 +201,7 @@ static void OnStartWaypointOpposite()
 
 		coords            = coords + coords - playerPos;
 
-
-		float z;
-		float groundZ;
-		bool useGroundZ;
-		for (int i = 0; i < 100; i++)
-		{
-			float testZ = (i * 10.f) - 100.f;
-
-			TeleportPlayer(coords.x, coords.y, testZ);
-			if (i % 5 == 0)
-			{
-				WAIT(0);
-			}
-
-			useGroundZ = GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, testZ, &groundZ, false, false);
-			if (useGroundZ)
-			{
-				break;
-			}
-		}
-
-		if (useGroundZ)
-		{
-			TeleportPlayer(coords.x, coords.y, groundZ);
-		}
+		TeleportPlayerFindZ(coords.x, coords.y);
 	}
 }
 
@@ -300,26 +246,7 @@ static void OnStartRandom()
 
 	} while (TEST_VERTICAL_PROBE_AGAINST_ALL_WATER(x, y, z, 0, &_));
 
-	float groundZ;
-	bool useGroundZ;
-	for (int i = 0; i < 100; i++)
-	{
-		float testZ = (i * 10.f) - 100.f;
-
-		TeleportPlayer(x, y, testZ);
-		if (i % 5 == 0)
-		{
-			WAIT(0);
-		}
-
-		useGroundZ = GET_GROUND_Z_FOR_3D_COORD(x, y, testZ, &groundZ, false, false);
-		if (useGroundZ)
-		{
-			break;
-		}
-	}
-
-	TeleportPlayer(x, y, useGroundZ ? groundZ : z);
+	TeleportPlayerFindZ(x, y);
 }
 
 // clang-format off
