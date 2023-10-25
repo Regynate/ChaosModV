@@ -5,7 +5,7 @@
 #include "Component.h"
 #include "Util/Text.h"
 
-#define SPLASH_TEXT_DUR_SECS 10
+#define SPLASH_TEXT_DUR_SECS 4
 
 class SplashTexts : public Component
 {
