@@ -57,6 +57,10 @@ class CrossingChallenge : public Component
 	Blip m_bStartBlip               = 0;
 	Blip m_bEndBlip                 = 0;
 
+	DWORD m_dwStartTick             = 0;
+	DWORD m_dwCurTick               = 0;
+	int m_iEffectsCount             = 0;
+
 	void ShowHint(const std::string &text);
 
 	void SetStartParams();
@@ -79,6 +83,8 @@ class CrossingChallenge : public Component
 	void ShowHelpButtons();
 	void ShowBlips();
 
+	void ShowProgress();
+
   protected:
 	CrossingChallenge();
 
@@ -86,6 +92,10 @@ class CrossingChallenge : public Component
 	virtual void OnRun() override;
 	virtual void OnModPauseCleanup() override;
 	void HandleInput(DWORD ulKey, bool bOnRepeat);
+	inline void IncrementEffects()
+	{
+		m_iEffectsCount++;
+	}
 
 	template <class T>
 	requires std::is_base_of_v<Component, T>

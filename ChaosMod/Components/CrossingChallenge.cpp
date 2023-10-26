@@ -26,6 +26,8 @@ void CrossingChallenge::SetStartParams()
 	{
 		GIVE_WEAPON_TO_PED(player, weapon.hash, weapon.ammo, false, false);
 	}
+
+	CLEAR_PLAYER_WANTED_LEVEL(PLAYER_ID());
 }
 
 void CrossingChallenge::ControlRespawn()
@@ -46,6 +48,7 @@ void CrossingChallenge::ControlRespawn()
 		while (!IS_SCREEN_FADED_OUT())
 		{
 			GetComponent<EffectDispatcher>()->DrawEffectTexts();
+			ShowProgress();
 			WAIT(0);
 		}
 		TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("respawn_controller");
@@ -71,6 +74,9 @@ void CrossingChallenge::ControlRespawn()
 		RESET_PLAYER_ARREST_STATE(player);
 		DISPLAY_HUD(true);
 		FREEZE_ENTITY_POSITION(player, false);
+
+		m_dwStartTick = GET_GAME_TIMER();
+		m_iEffectsCount = 0;
 	}
 }
 
@@ -94,7 +100,7 @@ bool CrossingChallenge::CheckEndReached()
 void CrossingChallenge::ShowPassedScaleform()
 {
 	if (!LoadScaleform(m_hPassedScaleformHandle, m_bPassedScaleformLoading, "MP_BIG_MESSAGE_FREEMODE")
-	    || !IS_MISSION_COMPLETE_READY_FOR_UI())
+	       || !IS_MISSION_COMPLETE_READY_FOR_UI())
 	{
 		return;
 	}
@@ -120,7 +126,7 @@ void CrossingChallenge::ShowPassedScaleform()
 	}
 
 	DRAW_SCALEFORM_MOVIE_FULLSCREEN(m_hPassedScaleformHandle, 255, 255, 255, 255, 0);
-
+	
 	if (GET_GAME_TIMER() - m_iPassedScaleformTick > 6000)
 	{
 		m_iPassedState = 2;
@@ -135,13 +141,10 @@ void CrossingChallenge::ControlPassed()
 		if (CheckEndReached())
 		{
 			m_iPassedState = 1;
-			if (ComponentExists<EffectDispatcher>())
-			{
-				GetComponent<EffectDispatcher>()->SetPaused(true);
-			}
 			m_iPassedScaleformTick = GET_GAME_TIMER();
 			PLAY_MISSION_COMPLETE_AUDIO("MICHAEL_SMALL_01");
 			SET_ENTITY_INVINCIBLE(PLAYER_PED_ID(), true);
+			GetComponent<EffectDispatcher>()->ClearEffects();
 		}
 		else
 		{
@@ -149,14 +152,15 @@ void CrossingChallenge::ControlPassed()
 		}
 		[[fallthrough]];
 	case 1:
-		ShowPassedScaleform();
-		break;
+		while (m_iPassedState == 1)
+		{
+			ShowPassedScaleform();
+			ShowProgress();
+			WAIT(0);
+		}
+		[[fallthrough]];
 	case 2:
 		SET_ENTITY_INVINCIBLE(PLAYER_PED_ID(), false);
-		if (ComponentExists<EffectDispatcher>())
-		{
-			GetComponent<EffectDispatcher>()->SetPaused(false);
-		}
 		Main::Stop();
 		break;
 	}
@@ -431,6 +435,23 @@ void CrossingChallenge::ShowBlips()
 	}
 }
 
+void CrossingChallenge::ShowProgress()
+{
+	std::ostringstream oss;
+
+	int time = (m_dwCurTick - m_dwStartTick) / 1000;
+
+	oss << "Time: " << time / 60 << ":" << std::setw(2) << std::setfill('0') << time % 60;
+
+	DrawScreenText(oss.str(), { .02f, .03f }, .6f, { 140, 201, 89 }, true, EScreenTextAdjust::Left);
+
+	oss.str("");
+
+	oss << "Effects: " << m_iEffectsCount;
+
+	DrawScreenText(oss.str(), { .02f, .08f }, .6f, { 255, 255, 255 }, true, EScreenTextAdjust::Left);
+}
+
 void CrossingChallenge::OnRun()
 {
 	if (m_iHelpMessageTick != -1 && GET_GAME_TIMER() - m_iHelpMessageTick > 5000)
@@ -494,6 +515,10 @@ void CrossingChallenge::OnRun()
 		{
 			GetComponent<EffectDispatcher>()->Reset();
 		}
+
+		m_dwStartTick   = GET_GAME_TIMER();
+		m_iEffectsCount = 0;
+
 		m_bStartedState = 2;
 	}
 	else
@@ -512,6 +537,9 @@ void CrossingChallenge::OnRun()
 		{
 			ControlPassed();
 		}
+
+		m_dwCurTick = GET_GAME_TIMER();
+		ShowProgress();
 	}
 }
 

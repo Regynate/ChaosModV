@@ -4,6 +4,7 @@
 #include "Mp3Manager.h"
 
 #include "Components/TwitchVoting.h"
+#include "Components/CrossingChallenge.h"
 
 #include "Effects/EEffectCategory.h"
 #include "Effects/MetaModifiers.h"
@@ -79,7 +80,7 @@ void EffectDispatcher::OnRun()
 			UpdateTimer(iDeltaTime);
 		}
 
-		if (m_bEnableDistanceBasedEffectDispatch)
+		if (!m_bPauseTimer && m_bEnableDistanceBasedEffectDispatch)
 		{
 			UpdateTravelledDistance();
 		}
@@ -537,6 +538,11 @@ void EffectDispatcher::DispatchEffect(const EffectIdentifier &effectIdentifier, 
 				m_rgDispatchedEffectsLog.emplace_back(registeredEffect);
 			}
 		}
+	}
+
+	if (ComponentExists<CrossingChallenge>())
+	{
+		GetComponent<CrossingChallenge>()->IncrementEffects();
 	}
 }
 
