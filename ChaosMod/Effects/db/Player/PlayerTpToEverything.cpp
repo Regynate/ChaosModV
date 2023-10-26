@@ -56,6 +56,7 @@ static void OnTick()
 	}
 }
 
+/*
 // clang-format off
 REGISTER_EFFECT(OnStart, nullptr, OnTick, EffectInfo
 	{
@@ -65,3 +66,4 @@ REGISTER_EFFECT(OnStart, nullptr, OnTick, EffectInfo
 		.IsShortDuration = true
 	}
 );
+*/

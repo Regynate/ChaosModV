@@ -354,7 +354,7 @@ namespace ConfigApp
             { "misc_ghost_world", new EffectInfo("Ghost Town", EffectCategory.Misc, true) },
             { "peds_headless", new EffectInfo("Mannequins", EffectCategory.Peds, true) },
             { "peds_2x_animation_speed", new EffectInfo("2x Animation Speed", EffectCategory.Peds, true) },
-            { "player_tp_to_everything", new EffectInfo("Teleporter Malfunction", EffectCategory.Player, true, true) },
+            // { "player_tp_to_everything", new EffectInfo("Teleporter Malfunction", EffectCategory.Player, true, true) },
             { "player_laggy_camera", new EffectInfo("Delayed Camera", EffectCategory.Player, true) },
             { "misc_clone_on_death", new EffectInfo("Resurrection Day", EffectCategory.Misc, true, true) },
             { "misc_sideways_gravity", new EffectInfo("Sideways Gravity", EffectCategory.Misc, true, true) },
