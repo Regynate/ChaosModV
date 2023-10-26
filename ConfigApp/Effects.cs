@@ -431,6 +431,7 @@ namespace ConfigApp
             { "misc_grounded", new EffectInfo("Grounded", EffectCategory.Misc, true) },
             { "veh_boostbrake", new EffectInfo("Boost Braking", EffectCategory.Vehicle, true) },
             { "screen_realfp", new EffectInfo("Real First Person", EffectCategory.Screen, true) },
+            { "player_6stars", new EffectInfo("6 Wanted Stars", EffectCategory.Player, true) },
         };
     }
 }
