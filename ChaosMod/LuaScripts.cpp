@@ -484,6 +484,8 @@ static void ParseScriptRaw(std::string scriptName, std::string_view script, Pars
 	};
 	lua["GetGameBuild"] = Memory::GetGameBuild;
 
+	lua["TeleportPlayer"] = static_cast<void (*)(float, float, float, bool)>(TeleportPlayer);
+
 	const auto &result  = lua.safe_script(script);
 	if (!result.valid())
 	{
