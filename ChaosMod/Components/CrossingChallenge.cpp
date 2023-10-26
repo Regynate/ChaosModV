@@ -441,15 +441,15 @@ void CrossingChallenge::ShowProgress()
 
 	int time = (m_dwCurTick - m_dwStartTick) / 1000;
 
-	oss << "Time: " << time / 60 << ":" << std::setw(2) << std::setfill('0') << time % 60;
+	oss << time / 60 << ":" << std::setw(2) << std::setfill('0') << time % 60;
 
-	DrawScreenText(oss.str(), { .02f, .03f }, .6f, { 140, 201, 89 }, true, EScreenTextAdjust::Left);
+	DrawScreenText(oss.str(), { .15f, .12f }, .7f, { 140, 201, 89 }, true, EScreenTextAdjust::Left);
 
 	oss.str("");
 
 	oss << "Effects: " << m_iEffectsCount;
 
-	DrawScreenText(oss.str(), { .02f, .08f }, .6f, { 255, 255, 255 }, true, EScreenTextAdjust::Left);
+	DrawScreenText(oss.str(), { .015f, .12f }, .7f, { 255, 255, 255 }, true, EScreenTextAdjust::Left);
 }
 
 void CrossingChallenge::OnRun()
