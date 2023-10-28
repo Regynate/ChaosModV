@@ -203,7 +203,7 @@ void EffectDispatcher::UpdateEffects(int iDeltaTime)
 		{
 			float t = m_usEffectTimedDur, m = maxEffects, n = effectCountToCheckCleaning;
 			// ensure effects stay on screen for at least 5 seconds
-			effect.m_fTimer += fDeltaTime / t * (1.f + (t / 5 - 1) * std::max(0.f, activeEffectsSize - n) / (m - n));
+			effect.m_fTimer += fDeltaTime / (std::max(0.f, activeEffectsSize - n) * (5 - t) / (m - n) + t);
 		}
 
 		if (effect.m_fMaxTime > 0 && effect.m_fTimer <= 0
