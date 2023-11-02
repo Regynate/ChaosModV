@@ -46,12 +46,12 @@ static void OnStart()
 	TASK_COMBAT_PED(ped, playerPed, 0, 16);
 
 	SET_PED_FIRING_PATTERN(ped, 0xC6EE6B4C);
-
-	while (GET_CURRENT_PED_WEAPON_ENTITY_INDEX(ped, 0) == 0) // doing '!' doesn't work
-		WAIT(0);
 	
 	Entity weapon = GET_CURRENT_PED_WEAPON_ENTITY_INDEX(ped, 0);
-	SET_ENTITY_ALPHA(weapon, 0, false);
+	if (DOES_ENTITY_EXIST(weapon))
+	{
+		SET_ENTITY_ALPHA(weapon, 0, false);
+	}
 }
 
 // clang-format off
