@@ -57,8 +57,8 @@ class CrossingChallenge : public Component
 	Blip m_bStartBlip               = 0;
 	Blip m_bEndBlip                 = 0;
 
-	DWORD m_dwStartTick             = 0;
-	DWORD m_dwCurTick               = 0;
+	DWORD m_dwTickCount             = 0;
+	DWORD m_dwLastTick              = 0;
 	int m_iEffectsCount             = 0;
 
 	void ShowHint(const std::string &text);

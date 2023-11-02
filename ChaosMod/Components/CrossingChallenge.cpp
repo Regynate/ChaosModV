@@ -75,7 +75,7 @@ void CrossingChallenge::ControlRespawn()
 		DISPLAY_HUD(true);
 		FREEZE_ENTITY_POSITION(player, false);
 
-		m_dwStartTick = GET_GAME_TIMER();
+		m_dwTickCount   = 0;
 		m_iEffectsCount = 0;
 	}
 }
@@ -439,11 +439,11 @@ void CrossingChallenge::ShowProgress()
 {
 	std::ostringstream oss;
 
-	int time = (m_dwCurTick - m_dwStartTick) / 1000;
+	int time = m_dwTickCount / 1000;
 
 	oss << time / 60 << ":" << std::setw(2) << std::setfill('0') << time % 60;
 
-	DrawScreenText(oss.str(), { .15f, .12f }, .7f, { 140, 201, 89 }, true, EScreenTextAdjust::Left);
+	DrawScreenText(oss.str(), { .15f, .12f }, .7f, { 50, 198, 90 }, true, EScreenTextAdjust::Left);
 
 	oss.str("");
 
@@ -516,7 +516,7 @@ void CrossingChallenge::OnRun()
 			GetComponent<EffectDispatcher>()->Reset();
 		}
 
-		m_dwStartTick   = GET_GAME_TIMER();
+		m_dwTickCount   = 0;
 		m_iEffectsCount = 0;
 
 		m_bStartedState = 2;
@@ -538,7 +538,13 @@ void CrossingChallenge::OnRun()
 			ControlPassed();
 		}
 
-		m_dwCurTick = GET_GAME_TIMER();
+		int deltaTicks = GetTickCount64() - m_dwLastTick;
+		m_dwLastTick   = GetTickCount64();
+		if (deltaTicks < 1000)
+		{
+			m_dwTickCount   += deltaTicks;
+		}
+
 		ShowProgress();
 	}
 }
