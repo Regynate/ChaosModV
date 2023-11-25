@@ -7,11 +7,12 @@ static void OnTick()
 {
 	static const Hash blimpHash = "BLIMP"_hash;
 
-	for (Vehicle veh : GetAllVehs())
-	{
+	if (IS_PED_IN_ANY_VEHICLE(PLAYER_PED_ID()), false) {
+		Vehicle veh = GET_VEHICLE_PED_IS_IN(PLAYER_PED_ID(), false);
+		
 		Hash vehModel = GET_ENTITY_MODEL(veh);
 		int vehClass  = GET_VEHICLE_CLASS(veh);
-
+	
 		// Exclude helis since the "braking" flag seems to be always set for those
 		// Also manually exclude blimps since those don't seem to be categorized as either of those
 		if (vehClass != 15 && vehModel != blimpHash && Memory::IsVehicleBraking(veh))
