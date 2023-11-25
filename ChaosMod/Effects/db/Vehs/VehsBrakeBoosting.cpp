@@ -7,7 +7,7 @@ static void OnTick()
 {
 	static const Hash blimpHash = "BLIMP"_hash;
 
-	if (IS_PED_IN_ANY_VEHICLE(PLAYER_PED_ID()), false) {
+	if (IS_PED_IN_ANY_VEHICLE(PLAYER_PED_ID(), false)) {
 		Vehicle veh = GET_VEHICLE_PED_IS_IN(PLAYER_PED_ID(), false);
 		
 		Hash vehModel = GET_ENTITY_MODEL(veh);
