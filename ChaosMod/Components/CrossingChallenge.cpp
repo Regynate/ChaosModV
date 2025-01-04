@@ -77,6 +77,7 @@ void CrossingChallenge::ControlRespawn()
 
 		m_dwTickCount   = 0;
 		m_iEffectsCount = 0;
+		m_bTimerStarted = false;
 	}
 }
 
@@ -111,7 +112,13 @@ void CrossingChallenge::ShowPassedScaleform()
 		ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME("YES!!!");
 		END_TEXT_COMMAND_SCALEFORM_STRING();
 		BEGIN_TEXT_COMMAND_SCALEFORM_STRING("STRING");
-		ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME("You win! Congratulations!!!!");
+
+		int time = m_dwTickCount / 1000;
+		std::ostringstream oss;
+		oss << "You win! Congratulations!!!!\nEffect count: " << m_iEffectsCount << " Time: "
+		    << time / 60 << ":" << std::setw(2) << std::setfill('0') << time % 60;
+
+		ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(oss.str().c_str());
 		END_TEXT_COMMAND_SCALEFORM_STRING();
 		SCALEFORM_MOVIE_METHOD_ADD_PARAM_INT(14); // HUD_COLOUR_YELLOWDARK
 		END_SCALEFORM_MOVIE_METHOD();
@@ -441,6 +448,8 @@ void CrossingChallenge::ShowProgress()
 
 	int time = m_dwTickCount / 1000;
 
+	DRAW_RECT(.105f, .145f, .19f, .05f, 0, 0, 0, 80, false);
+
 	oss << time / 60 << ":" << std::setw(2) << std::setfill('0') << time % 60;
 
 	DrawScreenText(oss.str(), { .15f, .12f }, .7f, { 50, 198, 90 }, true, EScreenTextAdjust::Left);
@@ -518,11 +527,19 @@ void CrossingChallenge::OnRun()
 
 		m_dwTickCount   = 0;
 		m_iEffectsCount = 0;
+		m_bTimerStarted   = false;
 
 		m_bStartedState = 2;
 	}
 	else
 	{
+		if (!m_bTimerStarted
+		    && (IS_CONTROL_JUST_PRESSED(0, 30) || IS_CONTROL_JUST_PRESSED(0, 31) || IS_CONTROL_JUST_PRESSED(0, 32)
+		        || IS_CONTROL_JUST_PRESSED(0, 33) || IS_CONTROL_JUST_PRESSED(0, 34) || IS_CONTROL_JUST_PRESSED(0, 35)))
+		{
+			m_bTimerStarted = true;
+		}
+
 		if (m_bStartEnabled)
 		{
 			ControlRespawn();
@@ -540,7 +557,7 @@ void CrossingChallenge::OnRun()
 
 		int deltaTicks = GetTickCount64() - m_dwLastTick;
 		m_dwLastTick   = GetTickCount64();
-		if (deltaTicks < 1000)
+		if (m_bTimerStarted && deltaTicks < 1000)
 		{
 			m_dwTickCount   += deltaTicks;
 		}

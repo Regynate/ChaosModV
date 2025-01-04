@@ -60,6 +60,7 @@ class CrossingChallenge : public Component
 	DWORD m_dwTickCount             = 0;
 	DWORD m_dwLastTick              = 0;
 	int m_iEffectsCount             = 0;
+	bool m_bTimerStarted              = 0;
 
 	void ShowHint(const std::string &text);
 
