@@ -65,13 +65,13 @@ jobs:
         cp ../TwitchChatVotingProxy/bin/Release/TwitchChatVotingProxy.pdb
 
     - name: Upload :)
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: chaosmod
         path: dist
 
     - name: Upload symbols too
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: symbols
         path: symbols
