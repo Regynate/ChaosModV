@@ -35,7 +35,7 @@ static const char *ms_szShaderSrcSuffix = R"SRC(;
 
 static void OnStart()
 {
-	Hooks::OverrideShader(OverrideShaderType::LensDistortion, ms_szShaderSrcPrefix
+	Hooks::OverrideShader(EOverrideShaderType::LensDistortion, ms_szShaderSrcPrefix
 	                                                              + std::to_string(g_Random.GetRandomFloat(20.f, 340.f))
 	                                                              + ms_szShaderSrcSuffix);
 }
@@ -46,12 +46,9 @@ static void OnStop()
 }
 
 //clang-format off
-REGISTER_EFFECT(OnStart, OnStop, nullptr, EffectInfo 
-    { 
-        .Name            = "Hue Shift",
-        .Id              = "screen_hueshift",
-        .IsTimed         = true,
-        .EffectCategory  = EffectCategory::Shader,
-        .EffectGroupType = EffectGroupType::Shader
-    }
-);
+REGISTER_EFFECT(OnStart, OnStop, nullptr,
+                EffectInfo { .Name            = "Hue Shift",
+                             .Id              = "screen_hueshift",
+                             .IsTimed         = true,
+                             .EffectCategory  = EEffectCategory::Shader,
+                             .EffectGroupType = EEffectGroupType::Shader });
