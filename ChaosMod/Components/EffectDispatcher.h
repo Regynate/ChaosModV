@@ -144,6 +144,8 @@ class EffectDispatcher : public Component
 	void ClearActiveEffects(const EffectIdentifier &exclude = EffectIdentifier());
 	void ClearMostRecentEffect();
 
+	float GetRemainingTimeForEffect(const EffectIdentifier &effectId);
+
 	std::vector<RegisteredEffect *> GetRecentEffects(int distance, std::string_view ignoreEffect = {}) const;
 
 	inline bool IsSuspended()

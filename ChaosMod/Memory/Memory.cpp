@@ -104,7 +104,7 @@ namespace Memory
 		MH_EnableHook(MH_ALL_HOOKS);
 	}
 
-	Handle FindPattern(const std::string &szPattern, const PatternScanRange &&scanRange)
+	Handle FindPattern(const std::string &szPattern, const PatternScanRange &scanRange)
 	{
 		if ((scanRange.m_startAddr != 0 || scanRange.m_endAddr != 0) && scanRange.m_startAddr >= scanRange.m_endAddr)
 		{
@@ -124,6 +124,11 @@ namespace Memory
 		if (!pattern.size())
 		{
 			return Handle();
+		}
+
+		if (pattern.size() > 1)
+		{
+			LOG("Found multiple entries for pattern " << szPattern);
 		}
 
 		return Handle(uintptr_t(pattern.get_first()));

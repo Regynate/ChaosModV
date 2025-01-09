@@ -31,7 +31,7 @@ namespace Memory
 		}
 	};
 
-	Handle FindPattern(const std::string &szPattern, const PatternScanRange &&scanRange = {});
+	Handle FindPattern(const std::string &szPattern, const PatternScanRange &scanRange = {});
 	MH_STATUS AddHook(void *pTarget, void *pTetour, void *ppOrig);
 
 	template <typename T> inline void Write(T *pAddr, T value, int iCount = 1)

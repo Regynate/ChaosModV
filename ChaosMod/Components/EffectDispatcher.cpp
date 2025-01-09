@@ -651,6 +651,18 @@ void EffectDispatcher::ClearMostRecentEffect()
 	}
 }
 
+float EffectDispatcher::GetRemainingTimeForEffect(const EffectIdentifier &effectId)
+{
+	auto result = std::find_if(m_rgActiveEffects.begin(), m_rgActiveEffects.end(),
+	                           [effectId](auto &activeEffect) { return activeEffect.m_EffectIdentifier == effectId; });
+	if (result == m_rgActiveEffects.end())
+	{
+		return 0.f;
+	}
+
+	return result->m_fTimer;
+}
+
 std::vector<RegisteredEffect *> EffectDispatcher::GetRecentEffects(int distance, std::string_view ignoreEffect) const
 {
 	std::vector<RegisteredEffect *> effects;

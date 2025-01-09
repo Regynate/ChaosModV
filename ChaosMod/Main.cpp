@@ -18,6 +18,7 @@
 #include "Components/SplashTexts.h"
 #include "Components/TwitchVoting.h"
 #include "Components/CrossingChallenge.h"
+#include "Components/ZChaosManager.h"
 
 #include "Util/File.h"
 #include "Util/OptionsManager.h"
@@ -163,6 +164,13 @@ static void Init()
 	g_Random.SetSeed(g_OptionsManager.GetConfigValue<int>("Seed", 0));
 
 	bool crossingChallengeEnabled = g_OptionsManager.GetConfigValue<bool>("EnableCrossingChallenge", false);
+	bool zChaosIntegrationEnabled = g_OptionsManager.GetConfigValue<bool>("EnableZChaosIntegration", false);
+
+	if (zChaosIntegrationEnabled)
+	{
+		LOG("Initializing ZChaos Integration");
+		InitComponent<ZChaosManager>();
+	}
 
 	LOG("Initializing effects dispatcher");
 	InitComponent<EffectDispatcher>(crossingChallengeEnabled, rgTimerColor, rgTextColor, rgEffectTimerColor);

@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <string>
+#include <functional>
 
 #define _NODISCARD [[nodiscard]]
 
@@ -24,9 +25,9 @@ struct RegisteredEffect
   private:
 	EffectIdentifier m_EffectIdentifier;
 
-	void (*m_pOnStart)() = nullptr;
-	void (*m_pOnStop)()  = nullptr;
-	void (*m_pOnTick)()  = nullptr;
+	std::function<void()> m_pOnStart = nullptr;
+	std::function<void()> m_pOnStop  = nullptr;
+	std::function<void()> m_pOnTick  = nullptr;
 
 	bool m_bIsRunning    = false;
 
@@ -35,7 +36,8 @@ struct RegisteredEffect
 	{
 	}
 
-	RegisteredEffect(const std::string &szScriptId, void (*pOnStart)(), void (*pOnStop)(), void (*pOnTick)())
+	RegisteredEffect(const std::string &szScriptId, std::function<void()> pOnStart, std::function<void()> pOnStop,
+	                 std::function<void()> pOnTick)
 	    : m_EffectIdentifier(szScriptId), m_pOnStart(pOnStart), m_pOnStop(pOnStop), m_pOnTick(pOnTick)
 	{
 	}
@@ -143,7 +145,8 @@ class RegisterEffect
 	RegisteredEffect m_RegisteredEffect;
 
   public:
-	RegisterEffect(void (*pOnStart)(), void (*pOnStop)(), void (*pOnTick)(), EffectInfo &&effectInfo)
+	RegisterEffect(std::function<void()> pOnStart, std::function<void()> pOnStop, std::function<void()> pOnTick,
+	               EffectInfo &&effectInfo)
 	{
 		m_RegisteredEffect = { effectInfo.Id, pOnStart, pOnStop, pOnTick };
 
