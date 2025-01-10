@@ -59,9 +59,13 @@ void ZChaosManager::CheckAndAddEffects()
 			effectData.CustomTime = effect->defaultTime / 1000;
 		}
 
-		if ((!IsEffectEnabled || IsEffectEnabled(effect, false)))
+		if ((!IsEffectEnabled || IsEffectEnabled(effect, false)) && effect->enabledManually)
 		{
-			g_dictEnabledEffects.emplace(effectId, effectData);
+			if (!g_dictEnabledEffects.contains(effectId))
+			{
+				g_dictEnabledEffects.emplace(effectId, effectData);
+				LOG("Effect " << effect->name << " has been enabled");
+			}
 		}
 		else if (g_dictEnabledEffects.contains(effectId))
 		{
@@ -222,6 +226,57 @@ void ZChaosManager::OnRun()
 
 void ZChaosManager::OnModPauseCleanup()
 {
+	for (int i = 0; i < m_iEffectCount; ++i)
+	{
+		ZChaosEffect *effect = m_rgEffectsArray[i];
+
+		if (!effect)
+		{
+			LOG("No effect at index " << i);
+			continue;
+		}
+
+		std::ostringstream oss;
+		oss << "zchaos_" << i << "_";
+		char *ptr = effect->name;
+		for (char c = *ptr; c; c = *++ptr)
+		{
+			if ('a' <= c && c <= 'z')
+			{
+				oss << c;
+			}
+			if ('A' <= c && c <= 'Z')
+			{
+				oss << (char)(c - 'A' + 'a');
+			}
+		}
+
+		std::string effectId = oss.str();
+
+		EffectData effectData;
+		effectData.Name      = effect->name;
+		effectData.Id        = effectId;
+		effectData.TimedType = effect->m_OnTick ? EEffectTimedType::Custom : EEffectTimedType::NotTimed;
+		if (effect->m_OnTick)
+		{
+			effectData.CustomTime = effect->defaultTime / 1000;
+		}
+		
+		if (g_dictEnabledEffects.contains(effectId))
+		{
+			g_dictEnabledEffects.erase(effectId);
+		}
+
+		if (auto reg = GetRegisteredEffect(effectId))
+		{
+			g_RegisteredEffects.erase(std::remove_if(g_RegisteredEffects.begin(), g_RegisteredEffects.end(),
+			                                         [effectId](RegisteredEffect e)
+			                                         { return e.GetIndentifier().GetEffectId() == effectId; }),
+			                          g_RegisteredEffects.end());
+		}
+	}
+
+	
 	m_rgEffectsArray = 0;
 	m_iEffectCount   = 0;
 }
