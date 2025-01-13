@@ -4,7 +4,7 @@
 
 class ZChaosManager : public Component
 {
-  private:
+  public:
 	struct ZChaosEffect
 	{
 		int time;
@@ -13,7 +13,7 @@ class ZChaosManager : public Component
 		void (*m_OnTick)(ZChaosEffect *);
 		char *name;
 		char *name2;
-		int field_28;
+		int cycleType;
 		char __pad1[12];
 		bool enabledManually;
 		bool enabledForCheatCodeVoting;
@@ -34,6 +34,7 @@ class ZChaosManager : public Component
 		double cutoutTime;
 	};
 
+  private:
 	struct ZChaosEffectsList
 	{
 		ZChaosEffect **first;
@@ -46,9 +47,15 @@ class ZChaosManager : public Component
 	char *m_pNoTimer;
 	char *m_pDisableChaosUI;
 	char *m_pZChaosActive;
-	bool (*IsEffectEnabled)(ZChaosEffect* effect, bool a1);
+	double *m_pWarningTime;
+	char *m_pWarningStr;
+	char *m_pWarningStr2;
+	bool (*IsEffectEnabled)(ZChaosEffect *effect, bool a1);
+
 
 	void CheckAndAddEffects();
+	std::string GetIdForEffect(ZChaosEffect *effect, int index);
+	void OverrideWarning();
 
   protected:
 	ZChaosManager();
@@ -58,6 +65,9 @@ class ZChaosManager : public Component
 	virtual void OnRun() override;
 	virtual void OnModPauseCleanup() override;
 	void RunEffectsOnTick(int a);
+	std::string GetIdForEffect(ZChaosEffect *effect);
+	void RegisterZChaosEffect(ZChaosEffect *effect, std::string effectId);
+	void EnableEffect(ZChaosManager::ZChaosEffect *effect, std::string effectId);
 
 	template <class T>
 	requires std::is_base_of_v<Component, T>
