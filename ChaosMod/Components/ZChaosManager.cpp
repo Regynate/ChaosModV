@@ -19,7 +19,7 @@ static __int64 HK_StartEffect(ZChaosManager::ZChaosEffect *effect)
 {
 	LOG("Trying to trigger effect " << effect->name);
 	const auto effectId = GetComponent<ZChaosManager>()->GetIdForEffect(effect);
-	if ((!GetRegisteredEffect(effectId) || !g_dictEnabledEffects.contains(effectId)) && !effect->enabledManually)
+	if (!GetRegisteredEffect(effectId) || !g_dictEnabledEffects.contains(effectId) || !effect->enabledManually)
 	{
 		return 0;
 	}
@@ -48,6 +48,22 @@ static std::vector<std::pair<const char *, const char *>> labelOverrides = {
 	{ "~r~blalala",       "~r~blelelelelelelele" },
 	{ "~r~PLINK",         "~r~OR BUHH????" },
 };
+
+void RemoveEffect(std::string effectId)
+{
+	if (g_dictEnabledEffects.contains(effectId))
+	{
+		g_dictEnabledEffects.erase(effectId);
+	}
+
+	if (auto reg = GetRegisteredEffect(effectId))
+	{
+		g_RegisteredEffects.erase(std::remove_if(g_RegisteredEffects.begin(), g_RegisteredEffects.end(),
+		                                         [effectId](RegisteredEffect e)
+		                                         { return e.GetIndentifier().GetEffectId() == effectId; }),
+		                          g_RegisteredEffects.end());
+	}
+}
 
 void ZChaosManager::RegisterZChaosEffect(ZChaosEffect *effect, std::string effectId)
 {
@@ -129,21 +145,22 @@ void ZChaosManager::CheckAndAddEffects()
 				EnableEffect(effect, effectId);
 				LOG("Effect " << effect->name << " has been enabled");
 			}
+
+			if (!GetRegisteredEffect(effectId))
+			{
+				RegisterZChaosEffect(effect, effectId);
+				LOG("Registered ZChaos effect \"" << effect->name << "\" with id " << effectId);
+			}
 		}
-		else if (g_dictEnabledEffects.contains(effectId))
+		else
 		{
-			g_dictEnabledEffects.erase(effectId);
-			LOG("Effect " << effect->name << " has been disabled");
+			if (g_dictEnabledEffects.contains(effectId))
+			{
+				LOG("Effect " << effect->name << " has been disabled");
+			}
+
+			RemoveEffect(effectId);
 		}
-
-		if (GetRegisteredEffect(effectId))
-		{
-			continue;
-		}
-
-		RegisterZChaosEffect(effect, effectId);
-
-		LOG("Registered ZChaos effect \"" << effect->name << "\" with id " << effectId);
 	}
 }
 
@@ -305,7 +322,7 @@ void ZChaosManager::OnRun()
 	}
 	if (m_pNoTimer)
 	{
-		*m_pNoTimer      = true;
+		*m_pNoTimer = true;
 	}
 	if (m_pDisableChaosUI)
 	{
@@ -326,21 +343,8 @@ void ZChaosManager::OnModPauseCleanup()
 		}
 
 		std::string effectId = GetIdForEffect(effect);
-				
-		if (g_dictEnabledEffects.contains(effectId))
-		{
-			g_dictEnabledEffects.erase(effectId);
-		}
-
-		if (auto reg = GetRegisteredEffect(effectId))
-		{
-			g_RegisteredEffects.erase(std::remove_if(g_RegisteredEffects.begin(), g_RegisteredEffects.end(),
-			                                         [effectId](RegisteredEffect e)
-			                                         { return e.GetIndentifier().GetEffectId() == effectId; }),
-			                          g_RegisteredEffects.end());
-		}
+		RemoveEffect(effectId);
 	}
-
 	
 	m_rgEffectsArray = 0;
 	m_iEffectCount   = 0;
@@ -365,7 +369,6 @@ void ZChaosManager::RunEffectsOnTick(int cycleType)
 		if (flag)
 		{
 			it = m_rgActiveZChaosEffects.erase(it);
-			CheckAndAddEffects();
 		}
 		else
 		{
