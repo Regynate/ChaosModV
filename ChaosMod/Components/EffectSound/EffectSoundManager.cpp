@@ -40,6 +40,9 @@ void EffectSoundManager::HandleDirectory(const std::string &dir, const std::stri
 
 DWORD64 EffectSoundManager::PlaySoundFile(const std::string &soundFileName)
 {
+	if (IS_CUTSCENE_PLAYING())
+		return;
+
 	if (m_EffectSoundFileNamesCache.find(soundFileName) == m_EffectSoundFileNamesCache.end())
 	{
 		HandleDirectory(CHAOS_SOUNDFILES_USER_DIR, soundFileName);
