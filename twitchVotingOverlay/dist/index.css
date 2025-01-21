@@ -14,7 +14,6 @@ body {
 	--text-outline-color: #000000;
 	--text-outline-thickness: 1.3px;
 	--text-size: 22pt;
-
 	/* Bar related things */
 	--bar-background-disabled: #afafaf;
 	--bar-background: #727272;
@@ -24,7 +23,7 @@ body {
 	--bar-height: 35px;
 	--bar-width: 450px;
 	--bar-progression-disabled: #8d8d8d;
-	--bar-progression: #238beb;
+	--bar-progression: 8a2be2;
 	--bar-text-color-disabled: #f3f3f3;
 	--bar-text-color: #f1f1f1;
 	--bar-text-outline-color: #000000;
