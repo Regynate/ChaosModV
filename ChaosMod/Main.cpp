@@ -186,7 +186,7 @@ static void Init()
 
 	INIT_COMPONENT("Workshop", "workshop", Workshop);
 
-	if (FORCE_LEGACY_SOUND_MANAGER || DoesFeatureFlagExist("uselegacyeffectsoundmanager"))
+	if (DoesFeatureFlagExist("uselegacyeffectsoundmanager") || FORCE_LEGACY_SOUND_MANAGER)
 	{
 		INIT_COMPONENT_BASE("EffectSoundManager", "effect sound system (legacy MCI)", EffectSoundManager,
 		                    EffectSoundMCI);
