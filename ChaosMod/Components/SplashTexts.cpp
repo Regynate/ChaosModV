@@ -13,8 +13,8 @@ SplashTexts::SplashTexts()
 	m_EnableSplashTexts =
 	    g_OptionsManager.GetConfigValue({ "EnableModSplashTexts" }, OPTION_DEFAULT_ENABLE_SPLASH_TEXTS);
 
-	if (ms_InitalSplashShown)
-		return;
+	// if (ms_InitalSplashShown)
+	//	return;
 
 	ShowSplash("Chaos Mod v" MOD_VERSION "\n\nSee credits.txt for a list of contributors", { .2f, .3f }, .65f,
 	           { 60, 245, 190 });
