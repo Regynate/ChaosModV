@@ -20,7 +20,7 @@ static void OnStart_Majority()
 // clang-format off
 REGISTER_EFFECT(OnStart_Majority, OnStop, nullptr,
 	{
-		.Name = "Majority Voting",
+		.Name = "Not Rigged",
 		.Id = "meta_votingmode_majority",
 		.IsTimed = true,
 		.IncompatibleWith = { "meta_votingmode_antimajority" },
@@ -38,7 +38,7 @@ static void OnStart_Antimajority()
 // clang-format off
 REGISTER_EFFECT(OnStart_Antimajority, OnStop, nullptr,
 	{
-		.Name = "Minority Voting",
+		.Name = "Rigged",
 		.Id = "meta_votingmode_antimajority",
 		.IsTimed = true,
 		.IncompatibleWith = { "meta_votingmode_majority" },
