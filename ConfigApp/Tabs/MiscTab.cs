@@ -30,6 +30,7 @@ namespace ConfigApp.Tabs
         private TextBox? m_DistanceBasedDispatchDistance = null;
         private ComboBox? m_DistanceBasedDispatchType = null;
         private CheckBox? m_EnableCrossingChallenge = null;
+        private CheckBox? m_EnableZChaosIntegration = null;
 
         private static ColorPicker GenerateCommonColorPicker(Color defaultColor)
         {
@@ -129,6 +130,7 @@ namespace ConfigApp.Tabs
             grid.PopRow();
 
             grid.PushRowSpacedPair("Enable Crossing Challenge™", m_EnableCrossingChallenge = Utils.GenerateCommonCheckBox());
+            grid.PushRowSpacedPair("Enable ZChaos Integration", m_EnableZChaosIntegration = Utils.GenerateCommonCheckBox());
 
             scrollViewer.Content = grid.Grid;
 
@@ -188,6 +190,8 @@ namespace ConfigApp.Tabs
                 m_DistanceBasedDispatchType.SelectedIndex = OptionsManager.ConfigFile.ReadValueInt("DistanceType", 0);
             if (m_EnableCrossingChallenge is not null)
                 m_EnableCrossingChallenge.IsChecked = OptionsManager.ConfigFile.ReadValueBool("EnableCrossingChallenge", false);
+            if (m_EnableCrossingChallenge is not null)
+                m_EnableZChaosIntegration.IsChecked = OptionsManager.ConfigFile.ReadValueBool("EnableZChaosIntegration", false);
         }
 
         public override void OnSaveValues()
@@ -215,6 +219,7 @@ namespace ConfigApp.Tabs
             OptionsManager.ConfigFile.WriteValue("DistanceToActivateEffect", m_DistanceBasedDispatchDistance?.Text);
             OptionsManager.ConfigFile.WriteValue("DistanceType", m_DistanceBasedDispatchType?.SelectedIndex);
             OptionsManager.ConfigFile.WriteValue("EnableCrossingChallenge", m_EnableCrossingChallenge?.IsChecked);
+            OptionsManager.ConfigFile.WriteValue("EnableZChaosIntegration", m_EnableZChaosIntegration?.IsChecked);
         }
     }
 }
