@@ -7,9 +7,10 @@
 #include "Components/KeyStates.h"
 #include "Components/MetaModifiers.h"
 #include "Components/Workshop.h"
-#include "Effects/Effect.h"
 #include "Effects/EffectData.h"
-#include "Effects/EnabledEffectsMap.h"
+#include "Effects/EnabledEffects.h"
+#include "Effects/Register/RegisteredEffects.h"
+#include "Effects/Register/RegisteredEffectsMetadata.h"
 #include "Info.h"
 #include "Memory/Hooks/AudioClearnessHook.h"
 #include "Memory/Hooks/AudioPitchHook.h"
@@ -57,17 +58,14 @@
 #define MAGIC_CATCH_END(x) }
 #endif
 
-static std::mutex ms_PrintMutex;
 #define LUA_LOG(text)                                   \
 	do                                                  \
 	{                                                   \
-		std::lock_guard lock(ms_PrintMutex);            \
 		LuaPrint((std::ostringstream() << text).str()); \
 	} while (0)
 #define LUA_SCRIPT_LOG(scriptName, text)                            \
 	do                                                              \
 	{                                                               \
-		std::lock_guard lock(ms_PrintMutex);                        \
 		LuaPrint(scriptName, (std::ostringstream() << text).str()); \
 	} while (0)
 
@@ -727,7 +725,7 @@ LuaScripts::ParseScript(std::string scriptName, const std::string &script, Parse
 	}
 	else
 	{
-		for (const auto &effect : g_EffectsMap)
+		for (const auto &effect : g_RegisteredEffectsMetadata)
 		{
 			if (effect.second.Id == effectId)
 			{
@@ -868,7 +866,7 @@ LuaScripts::ParseScript(std::string scriptName, const std::string &script, Parse
 		const auto &effectCategoryStr = *effectCategoryOpt;
 		auto effectCategoryIt         = g_NameToEffectCategory.find(effectCategoryStr);
 		if (effectCategoryIt != g_NameToEffectCategory.end())
-			effectData.EffectCategory = effectCategoryIt->second;
+			effectData.Category = effectCategoryIt->second;
 	}
 
 	const sol::optional<std::string> &effectGroupOpt = effectInfo["EffectGroup"];

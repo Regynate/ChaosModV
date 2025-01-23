@@ -5,6 +5,7 @@
 #include <math.h>
 #include <stdafx.h>
 
+#include "Effects/Register/RegisterEffect.h"
 #define PI 3.14159265
 
 static void OnStart()
@@ -33,6 +34,7 @@ static void OnStart()
 	SET_ENTITY_VELOCITY(veh, vel.x, vel.y, vel.z);
 
 	Ped bond = CreatePoolPedInsideVehicle(veh, 4, model, -1);
+	CurrentEffect::SetEffectSoundPlayOptions({ .PlayType = EffectSoundPlayType::FollowEntity, .Entity = bond });
 
 	SET_PED_RELATIONSHIP_GROUP_HASH(bond, relationshipGroup);
 
@@ -54,7 +56,7 @@ static void OnStart()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStart, nullptr, nullptr, EffectInfo
+REGISTER_EFFECT(OnStart, nullptr, nullptr, 
 	{
 		.Name = "Spawn Deadly Agent",
 		.Id = "peds_jamesbond",

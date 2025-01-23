@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Effects/Effect.h"
-
 #include "Util/EntityIterator.h"
 #include "Util/Hash.h"
 #include "Util/Logging.h"
@@ -18,7 +16,6 @@
 #include <scripthookv/inc/main.h>
 #include <scripthookv/inc/natives.h>
 
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #include <d3d11.h>

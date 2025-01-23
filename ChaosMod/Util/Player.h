@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Components/EffectDispatchTimer.h"
 #include "Natives.h"
 #include "Components/EffectDispatchTimer.h"
 

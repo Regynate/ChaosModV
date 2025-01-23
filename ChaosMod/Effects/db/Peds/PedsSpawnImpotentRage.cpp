@@ -1,5 +1,7 @@
 #include <stdafx.h>
 
+#include "Effects/Register/RegisterEffect.h"
+
 static void OnStart()
 {
 	static const Hash playerGroup = "PLAYER"_hash;
@@ -18,8 +20,7 @@ static void OnStart()
 	Vector3 playerPos = GET_ENTITY_COORDS(playerPed, false);
 
 	Ped ped           = CreatePoolPed(4, model, playerPos.x, playerPos.y, playerPos.z, GET_ENTITY_HEADING(playerPed));
-	CurrentEffect::SetEffectSoundPlayOptions(
-	    { .PlayType = EffectSoundPlayType::FollowEntity, .PlayFlags = EffectSoundPlayFlags_Looping, .Entity = ped });
+	CurrentEffect::SetEffectSoundPlayOptions({ .PlayType = EffectSoundPlayType::FollowEntity, .Entity = ped });
 	SET_ENTITY_HEALTH(ped, 1000, 0);
 	SET_PED_ARMOUR(ped, 1000);
 
@@ -58,7 +59,7 @@ static void OnStart()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStart, nullptr, nullptr, EffectInfo
+REGISTER_EFFECT(OnStart, nullptr, nullptr, 
 	{
 		.Name = "Spawn Impotent Rage",
 		.Id = "peds_spawnimrage",

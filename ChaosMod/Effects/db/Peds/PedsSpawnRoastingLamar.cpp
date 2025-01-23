@@ -1,5 +1,7 @@
 #include <stdafx.h>
 
+#include "Effects/Register/RegisterEffect.h"
+
 /*
     Effect by Juhana
 */
@@ -21,6 +23,7 @@ static void OnStart()
 	LoadModel(lamarModel);
 	lamarPed =
 	    CREATE_PED(4, lamarModel, playerPos.x, playerPos.y, playerPos.z, GET_ENTITY_HEADING(playerPed), true, false);
+	CurrentEffect::SetEffectSoundPlayOptions({ .PlayType = EffectSoundPlayType::FollowEntity, .Entity = lamarPed });
 	SET_MODEL_AS_NO_LONGER_NEEDED(lamarModel);
 
 	if (IS_PED_IN_ANY_VEHICLE(playerPed, false))
@@ -83,7 +86,7 @@ static void OnTick()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStart, OnStop, OnTick, EffectInfo
+REGISTER_EFFECT(OnStart, OnStop, OnTick, 
 	{
 		.Name = "Get Roasted",
 		.Id = "peds_roasting",

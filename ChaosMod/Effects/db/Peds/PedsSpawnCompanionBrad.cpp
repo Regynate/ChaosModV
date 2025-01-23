@@ -1,5 +1,7 @@
 #include <stdafx.h>
 
+#include "Effects/Register/RegisterEffect.h"
+
 static void OnStart()
 {
 	static const Hash model = "ig_brad"_hash;
@@ -13,6 +15,8 @@ static void OnStart()
 	Vector3 playerPos = GET_ENTITY_COORDS(playerPed, false);
 
 	Ped ped           = CreatePoolPed(4, model, playerPos.x, playerPos.y, playerPos.z, GET_ENTITY_HEADING(playerPed));
+	CurrentEffect::SetEffectSoundPlayOptions(
+	    { .PlayType = EffectSoundPlayType::FollowEntity, .PlayFlags = EffectSoundPlayFlags_Looping, .Entity = ped });
 	if (IS_PED_IN_ANY_VEHICLE(playerPed, false))
 		SET_PED_INTO_VEHICLE(ped, GET_VEHICLE_PED_IS_IN(playerPed, false), -2);
 
@@ -31,7 +35,7 @@ static void OnStart()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStart, nullptr, nullptr, EffectInfo
+REGISTER_EFFECT(OnStart, nullptr, nullptr, 
 	{
 		.Name = "Spawn Companion Brad",
 		.Id = "spawn_compbrad",

@@ -1,5 +1,7 @@
 #include <stdafx.h>
 
+#include "Effects/Register/RegisterEffect.h"
+
 static void OnStart()
 {
 	static const Hash modelHash = "a_c_chop"_hash;
@@ -13,6 +15,7 @@ static void OnStart()
 	Vector3 playerPos = GET_ENTITY_COORDS(playerPed, false);
 
 	Ped ped = CreatePoolPed(28, modelHash, playerPos.x, playerPos.y, playerPos.z, GET_ENTITY_HEADING(playerPed));
+	CurrentEffect::SetEffectSoundPlayOptions({ .PlayType = EffectSoundPlayType::FollowEntity, .Entity = ped });
 	SET_PED_COMBAT_ATTRIBUTES(ped, 0, false);
 	SET_PED_RELATIONSHIP_GROUP_HASH(ped, relationshipGroup);
 	SET_PED_HEARING_RANGE(ped, 9999.f);
@@ -21,7 +24,7 @@ static void OnStart()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStart, nullptr, nullptr, EffectInfo
+REGISTER_EFFECT(OnStart, nullptr, nullptr, 
 	{
 		.Name = "Spawn Companion Doggo",
 		.Id = "spawn_chop",

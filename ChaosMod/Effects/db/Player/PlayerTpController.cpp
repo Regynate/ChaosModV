@@ -1,9 +1,11 @@
 #include <stdafx.h>
 
-#include "Components/EffectDispatcher.h"
-
+#include "Effects/EnabledEffects.h"
+#include "Effects/Register/RegisterEffect.h"
+#include "Effects/db/Player/PlayerBlimpStrats.h"
+#include "Effects/db/Player/PlayerRandomStuntJump.h"
+#include "Effects/db/Player/PlayerTpToRandomStore.h"
 #include "Memory/Hooks/ScriptThreadRunHook.h"
-
 #include "Util/Player.h"
 
 #include "Effects/db/Player/PlayerBlimpStrats.h"
@@ -16,7 +18,7 @@ static void OnStartLSIA()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStartLSIA, nullptr, nullptr, EffectInfo
+REGISTER_EFFECT(OnStartLSIA, nullptr, nullptr, 
 	{
 		.Name = "Teleport To LS Airport",
 		.Id = "tp_lsairport",
@@ -31,7 +33,7 @@ static void OnStartMazeTower()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStartMazeTower, nullptr, nullptr, EffectInfo
+REGISTER_EFFECT(OnStartMazeTower, nullptr, nullptr, 
 	{
 		.Name = "Teleport To Top Of Maze Bank Tower",
 		.Id = "tp_mazebanktower",
@@ -49,7 +51,7 @@ static void OnStartFortZancudo()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStartFortZancudo, nullptr, nullptr, EffectInfo
+REGISTER_EFFECT(OnStartFortZancudo, nullptr, nullptr, 
 	{
 		.Name = "Teleport To Fort Zancudo",
 		.Id = "tp_fortzancudo",
@@ -67,7 +69,7 @@ static void OnStartMountChilliad()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStartMountChilliad, nullptr, nullptr, EffectInfo
+REGISTER_EFFECT(OnStartMountChilliad, nullptr, nullptr, 
 	{
 		.Name = "Teleport To Mount Chiliad",
 		.Id = "tp_mountchilliad",
@@ -82,7 +84,7 @@ static void OnStartSkyFall()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStartSkyFall, nullptr, nullptr, EffectInfo
+REGISTER_EFFECT(OnStartSkyFall, nullptr, nullptr, 
 	{
 		.Name = "Teleport To Heaven",
 		.Id = "tp_skyfall",
@@ -144,7 +146,7 @@ static void OnStartWaypoint()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStartWaypoint, nullptr, nullptr, EffectInfo
+REGISTER_EFFECT(OnStartWaypoint, nullptr, nullptr, 
 	{
 		.Name = "Teleport To Waypoint",
 		.Id = "player_tptowaypoint"
@@ -190,7 +192,7 @@ static void OnStartWaypointOpposite()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStartWaypointOpposite, nullptr, nullptr, EffectInfo
+REGISTER_EFFECT(OnStartWaypointOpposite, nullptr, nullptr, 
 	{
 		.Name = "Teleport To The Opposite Side Of Waypoint",
 		.Id = "player_tptowaypointopposite"
@@ -209,7 +211,7 @@ static void OnStartFront()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStartFront, nullptr, nullptr, EffectInfo
+REGISTER_EFFECT(OnStartFront, nullptr, nullptr, 
 	{
 		.Name = "Teleport Player A Few Meters",
 		.Id = "player_tpfront"
@@ -234,7 +236,7 @@ static void OnStartRandom()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStartRandom, nullptr, nullptr, EffectInfo
+REGISTER_EFFECT(OnStartRandom, nullptr, nullptr, 
 	{
 		.Name = "Teleport To Random Location",
 		.Id = "tp_random",
@@ -293,7 +295,7 @@ static void OnStartMission()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStartMission, nullptr, nullptr, EffectInfo
+REGISTER_EFFECT(OnStartMission, nullptr, nullptr, 
 	{
 		.Name = "Teleport To Random Mission",
 		.Id = "tp_mission"
@@ -398,7 +400,7 @@ static Vector3 PerformFakeTeleport(std::string effectId)
 			WAIT(0);
 
 		break;
-	case 11: // player_tptowaypointopposite
+	case "player_tptowaypointopposite"_hash:
 		OnStartWaypointOpposite();
 		break;
 	}
@@ -431,7 +433,7 @@ static void OnStartFakeTp()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStartFakeTp, nullptr, nullptr, EffectInfo
+REGISTER_EFFECT(OnStartFakeTp, nullptr, nullptr, 
 	{
 		.Name = "Fake Teleport",
 		.Id = "tp_fake",
@@ -456,7 +458,7 @@ static void OnStartFakeFakeTp()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStartFakeFakeTp, nullptr, nullptr, EffectInfo
+REGISTER_EFFECT(OnStartFakeFakeTp, nullptr, nullptr, 
 	{
 		.Name = "Fake Fake Teleport",
 		.Id = "tp_fakex2",
