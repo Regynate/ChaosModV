@@ -16,7 +16,7 @@ SplashTexts::SplashTexts()
 	// if (ms_InitalSplashShown)
 	//	return;
 
-	ShowSplash("Chaos Mod v" MOD_VERSION "\n\nSee credits.txt for a list of contributors", { .2f, .3f }, .65f,
+	ShowSplash("THE ULTIMATE CHAOS v" MOD_VERSION "\n\nSee credits.txt for a list of contributors", { .2f, .3f }, .65f,
 	           { 60, 245, 190 });
 #ifdef CHAOSDEBUG
 	ShowSplash("DEBUG BUILD!", { .2f, .5f }, .7f, { 255, 0, 0 });
