@@ -27,6 +27,8 @@
 #include "Util/PoolSpawner.h"
 #include "Util/Text.h"
 
+#define FORCE_LEGACY_SOUND_MANAGER 1
+
 static struct
 {
 	bool ClearAllEffects             = false;
@@ -184,7 +186,7 @@ static void Init()
 
 	INIT_COMPONENT("Workshop", "workshop", Workshop);
 
-	if (DoesFeatureFlagExist("uselegacyeffectsoundmanager"))
+	if (FORCE_LEGACY_SOUND_MANAGER || DoesFeatureFlagExist("uselegacyeffectsoundmanager"))
 	{
 		INIT_COMPONENT_BASE("EffectSoundManager", "effect sound system (legacy MCI)", EffectSoundManager,
 		                    EffectSoundMCI);
