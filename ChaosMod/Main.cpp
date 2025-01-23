@@ -17,6 +17,7 @@
 #include "Components/SplashTexts.h"
 #include "Components/Voting.h"
 #include "Components/Workshop.h"
+#include "Components/ZChaosManager.h"
 #include "Effects/EffectConfig.h"
 #include "Effects/EnabledEffects.h"
 #include "Memory/Hooks/ScriptThreadRunHook.h"
@@ -172,6 +173,13 @@ static void Init()
 #define INIT_COMPONENT(componentName, logName, componentType, ...) \
 	INIT_COMPONENT_BASE(componentName, logName, componentType, componentType, __VA_ARGS__)
 
+#define INIT_COMPONENT_BY_CONFIGVALUE(configEntry, componentName, logName, componentType, ...) \
+	do                                                                                         \
+	{                                                                                          \
+		if (g_OptionsManager.GetConfigValue<bool>({ configEntry }, false))                     \
+			INIT_COMPONENT(componentName, logName, componentType, __VA_ARGS__);                \
+	} while (0)
+
 	INIT_COMPONENT("SplashTexts", "mod splash texts handler", SplashTexts);
 
 	INIT_COMPONENT("Workshop", "workshop", Workshop);
@@ -189,6 +197,8 @@ static void Init()
 	INIT_COMPONENT("MetaModifiers", "meta modifier states", MetaModifiers);
 
 	INIT_COMPONENT("LuaScripts", "Lua scripts", LuaScripts);
+
+	INIT_COMPONENT_BY_CONFIGVALUE("EnableZChaosIntegration", "ZChaosManager", "ZChaos Integration", ZChaosManager);
 
 	INIT_COMPONENT("EffectDispatcher", "effects dispatcher", EffectDispatcher, textColor, effectTimerColor);
 

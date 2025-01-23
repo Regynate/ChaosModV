@@ -613,6 +613,15 @@ void EffectDispatcher::ClearMostRecentEffect()
 	}
 }
 
+float EffectDispatcher::GetRemainingTimeForEffect(const EffectIdentifier &effectId)
+{
+	auto result = std::find_if(SharedState.ActiveEffects.begin(), SharedState.ActiveEffects.end(),
+	                           [effectId](ActiveEffect &activeEffect) { return activeEffect.Id == effectId; });
+	if (result == SharedState.ActiveEffects.end())
+		return 0.f;
+	return result->Timer;
+}
+
 std::vector<RegisteredEffect *> EffectDispatcher::GetRecentEffects(int distance, const std::string &ignoreEffect) const
 {
 	std::vector<RegisteredEffect *> effects;

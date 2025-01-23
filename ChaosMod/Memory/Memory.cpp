@@ -166,7 +166,7 @@ namespace Memory
 		    .detach();
 	}
 
-	Handle FindPattern(const std::string &pattern, const PatternScanRange &&scanRange)
+	Handle FindPattern(const std::string &pattern, const PatternScanRange &scanRange)
 	{
 		DEBUG_LOG("Searching for pattern \""
 		          << pattern

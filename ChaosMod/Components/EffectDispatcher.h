@@ -130,6 +130,8 @@ class EffectDispatcher : public Component
 	void ClearActiveEffects();
 	void ClearMostRecentEffect();
 
+	float GetRemainingTimeForEffect(const EffectIdentifier &effectId);
+
 	std::vector<RegisteredEffect *> GetRecentEffects(int distance, const std::string &ignoreEffect = {}) const;
 
 	void Reset(ClearEffectsFlags clearEffectFlags = ClearEffectsFlag_None);
