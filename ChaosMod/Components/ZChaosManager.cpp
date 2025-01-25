@@ -204,7 +204,7 @@ ZChaosManager::ZChaosManager()
 	auto lib = GetModuleHandle(L"ZChaosV.asi");
 	if (!lib)
 	{
-		LOG("Could not found ZChaos lib! Check that ZChaos is installed");
+		LOG("Could not find ZChaos lib! Check that ZChaos is installed");
 		return;
 	}
 
