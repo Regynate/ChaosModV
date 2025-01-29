@@ -29,7 +29,6 @@ namespace ConfigApp.Tabs
         private CheckBox? m_EnableDistanceBasedDispatch = null;
         private TextBox? m_DistanceBasedDispatchDistance = null;
         private ComboBox? m_DistanceBasedDispatchType = null;
-        private CheckBox? m_EnableCrossingChallenge = null;
         private CheckBox? m_EnableZChaosIntegration = null;
 
         private static ColorPicker GenerateCommonColorPicker(Color defaultColor)
@@ -129,7 +128,6 @@ namespace ConfigApp.Tabs
             });
             grid.PopRow();
 
-            grid.PushRowSpacedPair("Enable Crossing Challenge™", m_EnableCrossingChallenge = Utils.GenerateCommonCheckBox());
             grid.PushRowSpacedPair("Enable ZChaos Integration", m_EnableZChaosIntegration = Utils.GenerateCommonCheckBox());
 
             scrollViewer.Content = grid.Grid;
@@ -188,8 +186,6 @@ namespace ConfigApp.Tabs
                 m_DistanceBasedDispatchDistance.Text = OptionsManager.ConfigFile.ReadValue("DistanceToActivateEffect", "250");
             if (m_DistanceBasedDispatchType is not null)
                 m_DistanceBasedDispatchType.SelectedIndex = OptionsManager.ConfigFile.ReadValueInt("DistanceType", 0);
-            if (m_EnableCrossingChallenge is not null)
-                m_EnableCrossingChallenge.IsChecked = OptionsManager.ConfigFile.ReadValueBool("EnableCrossingChallenge", false);
             if (m_EnableZChaosIntegration is not null)
                 m_EnableZChaosIntegration.IsChecked = OptionsManager.ConfigFile.ReadValueBool("EnableZChaosIntegration", false);
         }
@@ -218,7 +214,6 @@ namespace ConfigApp.Tabs
             OptionsManager.ConfigFile.WriteValue("EnableDistanceBasedEffectDispatch", m_EnableDistanceBasedDispatch?.IsChecked);
             OptionsManager.ConfigFile.WriteValue("DistanceToActivateEffect", m_DistanceBasedDispatchDistance?.Text);
             OptionsManager.ConfigFile.WriteValue("DistanceType", m_DistanceBasedDispatchType?.SelectedIndex);
-            OptionsManager.ConfigFile.WriteValue("EnableCrossingChallenge", m_EnableCrossingChallenge?.IsChecked);
             OptionsManager.ConfigFile.WriteValue("EnableZChaosIntegration", m_EnableZChaosIntegration?.IsChecked);
         }
     }
