@@ -24,6 +24,7 @@
 #include "Util/EntityIterator.h"
 #include "Util/File.h"
 #include "Util/HelpText.h"
+#include "Util/Peds.h"
 #include "Util/Player.h"
 #include "Util/PoolSpawner.h"
 #include "Util/Script.h"
@@ -296,7 +297,6 @@ static const std::vector<ExposableFunc> ms_Exposables {
 	E("GET_HASH_KEY", GET_HASH_KEY),
 	E("print", [](const sol::this_environment &curEnv, const std::string &text)
 	  { LuaPrint(curEnv.env->get<sol::table>("EnvInfo")["ScriptName"], text); }),
-	E("WAIT", WAIT),
 	E("IsKeyPressed",
 	  [](unsigned char key)
 	  {
@@ -318,6 +318,7 @@ static const std::vector<ExposableFunc> ms_Exposables {
 	E("LoadModel", LoadModel),
 	E("GetAllPeds", GetAllPedsArray),
 	E("CreatePoolPed", CreatePoolPed),
+	E("SetCompanionRelationship", SetCompanionRelationship),
 	E("TeleportPlayer", [](float x, float y, float z, bool noOffset) { TeleportPlayer(x, y, z, noOffset); }),
 	E("GetAllVehicles", GetAllVehsArray),
 	E("CreatePoolVehicle", CreatePoolVehicle),
@@ -466,6 +467,7 @@ LuaScripts::LuaScripts()
 		{
 			return LuaInvoke(curEnv, hash, returnType, args);
 		};
+		m_GlobalState["WAIT"] = WAIT;
 	}
 	else
 	{
@@ -474,6 +476,10 @@ LuaScripts::LuaScripts()
 		{
 			LOG("WARNING: Blocked invocation of native 0x" << std::uppercase << std::hex << hash << std::setfill(' ')
 			                                               << " during script evaluation!");
+		};
+		m_GlobalState["WAIT"] = []()
+		{
+			LOG("WARNING: Blocked invocation of WAIT during script evaluation!");
 		};
 	}
 
@@ -506,6 +512,7 @@ LuaScripts::LuaScripts()
 		{
 			return LuaInvoke(curEnv, hash, returnType, args);
 		};
+		m_GlobalState["WAIT"] = WAIT;
 	}
 }
 
