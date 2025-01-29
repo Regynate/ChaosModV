@@ -32,16 +32,14 @@ static __int64 HK_StartEffect(ZChaosManager::ZChaosEffect *effect)
 }
 
 static std::vector<std::pair<const char *, const char *>> labelOverrides = {
-	{ "~r~CHAOS WARNING", "~r~There used to be a warning here... right?" },
 	{ "~r~AAAAAAAAAAAAA", "~r~AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" },
-	{ "~r~CHAOS WARNING", "~r~Something version something something, no one cares" },
-	{ "~r~Oh no!", "~r~The game crashed, you'll have to start over again" },
-	{ "~r~warning", "~r~not so scary now, huh?" },
-	{ "~r~BOO!", "~r~The above text is very spooky, be scared" },
-	{ "~b~I'm blue", "~b~Da ba dee da ba dae" },
-	{ "~r~DID YOU KNOW", "~r~THAT A JIFFY IS AN ACTUAL MEASUREMENT OF TIME???" },
-	{ "~r~blalala", "~r~blelelelelelelele" },
-	{ "~r~PLINK", "~r~OR BUHH????" },
+	{ "~r~CHAOS WARNING", "~r~There used to be a warning here... right?" },
+	{ "~r~OH NO",         "~r~You are doing bad thing, please only do good thing" },
+	{ "~r~warning",       "~r~not so scary now, huh?" },
+	{ "~r~BOO!",          "~r~The above text is very spooky, be scared" },
+	{ "~b~I'm blue",      "~b~Da ba dee da ba dae" },
+	{ "~r~blalala",       "~r~blelelelelelelele" },
+	{ "~r~hello",         "~r~your computer has virus" },
 };
 
 void RemoveEffect(std::string effectId)
@@ -79,8 +77,11 @@ void ZChaosManager::RegisterZChaosEffect(ZChaosEffect *effect, std::string effec
 		    },
 		    [this, effectId]() -> void
 		    {
-			    auto effect  = &m_rgActiveZChaosEffects.at(effectId);
-			    effect->time = GetComponent<EffectDispatcher>()->GetRemainingTimeForEffect(effectId) * 1000;
+			    if (m_rgActiveZChaosEffects.contains(effectId))
+			    {
+					auto effect  = &m_rgActiveZChaosEffects.at(effectId);
+					effect->time = GetComponent<EffectDispatcher>()->GetRemainingTimeForEffect(effectId) * 1000;
+			    }
 		    });
 	}
 	else
@@ -183,7 +184,7 @@ static void OverrideStr(char *orig, const char *newValue)
 
 void ZChaosManager::OverrideWarning()
 {
-	*m_pWarningTime = 8;
+	*m_pWarningTime = 3;
 	const auto pair = labelOverrides[g_Random.GetRandomInt(0, labelOverrides.size() - 1)];
 
 	OverrideStr(m_pWarningStr, pair.first);
@@ -324,7 +325,10 @@ void ZChaosManager::RunEffectsOnTick(int cycleType)
 		}
 
 		if (flag)
+		{
+			GetComponent<EffectDispatcher>()->ClearEffect(effectId);
 			it = m_rgActiveZChaosEffects.erase(it);
+		}
 		else
 			++it;
 	}
