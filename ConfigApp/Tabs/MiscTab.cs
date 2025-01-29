@@ -190,7 +190,7 @@ namespace ConfigApp.Tabs
                 m_DistanceBasedDispatchType.SelectedIndex = OptionsManager.ConfigFile.ReadValueInt("DistanceType", 0);
             if (m_EnableCrossingChallenge is not null)
                 m_EnableCrossingChallenge.IsChecked = OptionsManager.ConfigFile.ReadValueBool("EnableCrossingChallenge", false);
-            if (m_EnableCrossingChallenge is not null)
+            if (m_EnableZChaosIntegration is not null)
                 m_EnableZChaosIntegration.IsChecked = OptionsManager.ConfigFile.ReadValueBool("EnableZChaosIntegration", false);
         }
 
