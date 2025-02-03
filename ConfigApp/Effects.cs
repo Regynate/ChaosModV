@@ -419,6 +419,7 @@
             { "meta_votingmode_majority", new EffectInfo("Not Rigged", EffectCategory.Meta, true) },
             { "meta_votingmode_antimajority", new EffectInfo("Rigged", EffectCategory.Meta, true) },
             { "screen_leaned_camera", new EffectInfo("Leaned Camera", EffectCategory.Screen, true, true) },
+            { "vehs_disappear_on_impact", new EffectInfo("Vehicles Disappear On Impact", EffectCategory.Vehicle, true) },
         };
     }
 }
