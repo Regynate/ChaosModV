@@ -418,6 +418,7 @@
             { "meta_timer_timebased", new EffectInfo("Time Based Timer", EffectCategory.Meta, true) },
             { "meta_votingmode_majority", new EffectInfo("Not Rigged", EffectCategory.Meta, true) },
             { "meta_votingmode_antimajority", new EffectInfo("Rigged", EffectCategory.Meta, true) },
+            { "screen_leaned_camera", new EffectInfo("Leaned Camera", EffectCategory.Screen, true, true) },
         };
     }
 }
