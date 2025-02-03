@@ -189,4 +189,10 @@ namespace Memory
 		Memory::SetVector3(vehicleMatrixAddress + 0x10, vehicleRightVec * scaleMultiplier);
 		Memory::SetVector3(vehicleMatrixAddress + 0x20, vehicleUpVec * scaleMultiplier);
 	}
+
+	inline void SetVehicleRaise(Vehicle vehicle, float height)
+	{
+		auto vehAddr = GetScriptHandleBaseAddress(vehicle);
+		*reinterpret_cast<float *>(*reinterpret_cast<uintptr_t *>(vehAddr + 0x918) + 0xD0) = height;
+	}
 }
