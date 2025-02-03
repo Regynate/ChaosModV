@@ -422,6 +422,7 @@
             { "vehs_disappear_on_impact", new EffectInfo("Vehicles Disappear On Impact", EffectCategory.Vehicle, true) },
             { "misc_fake_spawn", new EffectInfo("Fake Spawn", EffectCategory.Misc) },
             { "peds_upsidedown", new EffectInfo("Upside Down Peds", EffectCategory.Peds, true)},
+            { "peds_blanks", new EffectInfo("Blanks", EffectCategory.Peds, true, true) },
         };
     }
 }
