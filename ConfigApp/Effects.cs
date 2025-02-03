@@ -420,6 +420,8 @@
             { "meta_votingmode_antimajority", new EffectInfo("Rigged", EffectCategory.Meta, true) },
             { "screen_leaned_camera", new EffectInfo("Leaned Camera", EffectCategory.Screen, true, true) },
             { "vehs_disappear_on_impact", new EffectInfo("Vehicles Disappear On Impact", EffectCategory.Vehicle, true) },
+            { "misc_fake_spawn", new EffectInfo("Fake Spawn", EffectCategory.Misc) },
+            { "peds_upsidedown", new EffectInfo("Upside Down Peds", EffectCategory.Peds, true)},
         };
     }
 }
