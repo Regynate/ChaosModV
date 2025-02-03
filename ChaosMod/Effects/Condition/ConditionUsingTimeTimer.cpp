@@ -8,4 +8,4 @@ static bool OnCondition()
 	return ComponentExists<EffectDispatchTimer>() && !GetComponent<EffectDispatchTimer>()->IsUsingDistanceBasedDispatch();
 }
 
-REGISTER_EFFECT_CONDITION(EffectConditionType::UsingTimeTimer, OnCondition);
+REGISTER_EFFECT_CONDITION(EffectConditionType::UsingTimeTimer, OnCondition, "Already using distance based timer");
