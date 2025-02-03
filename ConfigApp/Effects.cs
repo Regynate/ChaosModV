@@ -423,6 +423,7 @@
             { "misc_fake_spawn", new EffectInfo("Fake Spawn", EffectCategory.Misc) },
             { "peds_upsidedown", new EffectInfo("Upside Down Peds", EffectCategory.Peds, true)},
             { "peds_blanks", new EffectInfo("Blanks", EffectCategory.Peds, true, true) },
+            { "player_magnetgravity", new EffectInfo("Pulsating Gravity Field", EffectCategory.Player, true, true) },
         };
     }
 }
