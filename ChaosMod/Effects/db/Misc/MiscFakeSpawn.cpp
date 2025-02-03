@@ -92,7 +92,7 @@ static void OnStart()
 
 	WAIT(0);
 
-	UnloadModel(modelHash);
+	SET_MODEL_AS_NO_LONGER_NEEDED(modelHash);
 
 	Hooks::DisableScriptThreadBlock();
 }
@@ -102,7 +102,7 @@ REGISTER_EFFECT(OnStart, nullptr, nullptr,
 	{
 		.Name = "Fake Spawn",
 		.Id = "misc_fake_spawn",
-		.EffectGroupType = EffectGroupType::SpawnGeneric,
-		.HideRealNameOnStart = true
+		.HideRealNameOnStart = true,
+		.EffectGroupType = EffectGroupType::SpawnGeneric
 	}
 );
