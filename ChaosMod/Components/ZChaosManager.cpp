@@ -184,7 +184,7 @@ static void OverrideStr(char *orig, const char *newValue)
 
 void ZChaosManager::OverrideWarning()
 {
-	*m_pWarningTime = 3;
+	*m_pWarningTime = 0;
 	const auto pair = labelOverrides[g_Random.GetRandomInt(0, labelOverrides.size() - 1)];
 
 	OverrideStr(m_pWarningStr, pair.first);
