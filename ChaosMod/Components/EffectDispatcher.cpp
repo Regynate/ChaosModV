@@ -85,14 +85,14 @@ static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 				activeEffect.Timer = activeEffect.MaxTime;
 
 				playEffectDispatchSound(activeEffect);
+				
+				break;
 			}
 			else
 			{
 				// Replace previous instance of non-timed effect with this new one
 				EffectThreads::StopThreadImmediately(activeEffect.ThreadId);
 			}
-
-			break;
 		}
 
 		const auto &activeEffectData = g_EnabledEffects.at(activeEffect.Id);
