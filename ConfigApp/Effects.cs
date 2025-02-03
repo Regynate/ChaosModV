@@ -425,7 +425,6 @@
             { "peds_blanks", new EffectInfo("Blanks", EffectCategory.Peds, true, true) },
             { "player_magnetgravity", new EffectInfo("Pulsating Gravity Field", EffectCategory.Player, true, true) },
             { "peds_aliens", new EffectInfo("Alien Invasion", EffectCategory.Peds, true) },
-            { "vehs_monster_trucks", new EffectInfo("Monster Trucks", EffectCategory.Vehicle, true ) },
         };
     }
 }
