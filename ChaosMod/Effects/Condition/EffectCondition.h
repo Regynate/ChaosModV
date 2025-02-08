@@ -15,10 +15,10 @@ enum class EffectConditionType
 	UsingTimeTimer,
 };
 
-#define REGISTER_EFFECT_CONDITION(conditionType, condition, failReason)                           \
-	namespace                                                                                     \
-	{                                                                                             \
-		EffectCondition CONCAT(_effectCondition, __LINE__)(conditionType, condition, failReason); \
+#define REGISTER_EFFECT_CONDITION(conditionType, condition, failReason)                                \
+	namespace                                                                                          \
+	{                                                                                                  \
+		EffectCondition CHAOSCONCAT(_effectCondition, __LINE__)(conditionType, condition, failReason); \
 	}
 
 class EffectCondition;
