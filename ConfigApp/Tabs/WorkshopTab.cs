@@ -36,13 +36,59 @@ namespace ConfigApp.Tabs
         };
         private SortingMode m_SortingMode = SortingMode.Name;
 
-        private ObservableCollection<WorkshopSubmissionItem> m_WorkshopSubmissionItems = new();
+        private List<WorkshopSubmissionItem> m_WorkshopSubmissionItems = new();
 
         private CheckBox? m_SortIntalledFirstToggle = null;
         private WatermarkTextBox? m_SearchBox = null;
         private ItemsControl? m_ItemsControl = null;
 
-        private void SortSubmissionItems()
+        private readonly WorkshopSubmissionItem m_CustomScriptsSubmissionItem;
+        private readonly WorkshopSubmissionItem m_CustomSoundsSubmissionItem;
+
+        public WorkshopTab()
+        {
+            m_CustomScriptsSubmissionItem = new("scripts", "")
+            {
+                Name = "Custom Scripts",
+                Description = "Effects contained in the scripts/ folder",
+                IsAlien = true,
+                InstallState = WorkshopSubmissionItem.SubmissionInstallState.Installed
+            };
+            m_CustomScriptsSubmissionItem.UpdateSearchTerms();
+
+            m_CustomSoundsSubmissionItem = new("sounds", "")
+            {
+                Name = "Custom Sounds",
+                Description = "Sounds contained in the sounds/ folder",
+                IsAlien = true,
+                InstallState = WorkshopSubmissionItem.SubmissionInstallState.Installed
+            };
+            m_CustomSoundsSubmissionItem.UpdateSearchTerms();
+        }
+
+        private List<WorkshopSubmissionItem> GetSubmissionItems()
+        {
+            List<WorkshopSubmissionItem> result = new()
+            {
+                m_CustomScriptsSubmissionItem,
+                m_CustomSoundsSubmissionItem
+            };
+
+            foreach (var item in m_WorkshopSubmissionItems)
+            {
+                result.Add(item);
+            }
+
+            return result;
+        }
+
+        private void UpdateDisplayedItems()
+        {
+            if (m_ItemsControl is not null)
+                m_ItemsControl.ItemsSource = GetFilteredSubmissionItems();
+        }
+
+        private void SortWorkshopSubmissionItems()
         {
             IOrderedEnumerable<WorkshopSubmissionItem>? items = null;
 
@@ -56,44 +102,46 @@ namespace ConfigApp.Tabs
             if (m_SortIntalledFirstToggle == null || m_SortIntalledFirstToggle.IsChecked.GetValueOrDefault(true))
                 items = items.OrderBy(item => item.InstallState);
 
-            m_WorkshopSubmissionItems = new ObservableCollection<WorkshopSubmissionItem>(items);
-            if (m_ItemsControl is not null)
-                m_ItemsControl.ItemsSource = m_WorkshopSubmissionItems;
+            m_WorkshopSubmissionItems = new List<WorkshopSubmissionItem>(items);
+            UpdateDisplayedItems();
         }
 
-        private void HandleWorkshopSubmissionsSearchFilter()
+        private List<WorkshopSubmissionItem> GetFilteredSubmissionItems()
         {
+            var items = GetSubmissionItems();
+            var result = new List<WorkshopSubmissionItem>();
+            foreach (var item in items)
+                item.HighlightedFiles.Clear();
+
             var transformedText = m_SearchBox?.Text.Trim().ToLower();
-            var view = CollectionViewSource.GetDefaultView(m_WorkshopSubmissionItems);
-            view.Filter = (submissionItem) =>
+
+            if (transformedText is null || transformedText == "")
+                return items;
+
+            foreach (var item in items)
             {
-                if (submissionItem is not WorkshopSubmissionItem item || transformedText is null || transformedText == "")
-                    return true;
+                bool flag = false;
 
                 foreach (var term in item.SearchTerms)
                 {
                     if (term.Term.ToLower().Contains(transformedText))
-                        return true;
-                }
-
-                return false;
-            };
-
-            foreach (var item in m_WorkshopSubmissionItems)
-            {
-                item.HighlightedFiles.Clear();
-                if (transformedText is not null && transformedText != "")
-                {
-                    foreach (var term in item.SearchTerms)
                     {
-                        if (term.Term.ToLower().Contains(transformedText))
-                        {
-                            if (term.IsInFile)
-                                item.HighlightedFiles.Add(term.FileName);
-                        }
+                        flag = true;
+                        if (term.IsInFile)
+                            item.HighlightedFiles.Add(term.FileName);
                     }
                 }
+
+                if (flag)
+                    result.Add(item);
             }
+
+            return result;
+        }
+
+        private void HandleWorkshopSubmissionsSearchFilter()
+        {
+            UpdateDisplayedItems();
         }
 
         private void ParseWorkshopSubmissionsFile(byte[] compressedFileContent)
@@ -211,7 +259,7 @@ namespace ConfigApp.Tabs
                 }
             }
 
-            SortSubmissionItems();
+            SortWorkshopSubmissionItems();
 
             HandleWorkshopSubmissionsSearchFilter();
         }
@@ -279,7 +327,7 @@ namespace ConfigApp.Tabs
             var button = (Button)sender;
 
             button.IsEnabled = false;
-            foreach (var item in m_WorkshopSubmissionItems)
+            foreach (var item in GetSubmissionItems())
             {
                 item.Refresh();
             }
@@ -297,7 +345,7 @@ namespace ConfigApp.Tabs
             var box = (ComboBox)sender;
 
             m_SortingMode = (SortingMode)box.SelectedIndex;
-            SortSubmissionItems();
+            SortWorkshopSubmissionItems();
         }
 
         protected override void InitContent()
@@ -334,7 +382,7 @@ namespace ConfigApp.Tabs
                 IsChecked = true,
                 Content = "Show installed first"
             };
-            m_SortIntalledFirstToggle.Click += (sender, eventArgs) => { SortSubmissionItems(); };
+            m_SortIntalledFirstToggle.Click += (sender, eventArgs) => { SortWorkshopSubmissionItems(); };
             headerGrid.Children.Add(m_SortIntalledFirstToggle);
 
             m_SearchBox = new WatermarkTextBox()

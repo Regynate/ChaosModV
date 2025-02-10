@@ -56,7 +56,7 @@ std::vector<std::filesystem::directory_entry> Workshop::GetSubmissionFiles(const
 		entries = GetFiles(submissionPath + "\\" + subPath, ".lua", true, blacklistedFiles);
 		break;
 	case FileType::Audio:
-		entries = GetFiles(submissionPath + "\\" + subPath, ".mp3", true, blacklistedFiles);
+		entries = GetFiles(submissionPath + "\\sounds\\" + subPath, ".mp3", true, blacklistedFiles);
 		break;
 	default:
 		return {};
