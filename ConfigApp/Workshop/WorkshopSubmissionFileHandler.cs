@@ -14,8 +14,8 @@
     {
         private readonly WorkshopSubmissionItem m_SubmissionItem;
 
-        public String SubmissionDirectory => $"workshop/{m_SubmissionItem.Id}/";
-        private String SubmissionSettingsFile => $"workshop/{m_SubmissionItem.Id}.json";
+        public String SubmissionDirectory => (m_SubmissionItem.Path ?? "workshop/") + (m_SubmissionItem.Id != null ? (m_SubmissionItem.Id + "/") : "");
+        private String SubmissionSettingsFile => (m_SubmissionItem.Path ?? "workshop/") + (m_SubmissionItem.Id ?? "settings") + ".json";
 
         private readonly List<WorkshopSubmissionFile> m_Files;
 

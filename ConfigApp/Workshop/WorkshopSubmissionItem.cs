@@ -44,6 +44,7 @@ namespace ConfigApp.Workshop
         public event PropertyChangedEventHandler? PropertyChanged = null;
 
         public string? Id { get; private init; } = null;
+        public string? Path { get; private init; } = null;
         public string? Name { get; init; } = null;
         public string? Author { get; init; } = null;
         public string? Description { get; init; } = null;
@@ -81,8 +82,8 @@ namespace ConfigApp.Workshop
                     SettingsButtonVisibility = Visibility.Hidden;
                     break;
                 case SubmissionInstallState.Installed:
-                    InstallButtonText = "Remove";
-                    InstallButtonEnabled = true;
+                    InstallButtonText = IsAlien ? "Installed" : "Remove";
+                    InstallButtonEnabled = !IsAlien;
                     SettingsButtonVisibility = Visibility.Visible;
                     break;
                 case SubmissionInstallState.Installing:
@@ -171,7 +172,9 @@ namespace ConfigApp.Workshop
             }
         }
 
-        public WorkshopSubmissionItem(string id)
+        public WorkshopSubmissionItem(string id) : this(id, null) { }
+
+        public WorkshopSubmissionItem(string? id, string? workshopPath)
         {
             if (ms_DefaultIcon == null)
             {
@@ -194,6 +197,7 @@ namespace ConfigApp.Workshop
             SubmissionIcon = ms_DefaultIcon;
 
             Id = id;
+            Path = workshopPath;
 
             m_FileHandler = new(this);
         }
