@@ -6,7 +6,7 @@
 #include "Components/EffectDispatcher.h"
 #include "Memory/Hooks/ScriptThreadRunHook.h"
 
-static enum class FakeSpawnType : int
+enum class FakeSpawnType : int
 {
 	PEDTYPE,
 	VEHICLETYPE
@@ -30,7 +30,7 @@ struct FakeSpawnInfo
 	PedSpawnAttributes *pedAttributes = nullptr;
 };
 
-static const std::vector<FakeSpawnInfo> fakeSpawns = {
+CHAOS_VAR const std::vector<FakeSpawnInfo> fakeSpawns = {
 	{ "spawn_adder", 0xB779A091, FakeSpawnType::VEHICLETYPE },                                        // Adder
 	{ "peds_angryjimmy", 0x570462B9, FakeSpawnType::PEDTYPE, new PedSpawnAttributes(0x7FD62962, 5) }, // Jimmy
 	{ "spawn_rhino", 0x2EA68690, FakeSpawnType::VEHICLETYPE },                                        // Rhino

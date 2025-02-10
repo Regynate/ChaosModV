@@ -70,7 +70,7 @@ void EffectDispatchTimer::UpdateTravelledDistance()
 		return;
 	}
 
-	int effectSpawnDistance =
+	float effectSpawnDistance =
 	    ComponentExists<MetaModifiers>() && GetComponent<MetaModifiers>()->DistanceToDispatchEffect > 0
 	        ? GetComponent<MetaModifiers>()->DistanceToDispatchEffect
 	        : m_DistanceChaosState.DistanceToActivateEffect;
@@ -136,7 +136,7 @@ int EffectDispatchTimer::GetDefaultEffectSpawnTime() const
 
 int EffectDispatchTimer::GetDefaultEffectSpawnDistance() const
 {
-	return m_DistanceChaosState.DistanceToActivateEffect;
+	return (int)m_DistanceChaosState.DistanceToActivateEffect;
 }
 
 void EffectDispatchTimer::ResetSavedPosition()

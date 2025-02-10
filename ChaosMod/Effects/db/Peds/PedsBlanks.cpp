@@ -8,9 +8,9 @@
 
 #include "Memory/Weapon.h"
 
-static const float fRange = 0.1f;
+CHAOS_VAR const float fRange = 0.1f;
 
-static struct BlanksWeapon
+struct BlanksWeapon
 {
 	Hash weapon;
 	float ogRange;
@@ -19,7 +19,7 @@ static struct BlanksWeapon
 
 std::vector<BlanksWeapon> weapons;
 
-bool WepMapped(Hash &wep)
+static bool WepMapped(Hash &wep)
 {
 	auto iter = std::find_if(weapons.begin(), weapons.end(), [&](const BlanksWeapon &tw) { return tw.weapon == wep; });
 	return iter != weapons.end();

@@ -80,7 +80,7 @@ void ZChaosManager::RegisterZChaosEffect(ZChaosEffect *effect, std::string effec
 			    if (m_rgActiveZChaosEffects.contains(effectId))
 			    {
 					auto effect  = &m_rgActiveZChaosEffects.at(effectId);
-					effect->time = GetComponent<EffectDispatcher>()->GetRemainingTimeForEffect(effectId) * 1000;
+					effect->time = (int)(GetComponent<EffectDispatcher>()->GetRemainingTimeForEffect(effectId) * 1000);
 			    }
 		    });
 	}
@@ -106,7 +106,7 @@ void ZChaosManager::EnableEffect(ZChaosManager::ZChaosEffect *effect, std::strin
 	effectData.Id        = effectId;
 	effectData.TimedType = effect->m_OnTick ? EffectTimedType::Custom : EffectTimedType::NotTimed;
 	if (effect->m_OnTick)
-		effectData.CustomTime = effect->defaultTime / 1000;
+		effectData.CustomTime = (float)effect->defaultTime / 1000;
 
 	g_EnabledEffects.emplace(effectId, effectData);
 }
