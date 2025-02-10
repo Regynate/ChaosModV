@@ -442,26 +442,25 @@ LuaScripts::LuaScripts()
 {
 	SetupGlobalState();
 
-	auto parseScript = [&](const std::filesystem::directory_entry &entry)
+	auto parseScript = [&](const std::string& directory, const std::filesystem::directory_entry &entry)
 	{
-		const auto &path     = entry.path();
-		const auto &fileName = path.filename().string();
-		const auto &pathStr  = path.string();
-		auto scriptName      = pathStr.substr(pathStr.find("\\") + 1);
+		const auto &path      = entry.path();
+		const auto &filename  = path.filename().string();
+		const auto &pathStr   = path.string();
+		const auto scriptName = pathStr.substr(pathStr.find("\\") + 1);
+		const auto submissionPath = directory;
+		const auto scriptPath     = pathStr.starts_with(directory) ? pathStr.substr(directory.length() + 1) : pathStr;
+		DEBUG_LOG("paths: " << pathStr << " " << filename.c_str() << " " << submissionPath << " " << scriptPath);
 
 		LUA_LOG("Running script " << scriptName);
 
 		std::unordered_map<std::string, nlohmann::json> userEffectSettings;
-		if (pathStr.starts_with("chaosmod\\workshop") && ComponentExists<Workshop>())
+		if (ComponentExists<Workshop>())
 		{
-			// Read user script settings
-			auto tmp           = pathStr.substr(strlen("chaosmod\\workshop\\"));
-			userEffectSettings = GetComponent<Workshop>()->GetSubmissionScriptSettings(
-			    pathStr.substr(0, pathStr.find('\\', pathStr.find_first_not_of("chaosmod\\workshop\\"))),
-			    tmp.substr(tmp.find("\\") + 1));
+			userEffectSettings = GetComponent<Workshop>()->GetSubmissionScriptSettings(submissionPath, scriptPath);
 		}
 
-		ParseScript(fileName, path.string(), ParseScriptFlag_ScriptIsFilePath, userEffectSettings);
+		ParseScript(filename, path.string(), ParseScriptFlag_ScriptIsFilePath, userEffectSettings);
 	};
 
 	bool allowEvalNativeInvocations = DoesFeatureFlagExist("allowscriptevalnativeinvocations");
@@ -503,15 +502,19 @@ LuaScripts::LuaScripts()
 			for (const auto &entry : std::filesystem::directory_iterator(dir))
 			{
 				if (entry.is_directory() && ComponentExists<Workshop>())
-					for (const auto &entry : GetComponent<Workshop>()->GetSubmissionFiles(entry.path().string(),
+					for (const auto &submission : GetComponent<Workshop>()->GetSubmissionFiles(entry.path().string(),
 					                                                                      Workshop::FileType::Script))
-						parseScript(entry);
+						parseScript(entry.path().string(), submission);
 			}
 		}
 		else
 		{
-			for (const auto &entry : GetFiles(dir, ".lua", true))
-				parseScript(entry);
+			std::vector<std::string> blacklistedFiles;
+			if (ComponentExists<Workshop>())
+				blacklistedFiles = GetComponent<Workshop>()->GetSubmissionBlacklistedFiles(dir);
+
+			for (const auto &entry : GetFiles(dir, ".lua", true, blacklistedFiles))
+				parseScript(dir, entry);
 		}
 	}
 

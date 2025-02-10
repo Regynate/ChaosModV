@@ -4,20 +4,20 @@
 
 #include "Components/Workshop.h"
 
-#define CHAOS_SOUNDFILES_USER_DIR "chaosmod"
+#define CHAOS_SOUNDFILES_USER_DIR "chaosmod\\sounds"
 #define CHAOS_SOUNDFILES_WORKSHOP_DIR "chaosmod\\workshop"
 
 void EffectSoundManager::HandleDirectory(const std::string &dir, const std::string &soundName)
 {
-	auto soundRootDirName = dir + "\\sounds\\";
+	auto soundRootDirName = dir.ends_with("\\sounds") ? dir : dir + "\\sounds";
 	if (!DoesFileExist(soundRootDirName))
 		return;
 
-	auto soundDirPath  = soundRootDirName + soundName;
+	auto soundDirPath  = soundRootDirName + "\\" + soundName;
 	auto soundFilePath = soundDirPath + ".mp3";
 
 	std::vector<std::string> blacklistedFiles;
-	if (dir.starts_with(CHAOS_SOUNDFILES_WORKSHOP_DIR) && ComponentExists<Workshop>())
+	if (ComponentExists<Workshop>())
 		blacklistedFiles = GetComponent<Workshop>()->GetSubmissionBlacklistedFiles(dir);
 
 	auto &soundFiles    = m_EffectSoundFileNamesCache[soundName];
