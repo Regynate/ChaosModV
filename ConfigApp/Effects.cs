@@ -4,10 +4,17 @@
     {
         public struct EffectInfo
         {
-            public string? Name { get; set; } = null;
-            public EffectCategory EffectCategory { get; set; } = EffectCategory.Unknown;
-            public bool IsTimed { get; set; } = false;
-            public bool IsShort { get; set; } = false;
+            private string m_Name = "";
+
+            public string Name 
+            { 
+                get => IsZChaos ? m_Name + " (ZChaos)" : m_Name;
+                init { m_Name = value; } 
+            }
+            public EffectCategory EffectCategory { get; init; } = EffectCategory.Unknown;
+            public bool IsTimed { get; init; } = false;
+            public bool IsShort { get; init; } = false;
+            public bool IsZChaos { get; set; } = false;
 
             public EffectInfo()
             {
@@ -33,6 +40,7 @@
             Time,
             Weather,
             Misc,
+            ZChaos,
             Meta
         }
 

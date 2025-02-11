@@ -8,6 +8,7 @@ namespace ConfigApp
         public static OptionsFile ConfigFile { get; } = new OptionsFile("configs/config.ini", "config.ini");
         public static OptionsFile TwitchFile { get; } = new OptionsFile("configs/voting.ini", "configs/twitch.ini", "twitch.ini");
         public static OptionsFile EffectsFile { get; } = new OptionsFile("configs/effects.ini", "effects.ini");
+        public static OptionsFile ZChaosEffectsFile { get; } = new OptionsFile("configs/zchaos.ini"); // readonly; settings overrides are stored in EffectsFile
 
         // These are written to manually
         public static OptionsFile WorkshopFile { get; } = new OptionsFile("configs/workshop.ini");
@@ -17,6 +18,7 @@ namespace ConfigApp
             ConfigFile.ReadFile();
             TwitchFile.ReadFile();
             EffectsFile.ReadFile();
+            ZChaosEffectsFile.ReadFile();
             WorkshopFile.ReadFile();
         }
 

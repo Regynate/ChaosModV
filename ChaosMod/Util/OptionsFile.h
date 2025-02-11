@@ -19,7 +19,7 @@ class OptionsFile
 
   public:
 	OptionsFile(const char *fileName, std::vector<const char *> compatFileNames = {})
-	    : m_FileName(fileName), m_FoundFileName(""), m_CompatFileNames(compatFileNames)
+	    : m_FileName(fileName), m_FoundFileName(fileName), m_CompatFileNames(compatFileNames)
 	{
 		Reset();
 	}
@@ -70,10 +70,10 @@ class OptionsFile
 
 	inline void WriteFile()
 	{
-		std::ofstream file(m_FoundFileName, std::ofstream::out | std::ofstream::trunc);
-		if (!file)
+		std::ofstream file(m_FoundFileName);
+		if (!file.is_open())
 		{
-			LOG("Couldn't write config file " << m_FileName);
+			LOG("Couldn't write config file " << m_FoundFileName << " " << GetLastError());
 			return;
 		}
 		for (auto &[key, value] : m_Options)

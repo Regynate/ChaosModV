@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
@@ -84,6 +85,8 @@ namespace ConfigApp
             m_EffectDataMap = new Dictionary<string, EffectData>();
 
             ParseConfigFile();
+
+            ParseZChaosEffectsFile();
 
             ParseEffectsFile();
 
@@ -180,8 +183,40 @@ namespace ConfigApp
                 var value = OptionsManager.EffectsFile.ReadValue(key);
                 var effectData = Utils.ValueStringToEffectData(value);
 
-                m_EffectDataMap?.Add(key, effectData);
+                if (m_EffectDataMap != null)
+                    m_EffectDataMap[key] = effectData;
             }
+        }
+
+        private void ParseZChaosEffectsFile()
+        {
+            foreach (var key in OptionsManager.ZChaosEffectsFile.GetKeys())
+            {
+                var value = OptionsManager.ZChaosEffectsFile.ReadValue(key);
+
+                var effectData = Utils.ValueStringToEffectData(value);
+                if (m_EffectDataMap != null)
+                    m_EffectDataMap[key] = effectData;
+            }
+        }
+
+        private void WriteZChaosEffectsFile()
+        {
+            foreach (var pair in ZChaosEffects.EffectsMap)
+            {
+                var effectData = GetEffectData(pair.Key);
+
+                OptionsManager.ZChaosEffectsFile.WriteValue(pair.Key, $"{(m_TreeMenuItemsMap?[pair.Key].IsChecked is true ? 1 : 0)}"
+                    + $",{(int)effectData.TimedType.GetValueOrDefault(EffectTimedType.NotTimed)}"
+                    + $",{effectData.CustomTime.GetValueOrDefault(0)}"
+                    + $",{effectData.WeightMult.GetValueOrDefault(0)}"
+                    + $",{(effectData.TimedType.GetValueOrDefault(EffectTimedType.NotTimed) == EffectTimedType.Permanent ? 1 : 0)}"
+                    + $",{(effectData.ExcludedFromVoting.GetValueOrDefault(false) ? 1 : 0)}"
+                    + $",\"{(string.IsNullOrEmpty(effectData.CustomName) ? "" : effectData.CustomName)}\""
+                    + $",{effectData.ShortcutKeycode.GetValueOrDefault(0)}");
+            }
+
+            OptionsManager.ZChaosEffectsFile.WriteFile();
         }
 
         private void WriteEffectsFile()
@@ -203,6 +238,11 @@ namespace ConfigApp
             OptionsManager.EffectsFile.WriteFile();
         }
 
+        private Dictionary<string, EffectInfo> GetEffectsMap()
+        {
+            return EffectsMap.Concat(ZChaosEffects.EffectsMap).ToDictionary(e => e.Key, e => e.Value);
+        }
+
         private void InitEffectsTreeView()
         {
             effects_user_effects_search.Clear();
@@ -217,11 +257,12 @@ namespace ConfigApp
             var timeParentItem = new TreeMenuItem("Time");
             var weatherParentItem = new TreeMenuItem("Weather");
             var miscParentItem = new TreeMenuItem("Misc");
+            var zchaosParentItem = new TreeMenuItem("ZChaos");
             var metaParentItem = new TreeMenuItem("Meta");
 
             var sortedEffects = new SortedDictionary<string, (string EffectId, EffectCategory EffectCategory)>();
 
-            foreach (var pair in EffectsMap)
+            foreach (var pair in GetEffectsMap())
             {
                 if (pair.Value.Name is null)
                     continue;
@@ -238,7 +279,7 @@ namespace ConfigApp
                 var menuItem = new TreeMenuItem(effectName);
                 menuItem.OnConfigureClick = () =>
                 {
-                    var effectInfo = EffectsMap[effectMisc.EffectId];
+                    var effectInfo = GetEffectsMap()[effectMisc.EffectId];
 
                     var effectConfig = new EffectConfig(effectMisc.EffectId, effectData, effectInfo);
                     effectConfig.ShowDialog();
@@ -278,6 +319,9 @@ namespace ConfigApp
                 case EffectCategory.Misc:
                     miscParentItem.AddChild(menuItem);
                     break;
+                case EffectCategory.ZChaos:
+                    zchaosParentItem.AddChild(menuItem);
+                    break;
                 case EffectCategory.Meta:
                     metaParentItem.AddChild(menuItem);
                     break;
@@ -291,6 +335,7 @@ namespace ConfigApp
             m_TreeMenuItemsAll.Add(timeParentItem);
             m_TreeMenuItemsAll.Add(weatherParentItem);
             m_TreeMenuItemsAll.Add(miscParentItem);
+            m_TreeMenuItemsAll.Add(zchaosParentItem);
 
             m_TreeMenuItemsFiltered = m_TreeMenuItemsAll.ToList();
             effects_user_effects_tree_view.ItemsSource = m_TreeMenuItemsFiltered;
@@ -356,6 +401,7 @@ namespace ConfigApp
 
             WriteConfigFile();
             WriteEffectsFile();
+            WriteZChaosEffectsFile();
 
             foreach (var tab in m_Tabs)
                 tab.Value.OnSaveValues();

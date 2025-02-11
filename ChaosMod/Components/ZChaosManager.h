@@ -1,6 +1,10 @@
 #pragma once
 #include "Component.h"
 
+#include "Effects/EffectData.h"
+#include "Effects/EffectConfig.h"
+#include "Effects/EnabledEffects.h"
+
 class ZChaosManager : public Component
 {
   public:
@@ -40,20 +44,21 @@ class ZChaosManager : public Component
 		ZChaosEffect **last;
 	};
 
-	int m_iEffectCount;
-	ZChaosEffect **m_rgEffectsArray;
-	std::map<std::string, ZChaosEffect> m_rgActiveZChaosEffects;
-	char *m_pNoTimer;
-	char *m_pDisableChaosUI;
-	char *m_pZChaosActive;
-	double *m_pWarningTime;
-	char *m_pWarningStr;
-	char *m_pWarningStr2;
+	int m_EffectCount;
+	ZChaosEffect **m_EffectsArray;
+	std::map<std::string, ZChaosEffect> m_ActiveZChaosEffects;
+	std::unordered_map<EffectIdentifier, EffectData, EffectsIdentifierHasher> m_EnabledEffects;
+	char *m_NoTimer;
+	char *m_DisableChaosUI;
+	char *m_ZChaosActive;
+	double *m_WarningTime;
+	char *m_WarningStr;
+	char *m_WarningStr2;
 	bool (*IsEffectEnabled)(ZChaosEffect *effect, bool a1);
 
-	void CheckAndAddEffects();
-	std::string GetIdForEffect(ZChaosEffect *effect, int index);
+	void AddEffects();
 	void OverrideWarning();
+	EffectData GetDefaultEffectData(ZChaosEffect *effect, std::string effectId);
 
   public:
 	ZChaosManager();
@@ -63,7 +68,7 @@ class ZChaosManager : public Component
 	void RunEffectsOnTick(int a);
 	std::string GetIdForEffect(ZChaosEffect *effect);
 	void RegisterZChaosEffect(ZChaosEffect *effect, std::string effectId);
-	void EnableEffect(ZChaosManager::ZChaosEffect *effect, std::string effectId);
+	void EnableEffect(std::string effectId, EffectData effectData);
 
 	template <class T>
 	requires std::is_base_of_v<Component, T>
