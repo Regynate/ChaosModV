@@ -1,6 +1,6 @@
 #include "EffectDispatcher.h"
-#include "Util/OptionsFile.h"
 #include "Effects/Register/RegisteredEffectsMetadata.h"
+#include "Util/OptionsFile.h"
 
 #include "ZChaosManager.h"
 
@@ -75,8 +75,8 @@ void ZChaosManager::RegisterZChaosEffect(ZChaosEffect *effect, std::string effec
 		    {
 			    if (m_ActiveZChaosEffects.contains(effectId))
 			    {
-					auto effect  = &m_ActiveZChaosEffects.at(effectId);
-					effect->time = (int)(GetComponent<EffectDispatcher>()->GetRemainingTimeForEffect(effectId) * 1000);
+				    auto effect  = &m_ActiveZChaosEffects.at(effectId);
+				    effect->time = (int)(GetComponent<EffectDispatcher>()->GetRemainingTimeForEffect(effectId) * 1000);
 			    }
 		    });
 	}
@@ -139,7 +139,7 @@ void ZChaosManager::AddEffects()
 			continue;
 		}
 
-		const auto effectId = GetIdForEffect(effect);
+		const auto effectId    = GetIdForEffect(effect);
 
 		const auto defaultData = GetDefaultEffectData(effect, effectId);
 		RegisteredEffectMetadata effectMetadata { .Name    = defaultData.Name,
@@ -159,7 +159,7 @@ void ZChaosManager::AddEffects()
 			// zchaos effects don't have timed types; hack
 			if (effectData.TimedType == EffectTimedType::Normal)
 			{
-				effectData.TimedType = EffectTimedType::Custom;
+				effectData.TimedType  = EffectTimedType::Custom;
 				effectData.CustomTime = defaultData.CustomTime;
 			}
 
@@ -167,7 +167,6 @@ void ZChaosManager::AddEffects()
 		}
 	}
 }
-
 
 std::string ZChaosManager::GetIdForEffect(ZChaosEffect *effect)
 {
@@ -197,7 +196,7 @@ static void OverrideStr(char *orig, const char *newValue)
 
 void ZChaosManager::OverrideWarning()
 {
-	*m_WarningTime = 0;
+	*m_WarningTime  = 0;
 	const auto pair = labelOverrides[g_Random.GetRandomInt(0, labelOverrides.size() - 1)];
 
 	OverrideStr(m_WarningStr, pair.first);
@@ -241,22 +240,22 @@ ZChaosManager::ZChaosManager()
 	}
 
 	handle                    = Memory::FindPattern("0F B6 3D ?? ?? ?? ?? 8B 05", range);
-	m_ZChaosActive           = handle.At(2).Into().Get<char>();
+	m_ZChaosActive            = handle.At(2).Into().Get<char>();
 
 	handle                    = Memory::FindPattern("44 38 3D ?? ?? ?? ?? 75 09 41 0F 28 C2", range);
-	m_DisableChaosUI         = handle.At(2).Into().Get<char>();
+	m_DisableChaosUI          = handle.At(2).Into().Get<char>();
 
 	handle                    = Memory::FindPattern("44 38 3D ?? ?? ?? ?? 0F 85 48 03 00 00", range);
-	m_NoTimer                = handle.At(2).Into().Get<char>();
+	m_NoTimer                 = handle.At(2).Into().Get<char>();
 
 	handle                    = Memory::FindPattern("F2 0F 10 0D ?? ?? ?? ?? 66 41 0F 2F C8 0F 86 00 01 00 00", range);
-	m_WarningTime            = handle.At(3).Into().Get<double>();
+	m_WarningTime             = handle.At(3).Into().Get<double>();
 
 	handle                    = Memory::FindPattern("48 8D 05 ?? ?? ?? ?? 48 89 44 24 60 BF FF 00 00 00", range);
-	m_WarningStr             = handle.At(2).Into().Get<char>();
+	m_WarningStr              = handle.At(2).Into().Get<char>();
 
 	handle                    = Memory::FindPattern("48 8D 05 ?? ?? ?? ?? 48 89 44 24 60 89 7C 24 58", range);
-	m_WarningStr2            = handle.At(2).Into().Get<char>();
+	m_WarningStr2             = handle.At(2).Into().Get<char>();
 
 	handle                    = Memory::FindPattern("40 53 48 83 EC 20 33 C0 48", range);
 	IsEffectEnabled           = handle.Get<bool(ZChaosEffect *, bool)>();
@@ -276,10 +275,10 @@ ZChaosManager::ZChaosManager()
 	if (version != 240103)
 		LOG("Warning: Potentially unsupported zchaos version!");
 
-	handle           = Handle(reinterpret_cast<uintptr_t>(TriggerZChaosEffect));
+	handle         = Handle(reinterpret_cast<uintptr_t>(TriggerZChaosEffect));
 	m_EffectsArray = handle.At(13).Into().Get<ZChaosEffectsList>()->first;
 
-	handle           = Memory::FindPattern("E8 ?? ?? ?? ?? B1 01 E8 ?? ?? ?? ?? 48 8B C8 E8", range);
+	handle         = Memory::FindPattern("E8 ?? ?? ?? ?? B1 01 E8 ?? ?? ?? ?? 48 8B C8 E8", range);
 	if (handle.IsValid())
 	{
 		Memory::AddHook(handle.Into().Get<void()>(), HK_StartEffect, &OG_StartEffect);
@@ -320,7 +319,7 @@ void ZChaosManager::OnModPauseCleanup()
 	}
 
 	m_EffectsArray = 0;
-	m_EffectCount   = 0;
+	m_EffectCount  = 0;
 }
 
 void ZChaosManager::RunEffectsOnTick(int cycleType)
