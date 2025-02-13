@@ -73,7 +73,7 @@ class OptionsFile
 		std::ofstream file(m_FoundFileName);
 		if (!file.is_open())
 		{
-			LOG("Couldn't write config file " << m_FoundFileName << " " << GetLastError());
+			LOG("Couldn't write config file " << m_FoundFileName);
 			return;
 		}
 		for (auto &[key, value] : m_Options)
