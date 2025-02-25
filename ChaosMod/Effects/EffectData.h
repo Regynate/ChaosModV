@@ -72,6 +72,11 @@ class EffectData
 		return static_cast<bool>(Attributes & EffectAttributes::HideRealNameOnStart);
 	}
 
+	inline bool ShouldAlwaysShowName() const
+	{
+		return static_cast<bool>(Attributes & EffectAttributes::AlwaysShowName);
+	}
+
 	inline bool HasCustomName() const
 	{
 		return !CustomName.empty();

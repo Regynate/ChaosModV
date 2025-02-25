@@ -6,7 +6,8 @@ enum class EffectAttributes
 	IsMeta              = (1 << 1),
 	IsUtility           = (1 << 2),
 	IsTemporary         = (1 << 3),
-	HideRealNameOnStart = (1 << 4)
+	HideRealNameOnStart = (1 << 4),
+	AlwaysShowName      = (1 << 5)
 };
 
 inline EffectAttributes operator|(EffectAttributes lhs, EffectAttributes rhs)

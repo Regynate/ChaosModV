@@ -16,6 +16,7 @@ struct RegisteredEffectMetadata
 	bool IsTimed             = false;
 	bool IsShortDuration     = false;
 	bool HideRealNameOnStart = false;
+	bool AlwaysShowName      = false;
 #ifdef CHAOSDEBUG
 	int DebugShortcutKeycode = 0;
 #endif

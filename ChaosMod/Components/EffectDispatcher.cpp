@@ -12,6 +12,7 @@
 #include "Util/OptionsManager.h"
 #include "Util/Random.h"
 #include "Util/ScriptText.h"
+#include "EffectDispatcher.h"
 
 #define EFFECT_TEXT_INNER_SPACING_MIN .030f
 #define EFFECT_TEXT_INNER_SPACING_MAX .075f
@@ -362,6 +363,9 @@ void EffectDispatcher::UpdateEffects(float deltaTime)
 				{
 					auto &fakeEffect      = g_EnabledEffects.at(effectSharedData->OverrideEffectId);
 					activeEffect.FakeName = !fakeEffect.HasCustomName() ? fakeEffect.Name : fakeEffect.CustomName;
+					if (fakeEffect.IsMeta()) {
+						activeEffect.FakeName += " (Meta)";
+					}
 				}
 				else
 				{
@@ -484,7 +488,7 @@ void EffectDispatcher::DrawEffectTexts()
 			if ((effect.HideEffectName && !hasFake)
 			    || ((ComponentExists<MetaModifiers>()
 			         && (GetComponent<MetaModifiers>()->HideChaosUI || GetComponent<MetaModifiers>()->DisableChaos))
-			        && !effectData.IsMeta() && !effectData.IsUtility() && !effectData.IsTemporary()))
+			        && !effectData.IsMeta() && !effectData.IsUtility() && !effectData.IsTemporary() && !effectData.ShouldAlwaysShowName()))
 			{
 				continue;
 			}
@@ -586,13 +590,13 @@ void EffectDispatcher::ClearEffects(ClearEffectsFlags clearEffectFlags)
 	                        : ClearEffectsState::AllRestartPermanent;
 }
 
-void EffectDispatcher::ClearActiveEffects()
+void EffectDispatcher::ClearActiveEffects(const std::string &ignoreEffect)
 {
 	for (auto it = SharedState.ActiveEffects.begin(); it != SharedState.ActiveEffects.end(); it++)
 	{
 		auto &effect = *it;
 
-		if (effect.IsMeta || effect.Timer <= 0.f)
+		if (effect.IsMeta || effect.Timer <= 0.f || effect.Id == ignoreEffect)
 			continue;
 
 		EffectThreads::StopThread(effect.ThreadId);
@@ -623,6 +627,15 @@ float EffectDispatcher::GetRemainingTimeForEffect(const EffectIdentifier &effect
 	if (result == SharedState.ActiveEffects.end())
 		return 0.f;
 	return result->Timer;
+}
+
+void EffectDispatcher::SetRemainingTimeForEffect(const EffectIdentifier &effectId, float value)
+{
+	auto result = std::find_if(SharedState.ActiveEffects.begin(), SharedState.ActiveEffects.end(),
+	                           [effectId](ActiveEffect &activeEffect) { return activeEffect.Id == effectId; });
+	if (result == SharedState.ActiveEffects.end())
+		return;
+	result->Timer = value;
 }
 
 std::vector<RegisteredEffect *> EffectDispatcher::GetRecentEffects(int distance, const std::string &ignoreEffect) const

@@ -128,10 +128,11 @@ class EffectDispatcher : public Component
 		ClearEffectsFlag_NoRestartPermanentEffects = (1 << 0),
 	};
 	void ClearEffects(ClearEffectsFlags clearEffectFlags = ClearEffectsFlag_None);
-	void ClearActiveEffects();
+	void ClearActiveEffects(const std::string &ignoreEffect = {});
 	void ClearMostRecentEffect();
 
 	float GetRemainingTimeForEffect(const EffectIdentifier &effectId);
+	void SetRemainingTimeForEffect(const EffectIdentifier &effectId, float value);
 
 	std::vector<RegisteredEffect *> GetRecentEffects(int distance, const std::string &ignoreEffect = {}) const;
 

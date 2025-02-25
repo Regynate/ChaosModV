@@ -31,6 +31,11 @@ static void HandleEntity(Entity entity)
 	}
 }
 
+std::list<Entity> GetPoolEntities()
+{
+	return m_Entities;
+}
+
 void ClearEntityPool(int distance)
 {
 	auto playerCoords = GET_ENTITY_COORDS(PLAYER_PED_ID(), false);

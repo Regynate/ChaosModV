@@ -4,6 +4,7 @@ using Ped     = int;
 using Vehicle = int;
 using Hash    = unsigned long;
 
+std::list<Entity> GetPoolEntities();
 void ClearEntityPool(int distance = 0);
 
 Ped CreatePoolClonePed(Ped pedToClone);

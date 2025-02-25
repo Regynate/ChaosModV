@@ -881,6 +881,10 @@ LuaScripts::ParseScript(std::string scriptName, const std::string &script, Parse
 	if (hideRealNameOnStartOpt)
 		effectData.SetAttribute(EffectAttributes::HideRealNameOnStart, *hideRealNameOnStartOpt);
 
+	const sol::optional<bool> &alwaysShowNameOpt = effectInfo["AlwaysShowName"];
+	if (alwaysShowNameOpt)
+		effectData.SetAttribute(EffectAttributes::AlwaysShowName, *alwaysShowNameOpt);
+
 	const sol::optional<sol::table> &incompatibleIdsOpt = effectInfo["IncompatibleIds"];
 	if (incompatibleIdsOpt)
 	{

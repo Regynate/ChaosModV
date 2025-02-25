@@ -126,6 +126,7 @@ namespace EffectConfig
 		effectData.SetAttribute(EffectAttributes::IsMeta, effectMetadata.ExecutionType == EffectExecutionType::Meta);
 		effectData.Name = effectMetadata.Name;
 		effectData.SetAttribute(EffectAttributes::HideRealNameOnStart, effectMetadata.HideRealNameOnStart);
+		effectData.SetAttribute(EffectAttributes::AlwaysShowName, effectMetadata.AlwaysShowName);
 #ifdef CHAOSDEBUG
 		effectData.ShortcutKeycode = effectMetadata.DebugShortcutKeycode ? effectMetadata.DebugShortcutKeycode
 		                                                                 : configValues.Values.ShortcutKeycode;
