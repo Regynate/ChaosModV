@@ -208,12 +208,20 @@ void EffectDispatchTimer::OnRun()
 		// Timer bar at the top
 		DRAW_RECT(.5f, .01f, 1.f, .021f, 0, 0, 0, 127, false);
 
+		auto color = m_TimerColor;
+
+		if (ComponentExists<MetaModifiers>())
+		{
+			auto colorOverride = GetComponent<MetaModifiers>()->TimerColorOverride;
+			for (size_t i = 0; i < 3; i++)
+				if (colorOverride[i] > 0 && colorOverride[i] < 256)
+					color[i] = colorOverride[i];
+		}
+
 		if (ComponentExists<MetaModifiers>() && GetComponent<MetaModifiers>()->FlipChaosUI)
-			DRAW_RECT(1.f - percentage * .5f, .01f, percentage, .018f, m_TimerColor[0], m_TimerColor[1],
-			          m_TimerColor[2], 255, false);
+			DRAW_RECT(1.f - percentage * .5f, .01f, percentage, .018f, color[0], color[1], color[2], 255, false);
 		else
-			DRAW_RECT(percentage * .5f, .01f, percentage, .018f, m_TimerColor[0], m_TimerColor[1], m_TimerColor[2], 255,
-			          false);
+			DRAW_RECT(percentage * .5f, .01f, percentage, .018f, color[0], color[1], color[2], 255, false);
 	}
 
 	int deltaTime = curTime - m_Timer;

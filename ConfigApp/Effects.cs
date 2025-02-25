@@ -434,6 +434,7 @@
             { "player_magnetgravity", new EffectInfo("Pulsating Gravity Field", EffectCategory.Player, true, true) },
             { "peds_aliens", new EffectInfo("Alien Invasion", EffectCategory.Peds, true) },
             { "misc_fake_nochaos", new EffectInfo("Fake No Chaos", EffectCategory.Misc, false) },
+            { "screen_rainbow_ui", new EffectInfo("Rainbow Chaos UI", EffectCategory.Screen, false) },
         };
     }
 }

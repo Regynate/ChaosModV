@@ -5,6 +5,7 @@
 #include "Components/EffectDispatcher.h"
 #include "Components/EffectSound/EffectSoundManager.h"
 #include "Components/MetaModifiers.h"
+#include "EffectDispatcher.h"
 #include "Effects/EffectCategory.h"
 #include "Effects/EffectTimedType.h"
 #include "Effects/EnabledEffects.h"
@@ -12,7 +13,6 @@
 #include "Util/OptionsManager.h"
 #include "Util/Random.h"
 #include "Util/ScriptText.h"
-#include "EffectDispatcher.h"
 
 #define EFFECT_TEXT_INNER_SPACING_MIN .030f
 #define EFFECT_TEXT_INNER_SPACING_MAX .075f
@@ -82,7 +82,7 @@ static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 				activeEffect.Timer = activeEffect.MaxTime;
 
 				playEffectDispatchSound(activeEffect);
-				
+
 				break;
 			}
 			else
@@ -363,9 +363,8 @@ void EffectDispatcher::UpdateEffects(float deltaTime)
 				{
 					auto &fakeEffect      = g_EnabledEffects.at(effectSharedData->OverrideEffectId);
 					activeEffect.FakeName = !fakeEffect.HasCustomName() ? fakeEffect.Name : fakeEffect.CustomName;
-					if (fakeEffect.IsMeta()) {
+					if (fakeEffect.IsMeta())
 						activeEffect.FakeName += " (Meta)";
-					}
 				}
 				else
 				{
@@ -488,7 +487,8 @@ void EffectDispatcher::DrawEffectTexts()
 			if ((effect.HideEffectName && !hasFake)
 			    || ((ComponentExists<MetaModifiers>()
 			         && (GetComponent<MetaModifiers>()->HideChaosUI || GetComponent<MetaModifiers>()->DisableChaos))
-			        && !effectData.IsMeta() && !effectData.IsUtility() && !effectData.IsTemporary() && !effectData.ShouldAlwaysShowName()))
+			        && !effectData.IsMeta() && !effectData.IsUtility() && !effectData.IsTemporary()
+			        && !effectData.ShouldAlwaysShowName()))
 			{
 				continue;
 			}
@@ -498,30 +498,50 @@ void EffectDispatcher::DrawEffectTexts()
 		if (effect.HideEffectName && hasFake)
 			effectName = effect.FakeName;
 
+		auto color = m_TextColor;
+
+		if (ComponentExists<MetaModifiers>())
+		{
+			auto colorOverride = GetComponent<MetaModifiers>()->EffectTextColorOverride;
+			for (size_t i = 0; i < 3; i++)
+				if (colorOverride[i] > 0 && colorOverride[i] < 256)
+					color[i] = colorOverride[i];
+		}
+
 		if (ComponentExists<MetaModifiers>() && GetComponent<MetaModifiers>()->FlipChaosUI)
 		{
-			DrawScreenText(effectName, { .085f, y }, .47f, { m_TextColor[0], m_TextColor[1], m_TextColor[2] }, true,
+			DrawScreenText(effectName, { .085f, y }, .47f, { color[0], color[1], color[2] }, true,
 			               ScreenTextAdjust::Left, { .0f, .915f });
 		}
 		else
 		{
-			DrawScreenText(effectName, { .915f, y }, .47f, { m_TextColor[0], m_TextColor[1], m_TextColor[2] }, true,
+			DrawScreenText(effectName, { .915f, y }, .47f, { color[0], color[1], color[2] }, true,
 			               ScreenTextAdjust::Right, { .0f, .915f });
 		}
 
 		if (effect.IsTimed)
 		{
+			color = m_EffectTimerColor;
+
+			if (ComponentExists<MetaModifiers>())
+			{
+				auto colorOverride = GetComponent<MetaModifiers>()->EffectTimerColorOverride;
+				for (size_t i = 0; i < 3; i++)
+				if (colorOverride[i] > 0 && colorOverride[i] < 256)
+					color[i] = colorOverride[i];
+			}
+
 			if (ComponentExists<MetaModifiers>() && GetComponent<MetaModifiers>()->FlipChaosUI)
 			{
 				DRAW_RECT(.04f, y + .0185f, .05f, .019f, 0, 0, 0, 127, false);
-				DRAW_RECT(.04f, y + .0185f, .048f * (1.f - (effect.Timer / effect.MaxTime)), .017f,
-				          m_EffectTimerColor[0], m_EffectTimerColor[1], m_EffectTimerColor[2], 255, false);
+				DRAW_RECT(.04f, y + .0185f, .048f * (1.f - (effect.Timer / effect.MaxTime)), .017f, color[0], color[1],
+				          color[2], 255, false);
 			}
 			else
 			{
 				DRAW_RECT(.96f, y + .0185f, .05f, .019f, 0, 0, 0, 127, false);
-				DRAW_RECT(.96f, y + .0185f, .048f * effect.Timer / effect.MaxTime, .017f, m_EffectTimerColor[0],
-				          m_EffectTimerColor[1], m_EffectTimerColor[2], 255, false);
+				DRAW_RECT(.96f, y + .0185f, .048f * effect.Timer / effect.MaxTime, .017f, color[0], color[1], color[2],
+				          255, false);
 			}
 		}
 
