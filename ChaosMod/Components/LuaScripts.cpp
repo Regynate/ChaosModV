@@ -334,6 +334,7 @@ static const std::vector<ExposableFunc> ms_UnsafeExposables {
 	E("CreateTempVehicleOnPlayerPos", CreateTempVehicleOnPlayerPos),
 	E("SetSurroundingPedsInVehicles", SetSurroundingPedsInVehicles),
 	E("ReplaceVehicle", ReplaceVehicle),
+	E("ReplaceVehicleWithModel", ReplaceVehicleWithModel),
 	E("GetAllProps", GetAllPropsArray),
 	E("CreatePoolProp", CreatePoolProp),
 	E("GetAllWeapons", Memory::GetAllWeapons),

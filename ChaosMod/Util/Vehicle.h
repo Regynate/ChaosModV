@@ -85,44 +85,26 @@ struct SeatPed
 	Ped Ped;
 	int SeatIndex;
 };
-inline Vehicle CreateRandomVehicleWithPeds(Vehicle oldHandle, const std::vector<SeatPed> &seatPeds, bool addToPool,
-                                           const Vector3 &coords, float heading, bool engineRunning,
-                                           const Vector3 &velocity, float forwardSpeed)
+
+inline Vehicle CreateVehicleWithPeds(Hash model, Vehicle oldHandle, const std::vector<SeatPed> &seatPeds,
+                                     bool addToPool, const Vector3 &coords, float heading, bool engineRunning,
+                                     const Vector3 &velocity, float forwardSpeed)
 {
-	static const std::vector<Hash> &vehicleModels = Memory::GetAllVehModels();
-	if (vehicleModels.empty())
+	if (!IS_MODEL_VALID(model))
 		return oldHandle;
 
-	Hash newVehModel = 0;
-	do
-	{
-		newVehModel = vehicleModels[g_RandomNoDeterm.GetRandomInt(0, vehicleModels.size() - 1)];
-	} while (static_cast<size_t>(GET_VEHICLE_MODEL_NUMBER_OF_SEATS(newVehModel)) < seatPeds.size()
-	         || IS_THIS_MODEL_A_TRAIN(newVehModel) || GET_VEHICLE_MODEL_ACCELERATION(newVehModel) <= 0);
-
-	if (!newVehModel)
-		return oldHandle;
-
-	int numberOfSeats = GET_VEHICLE_MODEL_NUMBER_OF_SEATS(newVehModel);
+	int numberOfSeats = GET_VEHICLE_MODEL_NUMBER_OF_SEATS(model);
 
 	Vehicle newVehicle;
 	if (addToPool)
 	{
-		for (size_t i = 0; i < seatPeds.size(); i++)
-		{
-			Ped seatPed = seatPeds[i].Ped;
-			SET_ENTITY_COORDS(seatPed, coords.x, coords.y, coords.z + 5.f, 0, 0, 0, 0);
-		}
-
-		WAIT(100);
-
-		newVehicle = CreatePoolVehicle(newVehModel, coords.x, coords.y, coords.z, heading);
+		newVehicle = CreatePoolVehicle(model, coords.x, coords.y, coords.z, heading);
 	}
 	else
 	{
-		LoadModel(newVehModel);
-		newVehicle = CREATE_VEHICLE(newVehModel, coords.x, coords.y, coords.z, heading, true, true, true);
-		SET_MODEL_AS_NO_LONGER_NEEDED(newVehModel);
+		LoadModel(model);
+		newVehicle = CREATE_VEHICLE(model, coords.x, coords.y, coords.z, heading, true, true, true);
+		SET_MODEL_AS_NO_LONGER_NEEDED(model);
 
 		SET_ENTITY_AS_MISSION_ENTITY(newVehicle, false, true);
 	}
@@ -192,6 +174,52 @@ inline Vehicle CreateRandomVehicleWithPeds(Vehicle oldHandle, const std::vector<
 	_SET_VEHICLE_XENON_LIGHTS_COLOR(newVehicle, g_RandomNoDeterm.GetRandomInt(0, 12));
 
 	return newVehicle;
+}
+
+inline Vehicle CreateRandomVehicleWithPeds(Vehicle oldHandle, const std::vector<SeatPed> &seatPeds, bool addToPool,
+                                           const Vector3 &coords, float heading, bool engineRunning,
+                                           const Vector3 &velocity, float forwardSpeed)
+{
+	static const std::vector<Hash> &vehicleModels = Memory::GetAllVehModels();
+	if (vehicleModels.empty())
+		return oldHandle;
+
+	Hash newVehModel = 0;
+	do
+	{
+		newVehModel = vehicleModels[g_RandomNoDeterm.GetRandomInt(0, vehicleModels.size() - 1)];
+	} while (static_cast<size_t>(GET_VEHICLE_MODEL_NUMBER_OF_SEATS(newVehModel)) < seatPeds.size()
+	         || IS_THIS_MODEL_A_TRAIN(newVehModel) || GET_VEHICLE_MODEL_ACCELERATION(newVehModel) <= 0);
+
+	if (!newVehModel)
+		return oldHandle;
+
+	return CreateVehicleWithPeds(newVehModel, oldHandle, seatPeds, addToPool, coords, heading, engineRunning, velocity,
+	                             forwardSpeed);
+}
+
+inline Vehicle ReplaceVehicleWithModel(Vehicle veh, Hash model, bool addToPool)
+{
+	std::vector<SeatPed> vehPeds;
+	int numberOfSeats = GET_VEHICLE_MODEL_NUMBER_OF_SEATS(GET_ENTITY_MODEL(veh));
+	for (int i = -1; i < numberOfSeats - 1; i++)
+	{
+		if (!IS_VEHICLE_SEAT_FREE(veh, i, false))
+		{
+			Ped ped         = GET_PED_IN_VEHICLE_SEAT(veh, i, false);
+			SeatPed seatPed = { ped, i };
+			vehPeds.push_back(seatPed);
+		}
+	}
+
+	float heading      = GET_ENTITY_HEADING(veh);
+	Vector3 vehCoords  = GET_ENTITY_COORDS(veh, 0);
+	bool engineRunning = GET_IS_VEHICLE_ENGINE_RUNNING(veh);
+	Vector3 velocity   = GET_ENTITY_VELOCITY(veh);
+	float forwardSpeed = GET_ENTITY_SPEED(veh);
+
+	return CreateVehicleWithPeds(model, veh, vehPeds, addToPool, vehCoords, heading, engineRunning, velocity,
+	                                   forwardSpeed);
 }
 
 inline Vehicle ReplaceVehicle(Vehicle veh, bool addToPool)
