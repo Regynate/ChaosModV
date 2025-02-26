@@ -61,7 +61,7 @@ REGISTER_EFFECT(OnStart, nullptr, nullptr,
 	{
 		.Name = "Detonate Current Vehicle",
 		.Id = "playerveh_explode",
-		.IncompatibleWith = { "vehs_invincible" },
-		.HideRealNameOnStart = true
+		.HideRealNameOnStart = true,
+		.IncompatibleWith = { "vehs_invincible" }
 	}
 );

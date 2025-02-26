@@ -11,11 +11,10 @@
 
 static void OnTick()
 {
-	static ULONG cnt        = 0;
+	static double cnt        = 0;
 	static const float freq = .1f;
 
-	if (++cnt >= (ULONG)-1)
-		cnt = 0;
+	cnt = cnt + GET_FRAME_TIME() * 60;
 
 	if (ComponentExists<MetaModifiers>())
 	{
