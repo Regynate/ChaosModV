@@ -101,9 +101,6 @@ static void OnStart()
 				}
 				else if (IS_PED_IN_ANY_VEHICLE(playerPed, false))
 				{
-					// Set the fake name accordingly
-					CurrentEffect::OverrideEffectNameFromId("playerveh_explode");
-
 					Vehicle veh         = GET_VEHICLE_PED_IS_IN(playerPed, false);
 
 					int lastTimestamp   = GET_GAME_TIMER();
@@ -140,6 +137,9 @@ static void OnStart()
 
 						if (detonateTimer <= 0.f)
 						{
+							// Set the fake name accordingly
+							CurrentEffect::OverrideEffectNameFromId("playerveh_explode");
+
 							for (int i = 0; i < 6; i++)
 								SET_VEHICLE_DOOR_BROKEN(veh, i, false);
 							Vector3 vehCoords = GET_ENTITY_COORDS(veh, false);
