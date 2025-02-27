@@ -41,7 +41,11 @@ namespace TwitchChatVotingProxy
 
             // Setup receiver listeners
             foreach (var votingReceiver in m_VotingReceivers)
+            {
                 votingReceiver.OnMessage += OnVoteReceiverMessage;
+                votingReceiver.OnMessageDeleted += OnMessageDeleted;
+                votingReceiver.OnUserBan += OnUserBanned;
+            }
 
             // Setup display update tick
             m_DisplayUpdateTick.Elapsed += DisplayUpdateTick;
@@ -236,7 +240,9 @@ namespace TwitchChatVotingProxy
         /// </summary>
         private void OnVoteReceiverMessage(object? sender, OnMessageArgs e)
         {
-            if (!m_VoteRunning || e.ClientId is null || e.Message is null)
+            m_ChaosPipe.SendMessageToPipe("message", e);
+
+            if (!m_VoteRunning || e.UserId is null || e.Message is null)
                 return;
 
             if (m_Config.PermittedUsernames?.Length > 0 && e.Username is not null)
@@ -264,10 +270,10 @@ namespace TwitchChatVotingProxy
                 if (voteOption.Matches.Contains(e.Message))
                 {
                     // Check if the player has already voted
-                    if (!m_UserVotedFor.TryGetValue(e.ClientId, out int previousVote))
+                    if (!m_UserVotedFor.TryGetValue(e.UserId, out int previousVote))
                     {
                         // If they haven't voted, count his vote
-                        m_UserVotedFor.Add(e.ClientId, i);
+                        m_UserVotedFor.Add(e.UserId, i);
                         voteOption.Votes++;
 
                     }
@@ -275,16 +281,26 @@ namespace TwitchChatVotingProxy
                     {
                         // If the player has already voted, and it's not the same as before,
                         // remove the old vote, and add the new one.
-                        m_UserVotedFor.Remove(e.ClientId);
+                        m_UserVotedFor.Remove(e.UserId);
                         m_ActiveVoteOptions[previousVote].Votes--;
 
-                        m_UserVotedFor.Add(e.ClientId, i);
+                        m_UserVotedFor.Add(e.UserId, i);
                         voteOption.Votes++;
                     }
 
                     break;
                 }
             }
+        }
+
+        private void OnMessageDeleted(object? sender, OnMessageDeletedArgs e)
+        {
+            m_ChaosPipe.SendMessageToPipe("deletion", e);
+        }
+
+        private void OnUserBanned(object? sender, OnUserBanArgs e)
+        {
+            m_ChaosPipe.SendMessageToPipe("userban", e);
         }
     }
 }

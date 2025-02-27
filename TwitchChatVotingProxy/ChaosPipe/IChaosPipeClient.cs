@@ -16,5 +16,7 @@
         /// Event that gets invoked when the chaos mod starts a no voting round
         /// </summary>
         event EventHandler OnNoVotingRound;
+
+        public void SendMessageToPipe(string identifier, object value);
     }
 }

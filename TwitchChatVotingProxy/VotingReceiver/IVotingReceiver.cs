@@ -9,6 +9,8 @@
         /// Events which get invoked when the voting receiver receives a message
         /// </summary>
         event EventHandler<OnMessageArgs> OnMessage;
+        event EventHandler<OnMessageDeletedArgs> OnMessageDeleted;
+        event EventHandler<OnUserBanArgs> OnUserBan;
         /// <summary>
         /// Initializes the voting receiver
         /// </summary>

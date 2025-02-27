@@ -137,7 +137,7 @@ namespace TwitchChatVotingProxy.ChaosPipe
             else
             {
                 CurrentVotesResult res = new(args.CurrentVotes);
-                SendMessageToPipe(JsonConvert.SerializeObject(res));
+                SendMessageToPipeJson(res);
             }
         }
         /// <summary>
@@ -156,7 +156,7 @@ namespace TwitchChatVotingProxy.ChaosPipe
                 e.ChosenOption = 0;
             }
             VoteResultObject result = new(e.ChosenOption);
-            SendMessageToPipe(JsonConvert.SerializeObject(result));
+            SendMessageToPipeJson(result);
             m_Logger.Debug($"Vote result sent to pipe: {e.ChosenOption}");
         }
         /// <summary>
@@ -231,6 +231,11 @@ namespace TwitchChatVotingProxy.ChaosPipe
             m_PipeWriter?.Write($"{message}\0");
             m_Pipe.WaitForPipeDrain();
         }
+
+        public void SendMessageToPipeJson(object value)
+        {
+            SendMessageToPipe(JsonConvert.SerializeObject(value));
+        }
         /// <summary>
         /// Is called when the chaos mod starts a new vote
         /// </summary>
@@ -281,9 +286,14 @@ namespace TwitchChatVotingProxy.ChaosPipe
         public void SendErrorMessage(string message)
         {
             var error = new ErrorObject(message);
-            SendMessageToPipe(JsonConvert.SerializeObject(error));
+            SendMessageToPipeJson(error);
 
             DisconnectFromPipe();
+        }
+
+        public void SendMessageToPipe(string identifier, object value)
+        {
+            SendMessageToPipeJson(new { Identifier = identifier, Value = value });
         }
     }
 }

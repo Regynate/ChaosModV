@@ -13,6 +13,8 @@ namespace TwitchChatVotingProxy.VotingReceiver
     class DiscordVotingReceiver : IVotingReceiver
     {
         public event EventHandler<OnMessageArgs>? OnMessage = null;
+        public event EventHandler<OnMessageDeletedArgs> OnMessageDeleted;
+        public event EventHandler<OnUserBanArgs> OnUserBan;
 
         private readonly string? m_BotToken = null;
         private readonly ulong? m_GuildId = null;
@@ -182,8 +184,9 @@ namespace TwitchChatVotingProxy.VotingReceiver
 
             OnMessage?.Invoke(this, new OnMessageArgs()
             {
+                MessageId = command.Id.ToString(),
                 Message = option,
-                ClientId = $"{command.User.Id}",
+                UserId = $"{command.User.Id}",
                 Username = command.User.GlobalName
             });
         }

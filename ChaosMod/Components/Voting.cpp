@@ -13,7 +13,7 @@
 
 #include <json.hpp>
 
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 65536
 #define VOTING_PROXY_START_ARGS L"chaosmod\\TwitchChatVotingProxy.exe --startProxy"
 
 Voting::Voting(const std::array<BYTE, 3> &textColor) : Component(), m_TextColor(textColor)
@@ -153,6 +153,39 @@ void Voting::HandleMsg(std::string_view message)
 			{
 				std::string message = receivedJSON["Message"];
 				ErrorOutWithMsg(message);
+			}
+			else if (identifier == "message")
+			{
+				auto value              = receivedJSON["Value"];
+
+				std::string messageId   = value["MessageId"];
+				std::string message     = value["Message"];
+				std::string userid      = value["UserId"];
+				std::string username    = value["Username"];
+				std::string displayName = value["DisplayName"];
+				std::string color       = value["Color"];
+				
+				ChatMessage chatMessage(messageId, message, Userstate(username, displayName, userid, color));
+				
+				OnNewMessage.Fire(chatMessage);
+			}
+			else if (identifier == "deletion")
+			{
+				auto value            = receivedJSON["Value"];
+				std::string messageId = value["MessageId"];
+				std::string message   = value["Message"];
+				ChatMessageDeletion deletion(messageId, message);
+
+				OnMessageDelete.Fire(deletion);
+			}
+			else if (identifier == "userban")
+			{
+				auto value            = receivedJSON["Value"];
+				std::string username = value["Username"];
+				std::string userId   = value["UserId"];
+				ChatUserBan ban(username, userId);
+				
+				OnUserBan.Fire(ban);
 			}
 		}
 	}

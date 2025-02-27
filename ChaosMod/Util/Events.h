@@ -105,6 +105,23 @@ class ChaosEventListener
 		m_Events.push_back(eventData);
 		event.RegisterListener(&m_Events.back().Listener);
 	}
+
+	void Unregister(ChaosEventType &event)
+	{
+		for (auto it = m_Events.begin(); it != m_Events.end();)
+		{
+			if (it->Event == &event)
+			{
+				if (it->Listener.IsEventStillValid)
+					it->Event->RemoveListener(&it->Listener);
+				it = m_Events.erase(it);
+			}
+			else
+			{
+				it++;
+			}
+		}
+	}
 };
 
 #define CHAOS_EVENT_LISTENER(type) ChaosEventListener<decltype(type)>

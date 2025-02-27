@@ -1,7 +1,12 @@
 #pragma once
 
 #include "Components/Component.h"
+#include "Util/Chat/ChatMessage.h"
+#include "Util/Chat/ChatMessageDeletion.h"
+#include "Util/Chat/ChatUserBan.h"
 #include "Util/VotingMode.h"
+
+#include "Util/Events.h"
 
 #include <cstdint>
 #include <memory>
@@ -69,6 +74,10 @@ class Voting : public Component
 	bool IsEnabled() const;
 	VotingMode GetVotingMode() const;
 	void HandleMsg(std::string_view message);
+
+	ChaosEvent<const ChatMessage &> OnNewMessage;
+	ChaosEvent<const ChatMessageDeletion &> OnMessageDelete;
+	ChaosEvent<const ChatUserBan &> OnUserBan;
 
   private:
 	std::string GetPipeJson(std::string_view identifier, std::vector<std::string> params);

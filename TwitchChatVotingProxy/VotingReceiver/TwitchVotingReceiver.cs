@@ -17,6 +17,8 @@ namespace TwitchChatVotingProxy.VotingReceiver
         public static readonly int RECONNECT_INTERVAL = 1000;
 
         public event EventHandler<OnMessageArgs>? OnMessage = null;
+        public event EventHandler<OnMessageDeletedArgs>? OnMessageDeleted = null;
+        public event EventHandler<OnUserBanArgs>? OnUserBan = null;
 
         private readonly string? m_ChannelName = null;
         private readonly string? m_OAuth = null;
@@ -72,6 +74,9 @@ namespace TwitchChatVotingProxy.VotingReceiver
             m_Client.OnFailureToReceiveJoinConfirmation += OnFailureToReceiveJoinConfirmation;
             m_Client.OnJoinedChannel += OnJoinedChannel;
             m_Client.OnMessageReceived += OnMessageReceived;
+            m_Client.OnMessageCleared += OnMessageCleared;
+            m_Client.OnUserBanned += OnUserBanned;
+            m_Client.OnUserTimedout += OnUserTimedout;
 
             if (!m_Client.Connect())
             {
@@ -162,11 +167,48 @@ namespace TwitchChatVotingProxy.VotingReceiver
 
             var evnt = new OnMessageArgs
             {
+                MessageId = chatMessage.Id,
                 Message = chatMessage.Message.Trim(),
-                ClientId = chatMessage.UserId,
-                Username = chatMessage.Username.ToLower() // lower case the username to allow case-insensitive comparisons
+                UserId = chatMessage.UserId,
+                Username = chatMessage.Username.ToLower(), // lower case the username to allow case-insensitive comparisons
+                DisplayName = chatMessage.DisplayName,
+                Color = chatMessage.ColorHex
             };
             OnMessage?.Invoke(this, evnt);
+        }
+
+        private void OnMessageCleared(object? sender, OnMessageClearedArgs e)
+        {
+            var evnt = new OnMessageDeletedArgs
+            {
+                MessageId = e.TargetMessageId,
+                Message = e.Message
+            };
+            OnMessageDeleted?.Invoke(this, evnt);
+        }
+
+        private void OnUserBanned(object? sender, OnUserBannedArgs e)
+        {
+            var userBan = e.UserBan;
+
+            var evnt = new OnUserBanArgs
+            {
+                UserId = userBan.TargetUserId,
+                Username = userBan.Username,
+            };
+            OnUserBan?.Invoke(this, evnt);
+        }
+
+        private void OnUserTimedout(object? sender, OnUserTimedoutArgs e)
+        {
+            var userTimeout = e.UserTimeout;
+
+            var evnt = new OnUserBanArgs
+            {
+                UserId = userTimeout.TargetUserId,
+                Username = userTimeout.Username,
+            };
+            OnUserBan?.Invoke(this, evnt);
         }
     }
 }
