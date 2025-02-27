@@ -164,4 +164,11 @@ namespace CurrentEffect
 		if (sharedData)
 			sharedData->OverrideEffectId = effectId;
 	}
+
+	void OverrideEffectCompletionPercentage(float percentage)
+	{
+		auto sharedData = GetCurrentThreadSharedData();
+		if (sharedData)
+			sharedData->OverrideEffectCompletionPercentage = percentage;
+	}
 }

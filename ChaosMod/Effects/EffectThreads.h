@@ -19,6 +19,7 @@ struct EffectThreadSharedData
 	EffectSoundPlayOptions EffectSoundPlayOptions;
 	std::string OverrideEffectName;
 	std::string OverrideEffectId;
+	float OverrideEffectCompletionPercentage = -1.f;
 };
 
 struct EffectThreadData
@@ -146,4 +147,5 @@ namespace CurrentEffect
 	void SetEffectSoundPlayOptions(const EffectSoundPlayOptions &soundPlayOptions);
 	void OverrideEffectName(const std::string &effectName);
 	void OverrideEffectNameFromId(const std::string &effectId);
+	void OverrideEffectCompletionPercentage(float value);
 }

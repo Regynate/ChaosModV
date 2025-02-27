@@ -494,6 +494,19 @@ void EffectDispatcher::DrawEffectTexts()
 			}
 		}
 
+		bool showTimer             = false;
+		float completionPercentage = effect.Timer / effect.MaxTime;
+		auto effectSharedData      = EffectThreads::GetThreadSharedData(effect.ThreadId);
+		if (effectSharedData)
+		{
+			float newPercentage = effectSharedData->OverrideEffectCompletionPercentage;
+			if (newPercentage > 0.f && newPercentage < 1.f)
+			{
+				completionPercentage = newPercentage;
+				showTimer            = true;
+			}
+		}
+
 		auto effectName = effect.Name;
 		if (effect.HideEffectName && hasFake)
 			effectName = effect.FakeName;
@@ -519,7 +532,7 @@ void EffectDispatcher::DrawEffectTexts()
 			               ScreenTextAdjust::Right, { .0f, .915f });
 		}
 
-		if (effect.IsTimed)
+		if (effect.IsTimed || showTimer)
 		{
 			color = m_EffectTimerColor;
 
@@ -527,21 +540,21 @@ void EffectDispatcher::DrawEffectTexts()
 			{
 				auto colorOverride = GetComponent<MetaModifiers>()->EffectTimerColorOverride;
 				for (size_t i = 0; i < 3; i++)
-				if (colorOverride[i] > 0 && colorOverride[i] < 256)
-					color[i] = colorOverride[i];
+					if (colorOverride[i] > 0 && colorOverride[i] < 256)
+						color[i] = colorOverride[i];
 			}
 
 			if (ComponentExists<MetaModifiers>() && GetComponent<MetaModifiers>()->FlipChaosUI)
 			{
 				DRAW_RECT(.04f, y + .0185f, .05f, .019f, 0, 0, 0, 127, false);
-				DRAW_RECT(.04f, y + .0185f, .048f * (1.f - (effect.Timer / effect.MaxTime)), .017f, color[0], color[1],
-				          color[2], 255, false);
+				DRAW_RECT(.04f, y + .0185f, .048f * (1.f - completionPercentage), .017f, color[0], color[1], color[2],
+				          255, false);
 			}
 			else
 			{
 				DRAW_RECT(.96f, y + .0185f, .05f, .019f, 0, 0, 0, 127, false);
-				DRAW_RECT(.96f, y + .0185f, .048f * effect.Timer / effect.MaxTime, .017f, color[0], color[1], color[2],
-				          255, false);
+				DRAW_RECT(.96f, y + .0185f, .048f * completionPercentage, .017f, color[0], color[1], color[2], 255,
+				          false);
 			}
 		}
 
@@ -553,8 +566,6 @@ void EffectDispatcher::DispatchEffect(const EffectIdentifier &effectId, Dispatch
                                       const std::string &suffix)
 {
 	EffectDispatchQueue.push({ .Id = effectId, .Suffix = suffix, .Flags = dispatchEffectFlags });
-	if (ComponentExists<CrossingChallenge>())
-		GetComponent<CrossingChallenge>()->IncrementEffects();
 }
 
 void EffectDispatcher::DispatchRandomEffect(DispatchEffectFlags dispatchEffectFlags, const std::string &suffix)

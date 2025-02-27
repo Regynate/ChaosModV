@@ -391,6 +391,7 @@ static const std::vector<ExposableFunc> ms_UnsafeExposables {
 	  }),
 	E("GetEffectCompletionPercentage", CurrentEffect::GetEffectCompletionPercentage),
 	E("OverrideEffectName", [](const std::string &name) { CurrentEffect::OverrideEffectName(name); }),
+	E("OverrideEffectCompletionPercentage", [](float value) { CurrentEffect::OverrideEffectCompletionPercentage(value); }),
 	E("OverrideEffectNameById",
 	  [](const std::string &overrideId) { CurrentEffect::OverrideEffectNameFromId(overrideId); }),
 	E("SetEffectSoundFollowPlayer",
