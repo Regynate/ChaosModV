@@ -9,10 +9,20 @@ body {
 	 --bar-text-color).
 	*/
 	--text-color: #ffffff;
-	--text-font-family: 'Arial';
+	--text-font-family: Roboto, Calibri, sans-serif;
+	--text-shadow: 0 0 2px black,
+		0 0 2px black,
+		0 0 2px black,
+		0 0 2px black,
+		0 0 2px black,
+		0 0 2px black,
+		0 0 2px black,
+		0 0 2px black,
+		0 0 2px black,
+		0 0 2px black;
 	--text-font-weight: 600;
-	--text-outline-color: #000000;
-	--text-outline-thickness: 1.3px;
+	/*--text-outline-color: #000000;
+	--text-outline-thickness: 1.3px;*/
 	--text-size: 22pt;
 	/* Bar related things */
 	--bar-background-disabled: #afafaf;
@@ -36,64 +46,74 @@ body {
 	width: var(--bar-width);
 }
 
-#totalVotes {
+#totalVotes,
+#chance {
 	-webkit-text-stroke: var(--text-outline-thickness) var(--text-outline-color);
 	color: var(--text-color);
 	font-family: var(--text-font-family);
 	font-size: var(--text-size);
 	font-weight: var(--text-font-weight);
-	opacity: 0;
+	/*opacity: 0;*/
 	transition: opacity 200ms ease-in-out;
+	text-shadow: var(--text-shadow);
+}
+
+#chance {
+	font-size: calc(var(--text-size) * 0.8);
+	text-align: right;
+	width: var(--bar-width);
+	position: relative;
+	right: -8px;
 }
 
 .bar {
 	background-color: var(--bar-background);
 	height: var(--bar-height);
-	margin: 10px 0;
+	margin: 0 0 10px 0;
 	position: relative;
 	transition: background-color 100ms ease-in-out;
 	border-radius: var(--bar-border-radius);
 }
 
-	.bar.disabled {
-		background-color: var(--bar-background-disabled);
-	}
+.bar.disabled {
+	background-color: var(--bar-background-disabled);
+}
 
-	.bar > .labelContainer {
-		align-items: center;
-		bottom: 0;
-		display: flex;
-		justify-content: space-between;
-		left: 0;
-		padding: 0 1em;
-		position: absolute;
-		right: 0;
-		top: 0;
-	}
+.bar>.labelContainer {
+	align-items: center;
+	bottom: 0;
+	display: flex;
+	justify-content: space-between;
+	left: 0;
+	padding: 0 1em;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
 
-		.bar > .labelContainer > span {
-			-webkit-text-stroke: var(--bar-text-outline-thickness) var(--bar-text-outline-color);
-			color: var(--bar-text-color);
-			font-family: var(--bar-font);
-			font-size: var(--bar-font-size);
-			font-weight: var(--bar-font-weight);
-			transition: color 100ms ease-in-out;
-		}
+.bar>.labelContainer>span {
+	-webkit-text-stroke: var(--bar-text-outline-thickness) var(--bar-text-outline-color);
+	color: var(--bar-text-color);
+	font-family: var(--bar-font);
+	font-size: var(--bar-font-size);
+	font-weight: var(--bar-font-weight);
+	transition: color 100ms ease-in-out;
+}
 
-		.bar > .labelContainer.disabled > span {
-			-webkit-text-stroke: unset;
-			color: var(--bar-text-color-disabled);
-		}
+.bar>.labelContainer.disabled>span {
+	-webkit-text-stroke: unset;
+	color: var(--bar-text-color-disabled);
+}
 
-	.bar > .progression {
-		background-color: var(--bar-progression);
-		height: 100%;
-		transition: width 0.3s ease-in-out;
-	}
+.bar>.progression {
+	background-color: var(--bar-progression);
+	height: 100%;
+	transition: width 0.3s ease-in-out;
+}
 
-		.bar > .progression.disabled {
-			background-color: var(--bar-progression-disabled);
-		}
+.bar>.progression.disabled {
+	background-color: var(--bar-progression-disabled);
+}
 
 .slideIn {
 	animation-fill-mode: both;

@@ -17,7 +17,7 @@ OVERLAY_CLIENT.addDisconnectListener(() => {
 	TOTAL_VOTES.style.opacity = '0';
 });
 OVERLAY_CLIENT.addUpdateVoteListener(message => {
-	TOTAL_VOTES.innerText = `Total Votes: ${message.totalVotes}`;
+	TOTAL_VOTES.innerText = `Votes: ${message.totalVotes}`;
 });
 
 new BarOverlay(BAR_CONTAINER, OVERLAY_CLIENT);
