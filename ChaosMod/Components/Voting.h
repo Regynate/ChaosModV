@@ -50,7 +50,6 @@ class Voting : public Component
 
 	std::array<std::uint8_t, 3> m_TextColor;
 
-	bool m_EnableVoting                                = false;
 	bool m_HasInitializedVoting                        = false;
 
 	bool m_ReceivedHello                               = false;
@@ -60,7 +59,7 @@ class Voting : public Component
 	bool m_AlternatedVotingRound                       = false;
 
 	VotingMode m_VotingMode                            = VotingMode::Majority;
-	bool m_EnableVotingChanceSystemRetainInitialChance = true;
+	bool EnableVotingChanceSystemRetainInitialChance = true;
 	bool m_EnableRandomEffectVoteable                  = true;
 
 	bool m_IsVotingRunning                             = false;
@@ -85,6 +84,8 @@ class Voting : public Component
   public:
 	void SendToPipe(std::string_view identifier, std::vector<std::string> params = {});
 	void ErrorOutWithMsg(std::string_view message);
+
+	bool EnableVoting = false;
 
 	virtual void OnModPauseCleanup() override;
 	virtual void OnRun() override;

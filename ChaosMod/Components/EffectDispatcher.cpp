@@ -563,15 +563,23 @@ void EffectDispatcher::DrawEffectTexts()
 }
 
 void EffectDispatcher::DispatchEffect(const EffectIdentifier &effectId, DispatchEffectFlags dispatchEffectFlags,
-                                      const std::string &suffix)
+                                      const std::string &suffix, const bool increment)
 {
+	if (increment)
+		EffectDispatchCount++;
+
 	EffectDispatchQueue.push({ .Id = effectId, .Suffix = suffix, .Flags = dispatchEffectFlags });
 }
 
-void EffectDispatcher::DispatchRandomEffect(DispatchEffectFlags dispatchEffectFlags, const std::string &suffix)
+void EffectDispatcher::DispatchEffectForMeta(const EffectIdentifier &effectId, const bool increment)
+{
+	DispatchEffect(effectId, DispatchEffectFlag_None, {}, increment);
+}
+
+std::string EffectDispatcher::GetRandomEffectId() const
 {
 	if (!m_EnableNormalEffectDispatch)
-		return;
+		return {};
 
 	std::unordered_map<EffectIdentifier, EffectData, EffectsIdentifierHasher> choosableEffects;
 	for (const auto &[effectId, effectData] : g_EnabledEffects)
@@ -582,25 +590,33 @@ void EffectDispatcher::DispatchRandomEffect(DispatchEffectFlags dispatchEffectFl
 	for (const auto &[effectId, effectData] : choosableEffects)
 		totalWeight += effectData.GetEffectWeight();
 
-	float chosen                           = g_Random.GetRandomFloat(0.f, totalWeight);
+	if (totalWeight <= 0.f)
+		return nullptr;
 
-	totalWeight                            = 0.f;
+	float chosen = g_Random.GetRandomFloat(0.f, totalWeight);
+	totalWeight  = 0.f;
 
-	const EffectIdentifier *targetEffectId = nullptr;
+
 	for (const auto &[effectId, effectData] : choosableEffects)
 	{
 		totalWeight += effectData.GetEffectWeight();
-
 		if (chosen <= totalWeight)
 		{
-			targetEffectId = &effectId;
-
-			break;
+			return effectId.Id();
 		}
 	}
 
-	if (targetEffectId)
-		DispatchEffect(*targetEffectId, dispatchEffectFlags, suffix);
+	return nullptr;
+}
+
+void EffectDispatcher::DispatchRandomEffect(DispatchEffectFlags dispatchEffectFlags, const std::string &suffix)
+{
+	auto const randomEffect = GetRandomEffectId();
+
+	if (randomEffect.empty())
+		return;
+
+	DispatchEffect(randomEffect, dispatchEffectFlags, suffix);
 }
 
 void EffectDispatcher::ClearEffect(const EffectIdentifier &effectId)

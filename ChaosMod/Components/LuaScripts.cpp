@@ -275,6 +275,132 @@ _LUAFUNC static sol::object LuaInvoke(const sol::environment &env, std::uint64_t
 	return sol::make_object(env.lua_state(), sol::lua_nil);
 }
 
+namespace
+{
+	bool IsPedWet()
+	{
+		auto const baseAddress = reinterpret_cast<std::uint64_t>(GetModuleHandleA(NULL));
+		if (!baseAddress)
+			return false;
+
+		auto const absoluteAddress = baseAddress + static_cast<std::uint64_t>(0x02519830);
+		if (!absoluteAddress)
+			return false;
+
+		auto const offset0 = *reinterpret_cast<std::uintptr_t *>(absoluteAddress);
+		if (!offset0)
+			return false;
+
+		auto const offset1 = *reinterpret_cast<std::uintptr_t *>(offset0 + 0);
+		if (!offset1)
+			return false;
+
+		auto const offset2 = *reinterpret_cast<std::uintptr_t *>(offset1 + 0x2C8);
+		if (!offset2)
+			return false;
+
+		auto const wetness  = *reinterpret_cast<float *>(offset2 + 0x2C);
+		auto const isPedWet = wetness > 0.005;
+
+		return isPedWet;
+	}
+
+	void SetWaterCollisionForPlayer(const bool toggle)
+	{
+		auto const base     = reinterpret_cast<std::uintptr_t>(GetModuleHandleA(NULL));
+		auto const function = base + 0x15CE7A4;
+
+		auto getAddress     = reinterpret_cast<std::uintptr_t (*)(std::int32_t)>(function);
+		if (!getAddress)
+			return;
+
+		auto entityAddress = reinterpret_cast<std::uintptr_t *>(getAddress(PLAYER::PLAYER_PED_ID()));
+		if (!entityAddress)
+			return;
+
+		auto ped = reinterpret_cast<std::uintptr_t>(entityAddress);
+		if (!ped)
+			return;
+
+		auto navigation = *reinterpret_cast<std::uintptr_t *>(ped + 0x30);
+		if (!navigation)
+			return;
+
+		auto damp = *reinterpret_cast<std::uintptr_t *>(navigation + 0x10);
+		if (!damp)
+			return;
+
+		auto collision = reinterpret_cast<float *>(damp + 0x54);
+		if (!collision)
+			return;
+
+		*collision = toggle ? 1.f : 0.f;
+	}
+
+	LuaVector3 GetClosestQuad()
+	{
+		struct Quad
+		{
+			std::int16_t minx;
+			std::int16_t miny;
+			std::int16_t maxx;
+			std::int16_t maxy;
+			std::uint32_t alpha;
+			char _0x000C[8];
+			float height;
+			char _0x0024[4];
+		};
+#undef max
+		auto constexpr ocean = static_cast<std::uintptr_t>(0x227e640);
+
+		auto const base      = reinterpret_cast<std::uintptr_t>(GetModuleHandleA(nullptr));
+		auto const pool      = *reinterpret_cast<std::uint64_t *>(base + ocean);
+		auto const size      = *reinterpret_cast<std::uint16_t *>(base + ocean + static_cast<std::uintptr_t>(0x8));
+
+		auto const myCoords  = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), true);
+		auto closestDistance = std::numeric_limits<float>::max();
+		Quad *closestQuad {};
+
+		for (auto const i : std::views::iota(std::uint16_t(0), size))
+		{
+			auto constexpr offset  = static_cast<std::uint16_t>(0x1C);
+			auto const currentQuad = reinterpret_cast<Quad *>(pool + (i * offset));
+			if (!currentQuad)
+				continue;
+
+			auto const quadCoords =
+			    Vector3 { static_cast<float>(currentQuad->minx + currentQuad->maxx) / 2.0f,
+				          static_cast<float>(currentQuad->miny + currentQuad->maxy) / 2.0f, currentQuad->height };
+
+			auto const xDiff          = quadCoords.x - myCoords.x;
+			auto const yDiff          = quadCoords.y - myCoords.y;
+			auto const zDiff          = quadCoords.z - myCoords.z;
+			auto const distanceToQuad = std::sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
+
+			if (distanceToQuad < closestDistance)
+			{
+				closestDistance = distanceToQuad;
+				closestQuad     = currentQuad;
+			}
+		}
+
+		if (!closestQuad)
+			return {};
+
+		auto const quadCoords =
+		    Vector3 { static_cast<float>(closestQuad->minx + closestQuad->maxx) / 2.0f,
+			          static_cast<float>(closestQuad->miny + closestQuad->maxy) / 2.0f, closestQuad->height };
+
+		return LuaVector3(quadCoords.x, quadCoords.y, quadCoords.z);
+	}
+
+	void DispatchRandomEffect()
+	{	
+		if (ComponentExists<EffectDispatcher>())
+			GetComponent<EffectDispatcher>()->DispatchRandomEffect();
+	}
+}
+
 #define E(x, y)                \
 	{ x, [](sol::state &state) \
 	  {                        \
@@ -436,7 +562,45 @@ static const std::vector<ExposableFunc> ms_UnsafeExposables {
 		      sharedData->EffectSoundPlayOptions.PlayFlags =
 		          state ? sharedData->EffectSoundPlayOptions.PlayFlags & ~EffectSoundPlayFlags_DontStopOnEntityDeath
 		                : sharedData->EffectSoundPlayOptions.PlayFlags | EffectSoundPlayFlags_DontStopOnEntityDeath;
-	  })
+	  }),
+	E("GetClosestQuad", GetClosestQuad),
+	E("SetRainProperties",
+	  [](const float r, const float g, const float b, const float gravity, const float light)
+	  {
+	      auto constexpr multiplier = 5.f;
+	      auto constexpr colorScale = 255.f;
+	      auto constexpr rain       = static_cast<std::uint64_t>(0x26d6230);
+
+	      auto const base           = reinterpret_cast<std::uint64_t>(GetModuleHandleA(0));
+	      if (!base)
+		      return;
+
+	      auto const rainAddress = base + rain;
+	      if (!rainAddress)
+		      return;
+
+	      auto const colorRedAddress   = rainAddress + static_cast<std::uint64_t>(0xd0);
+	      auto const colorGreenAddress = rainAddress + static_cast<std::uint64_t>(0xd4);
+	      auto const colorBlueAddress  = rainAddress + static_cast<std::uint64_t>(0xd8);
+	      auto const gravityAddress    = rainAddress + static_cast<std::uint64_t>(0xc);
+	      auto const lightAddress      = rainAddress + static_cast<std::uint64_t>(0x150);
+
+	      if (!colorRedAddress || !colorGreenAddress || !colorBlueAddress || !gravityAddress || !lightAddress)
+		      return;
+
+	      *reinterpret_cast<float *>(colorRedAddress)   = (r / colorScale) * multiplier;
+	      *reinterpret_cast<float *>(colorGreenAddress) = (g / colorScale) * multiplier;
+	      *reinterpret_cast<float *>(colorBlueAddress)  = (b / colorScale) * multiplier;
+
+	      *reinterpret_cast<float *>(gravityAddress)    = gravity;
+	      *reinterpret_cast<float *>(lightAddress)      = light;
+
+
+	  }),
+	E("IsPedWet", IsPedWet),
+	E("SetWaterCollisionForPlayer", SetWaterCollisionForPlayer),
+	E("ClearEntityPool", ClearEntityPool),
+	E("DispatchRandomEffect", DispatchRandomEffect)
 };
 #undef E
 

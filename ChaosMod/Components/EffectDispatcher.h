@@ -33,6 +33,8 @@ class EffectDispatcher : public Component
 	};
 	std::queue<EffectDispatchEntry> EffectDispatchQueue;
 
+	std::size_t EffectDispatchCount{};
+
 	struct ActiveEffect
 	{
 		EffectIdentifier Id;
@@ -113,7 +115,13 @@ class EffectDispatcher : public Component
 
 	void DispatchEffect(const EffectIdentifier &effectId,
 	                    DispatchEffectFlags dispatchEffectFlags = DispatchEffectFlag_None,
-	                    const std::string &suffix               = {});
+	                    const std::string &suffix               = {},
+						const bool increment = true
+	);
+
+	void DispatchEffectForMeta(const EffectIdentifier &effectId, const bool increment);
+
+	std::string GetRandomEffectId() const;
 	void DispatchRandomEffect(DispatchEffectFlags dispatchEffectFlags = DispatchEffectFlag_None,
 	                          const std::string &suffix               = {});
 
