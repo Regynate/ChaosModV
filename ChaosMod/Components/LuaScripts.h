@@ -12,22 +12,25 @@
 
 class LuaScripts : public Component
 {
-	sol::state m_GlobalState;
 	class LuaScript
 	{
 		std::string m_ScriptName;
-		sol::environment m_Env;
+		sol::state m_Lua;
 		bool m_IsTemporary;
 
 	  public:
-		LuaScript(const std::string &scriptName, sol::environment &env, bool isTemporary)
-		    : m_ScriptName(scriptName), m_Env(env), m_IsTemporary(isTemporary)
+		LuaScript(const std::string &scriptName, sol::state &lua, bool isTemporary)
+		    : m_ScriptName(scriptName), m_Lua(std::move(lua)), m_IsTemporary(isTemporary)
 		{
 		}
 
+		LuaScript(const LuaScript &)            = delete;
+
+		LuaScript &operator=(const LuaScript &) = delete;
+
 		LuaScript(LuaScript &&script) noexcept
 		    : m_ScriptName(std::move(script.m_ScriptName)),
-		      m_Env(std::move(script.m_Env)),
+		      m_Lua(std::move(script.m_Lua)),
 		      m_IsTemporary(script.m_IsTemporary)
 		{
 		}
@@ -35,7 +38,7 @@ class LuaScripts : public Component
 		LuaScript &operator=(LuaScript &&script) noexcept
 		{
 			m_ScriptName  = std::move(script.m_ScriptName);
-			m_Env         = std::move(script.m_Env);
+			m_Lua         = std::move(script.m_Lua);
 			m_IsTemporary = script.m_IsTemporary;
 
 			return *this;
@@ -53,7 +56,7 @@ class LuaScripts : public Component
 
 		void Execute(const char *funcName) const
 		{
-			const sol::protected_function &func = m_Env[funcName];
+			const sol::protected_function &func = m_Lua[funcName];
 			if (!func.valid())
 				return;
 
@@ -75,25 +78,27 @@ class LuaScripts : public Component
 	virtual void OnModPauseCleanup() override;
 
   private:
-	void SetupGlobalState();
-
 	enum ParseScriptFlags
 	{
 		ParseScriptFlag_None,
 		// Immediately dispatch effect (if script registers one) and remove it OnStop
 		// Assumes this is only being called from the main thread!
 		ParseScriptFlag_IsTemporary      = (1 << 0),
+		// Whether this is called from an alien thread, aborts and returns ParseScriptReturnReason::Error_ThreadUnsafe
+		// if thread-unsafe function was called
+		ParseScriptFlag_IsAlienThread    = (1 << 1),
 		// Whether the script parameter is not the code but rather a file path to it
-		ParseScriptFlag_ScriptIsFilePath = (1 << 1)
+		ParseScriptFlag_ScriptIsFilePath = (1 << 2)
 	};
 	enum class ParseScriptReturnReason
 	{
 		Success,
-		Error
+		Error,
+		Error_ThreadUnsafe
 	};
-	ParseScriptReturnReason ParseScript(std::string scriptName, const std::string &script,
-	                                    ParseScriptFlags flags = ParseScriptFlag_None,
-	                                    std::unordered_map<std::string, nlohmann::json> settingOverrides = {});
+	ParseScriptReturnReason ParseScriptRaw(std::string scriptName, const std::string &script,
+	                                       ParseScriptFlags flags = ParseScriptFlag_None,
+	                                       std::unordered_map<std::string, nlohmann::json> settingOverrides = {});
 	void RemoveScriptEntry(const std::string &effectId);
 
   public:
