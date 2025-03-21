@@ -39,7 +39,7 @@ static void SpawnBodyguardAtCoords(const Vector3 coords)
 	static std::array<std::uint32_t, 3> weaponList = { GET_HASH_KEY("weapon_pistol"), GET_HASH_KEY("weapon_smg"),
 		                                                     GET_HASH_KEY("weapon_assaultrifle") };
 
-	auto constexpr max                                   = weaponList.size() - 1;
+	auto constexpr max                                   = weaponList.size();
 	auto const randomIndex                               = GET_RANDOM_INT_IN_RANGE(0, max);
 	auto const randomWeapon                              = weaponList[randomIndex];
 

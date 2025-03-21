@@ -29,12 +29,12 @@ static void OnStart()
 	auto const playerCoordinates = GET_ENTITY_COORDS(player, false);
 	auto const playerRotation    = GET_ENTITY_ROTATION(player, 0);
 	auto const playerHeading     = GET_ENTITY_HEADING(player);
-	auto const behindPosition    = GetCoordinatesInFront(playerCoordinates, playerRotation, -190.0f);
+	auto const behindPosition    = GetCoordinatesInFront(playerCoordinates, playerRotation, -155.0f);
 
 	auto const blimpModel        = GET_HASH_KEY("blimp");
 	LoadModel(blimpModel);
-	auto const blimp = CREATE_VEHICLE(blimpModel, behindPosition.x, behindPosition.y, behindPosition.z + 100.0f,
-	                                  playerHeading, false, true, false);
+	auto const blimp = CreatePoolVehicle(blimpModel, behindPosition.x, behindPosition.y, behindPosition.z + 25.0f,
+	                                  playerHeading);
 
 	CREATE_RANDOM_PED_AS_DRIVER(blimp, false);
 

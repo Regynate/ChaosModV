@@ -27,18 +27,13 @@ void OnStart() {
 
     auto const inFrontOfVehicle = GetCoordsInFront(vehicle, 5.f);
 	auto const ramp = CreatePoolProp(rampModel, inFrontOfVehicle.x, inFrontOfVehicle.y, inFrontOfVehicle.z, false);
-	auto const ramp2 = CreatePoolProp(rampModel, inFrontOfVehicle.x, inFrontOfVehicle.y, inFrontOfVehicle.z, false);
 
     SET_ENTITY_ALPHA(ramp, 150, false);
-    SET_ENTITY_ALPHA(ramp2, 150, false);
 
     ATTACH_ENTITY_TO_ENTITY(ramp, vehicle, 0, 0, 5, 0, 0, 0, 180, false, false, true, false, 0, true);
-    ATTACH_ENTITY_TO_ENTITY(ramp2, vehicle, 0, 0, 5, -1, 0, 0, 180, false, false, true, false, 0, true);
 
     SET_ENTITY_DYNAMIC(ramp, true);
     SET_ENTITY_COLLISION(ramp, true, true);
-    SET_ENTITY_DYNAMIC(ramp2, true);
-    SET_ENTITY_COLLISION(ramp2, true, true);
 }
 
 void OnStop() {}

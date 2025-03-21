@@ -47,7 +47,7 @@ static void OnTick()
 	if (impactCoordinates.x == 0 && impactCoordinates.y == 0 && impactCoordinates.z == 0)
 		return;
 
-	auto constexpr maxIndex = landAnimals.size() - 1;
+	auto constexpr maxIndex = landAnimals.size();
 	auto const randomIndex  = GET_RANDOM_INT_IN_RANGE(0, maxIndex);
 	auto const modelHash    = landAnimals[randomIndex];
 	LoadModel(modelHash);

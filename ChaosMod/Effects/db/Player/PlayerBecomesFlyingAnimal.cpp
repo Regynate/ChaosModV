@@ -34,7 +34,7 @@ static void OnStart()
 	else
 		previousModel = oldModel;
 
-	auto constexpr max            = flyingAnimals.size() - 1;
+	auto constexpr max            = flyingAnimals.size();
 	auto const randomFlyingAnimal = GET_RANDOM_INT_IN_RANGE(0, max);
 	SetPlayerModel(flyingAnimals[randomFlyingAnimal]);
 }
@@ -66,6 +66,7 @@ REGISTER_EFFECT(OnStart, OnStop, OnTick,
     {
         .Name = "Player Becomes Flying Animal", 
         .Id = "player_becomes_flying_animal", 
-        .IsTimed = true
+        .IsTimed = true,
+		.IsShortDuration = true
     }
 );

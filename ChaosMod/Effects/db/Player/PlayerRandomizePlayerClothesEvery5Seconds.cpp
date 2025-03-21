@@ -3,14 +3,14 @@
 
 static std::vector<std::int32_t> originalClothes;
 
-static void SaveOriginalClothes(std::int32_t player)
+static void SaveOriginalClothes(const std::int32_t player)
 {
 	originalClothes.clear();
 	for (int i = 0; i <= 11; i++)
 		originalClothes.push_back(GET_PED_DRAWABLE_VARIATION(player, i));
 }
 
-static void RestoreOriginalClothes(std::int32_t player)
+static void RestoreOriginalClothes(const std::int32_t player)
 {
 	if (originalClothes.empty())
 		return;
@@ -18,7 +18,7 @@ static void RestoreOriginalClothes(std::int32_t player)
 		SET_PED_COMPONENT_VARIATION(player, i, originalClothes[i], 0, 0);
 }
 
-static void RandomizePlayerClothes(std::int32_t player)
+static void RandomizePlayerClothes(const std::int32_t player)
 {
 	for (int i = 0; i <= 11; i++)
 	{

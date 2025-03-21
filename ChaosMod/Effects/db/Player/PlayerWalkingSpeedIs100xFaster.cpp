@@ -5,8 +5,6 @@ static void OnTick()
 {
 	auto const player = PLAYER_PED_ID();
 
-    
-
 	if (!IS_PED_WALKING(player) || IS_PED_RAGDOLL(player))
 		return;
 
@@ -16,7 +14,7 @@ static void OnTick()
 // clang-format off
 REGISTER_EFFECT(nullptr, nullptr, OnTick, 
     {
-        .Name = "x100 walk speed", 
+        .Name = "x100 Walk Speed",
         .Id = "player_walking_speed_100x", 
         .IsTimed = true
     }

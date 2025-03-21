@@ -1,5 +1,6 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
+#include "Util/HelpText.h"
 
 static int GetCharacterSlot()
 {
@@ -74,7 +75,7 @@ static Vector3 GetRandomSpawnLocation(const std::int32_t player)
 {
 	auto const playerCoords   = GET_ENTITY_COORDS(player, true);
 	auto const randomAngle    = static_cast<float>(GET_RANDOM_FLOAT_IN_RANGE(0.0f, 360.0f));
-	auto const randomDistance = static_cast<float>(GET_RANDOM_FLOAT_IN_RANGE(100.0f, 200.0f));
+	auto const randomDistance = static_cast<float>(GET_RANDOM_FLOAT_IN_RANGE(50.0f, 100.0f));
 
 	return { playerCoords.x + (randomDistance * cos(randomAngle)), playerCoords.y + (randomDistance * sin(randomAngle)),
 		     playerCoords.z + 1.0f };
@@ -91,15 +92,16 @@ static void SpawnHuntingEntities()
 	auto const playerCoords = GET_ENTITY_COORDS(player, true);
 	Vector3 cletusSpawn     = { playerCoords.x + 2.0f, playerCoords.y + 2.0f, playerCoords.z };
 
-	cletus = CREATE_PED(26, cletusModel, cletusSpawn.x, cletusSpawn.y, cletusSpawn.z, 0.0f, true, true);
+	cletus = CreatePoolPed(26, cletusModel, cletusSpawn.x, cletusSpawn.y, cletusSpawn.z, 0.0f);
 	SET_PED_AS_GROUP_MEMBER(cletus, GET_PLAYER_GROUP(PLAYER_ID()));
 
 	auto const spawnCoords = GetRandomSpawnLocation(player);
-	targetEntity           = CREATE_PED(28, deerModel, spawnCoords.x, spawnCoords.y, spawnCoords.z, 0.0f, true, true);
+	targetEntity           = CreatePoolPed(28, deerModel, spawnCoords.x, spawnCoords.y, spawnCoords.z, 0.0f);
 	SET_ENTITY_AS_MISSION_ENTITY(targetEntity, true, true);
 
 	blip = ADD_BLIP_FOR_ENTITY(targetEntity);
 	SET_BLIP_COLOUR(blip, 1);
+	DisplayHelpText("Hunt down and kill the dear in 25 seconds... or else", 10);
 	BEGIN_TEXT_COMMAND_SET_BLIP_NAME("STRING");
 	BEGIN_TEXT_COMMAND_SCALEFORM_STRING("Hunting Target");
 	END_TEXT_COMMAND_SET_BLIP_NAME(blip);
@@ -111,7 +113,7 @@ static void OnStart()
 		return;
 	auto const player = PLAYER_PED_ID();
 	SpawnHuntingEntities();
-	countdownTimeMs = 30000;
+	countdownTimeMs = 25000;
 	effectCompleted = false;
 
 	GIVE_WEAPON_TO_PED(player, GET_HASH_KEY("weapon_sniperrifle"), 30, true, true);
@@ -137,6 +139,9 @@ static void OnTick()
 	{
 		effectCompleted = true;
 		GivePlayerMoney(1000);
+		DisplayHelpText("Congratulations! Here's $1000", 5);
+		PLAY_SOUND_FRONTEND(-1, "PROPERTY_PURCHASE", "HUD_AWARDS", false);
+		REMOVE_BLIP(&blip);
 		return;
 	}
 	countdownTimeMs -= static_cast<int>(GET_FRAME_TIME() * 1000);
@@ -144,6 +149,7 @@ static void OnTick()
 	{
 		effectCompleted = true;
 		SET_ENTITY_HEALTH(player, 0, 0);
+		REMOVE_BLIP(&blip);
 	}
 }
 
@@ -152,6 +158,7 @@ REGISTER_EFFECT(OnStart, OnStop, OnTick,
     {
         .Name = "Hunting Time", 
         .Id = "player_hunting_time", 
-        .IsTimed = true
+        .IsTimed = true,
+		.IsShortDuration = true
     }
 );

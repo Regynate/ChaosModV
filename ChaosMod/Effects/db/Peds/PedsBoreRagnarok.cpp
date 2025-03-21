@@ -46,14 +46,14 @@ static Vector3 GetRandomSpawnLocation(const Vector3 &playerCoords)
     return spawnCoords;
 }
 
-static void MakeBoarCharge(int boar)
+static void MakeBoarCharge(const ::int32_t boar)
 {
     auto const player = PLAYER_PED_ID();
     auto const playerCoords = GET_ENTITY_COORDS(player, true);
     TASK_GO_STRAIGHT_TO_COORD(boar, playerCoords.x, playerCoords.y, playerCoords.z, 6.0f, -1, 0.0f, 0.0f);
 }
 
-static void ApplyBoarDamage(int boar)
+static void ApplyBoarDamage(const std::int32_t boar)
 {
     auto const player = PLAYER_PED_ID();
     auto const playerCoords = GET_ENTITY_COORDS(player, true);
@@ -66,6 +66,14 @@ static void ApplyBoarDamage(int boar)
         WAIT(damageCooldownMs);
     }
 }
+static void RemoveBoar(const std::int32_t boar)
+{
+	if (boarBlips.count(boar))
+	{
+		REMOVE_BLIP(&boarBlips[boar]);
+		boarBlips.erase(boar);
+	}
+}
 
 static void SpawnBoar()
 {
@@ -75,13 +83,13 @@ static void SpawnBoar()
     LoadModel(boarModel);
 
     auto const spawnCoords = GetRandomSpawnLocation(playerCoords);
-    auto const boar = CREATE_PED(28, boarModel, spawnCoords.x, spawnCoords.y, spawnCoords.z, 0.0f, true, true);
+    auto const boar = CreatePoolPed(28, boarModel, spawnCoords.x, spawnCoords.y, spawnCoords.z, 0.0f);
     SET_ENTITY_AS_MISSION_ENTITY(boar, true, true);
     SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(boar, true);
     SET_PED_FLEE_ATTRIBUTES(boar, 0, true);
     MakeBoarCharge(boar);
 
-    int blip = ADD_BLIP_FOR_ENTITY(boar);
+    auto const blip = ADD_BLIP_FOR_ENTITY(boar);
     SET_BLIP_COLOUR(blip, 1);
     boarBlips[boar] = blip;
 
@@ -93,38 +101,33 @@ static void ManageBoars()
     auto const player = PLAYER_PED_ID();
     auto const playerCoords = GET_ENTITY_COORDS(player, true);
 
-    spawnedBoars.erase(std::remove_if(spawnedBoars.begin(), spawnedBoars.end(), [&](int boar) {
-        if (!DOES_ENTITY_EXIST(boar) || IS_PED_DEAD_OR_DYING(boar, false)) {
-            DeleteEntity(boar);
-            if (boarBlips.count(boar)) {
-                REMOVE_BLIP(&boarBlips[boar]);
-                boarBlips.erase(boar);
-            }
-            return true;
-        }
+    spawnedBoars.erase(std::remove_if(spawnedBoars.begin(), spawnedBoars.end(), [&](std::int32_t boar) {
+		auto const boarCoords = GET_ENTITY_COORDS(boar, true);
+		auto const distance   = GET_DISTANCE_BETWEEN_COORDS(
+            playerCoords.x, playerCoords.y, playerCoords.z, boarCoords.x,
+            boarCoords.y, boarCoords.z, true);
+		auto const shouldRemove = IS_PED_DEAD_OR_DYING(boar, false) || distance > maxDistance;
+		
 
-        auto const boarCoords = GET_ENTITY_COORDS(boar, true);
-        auto const distance = GET_DISTANCE_BETWEEN_COORDS(playerCoords.x, playerCoords.y, playerCoords.z, boarCoords.x, boarCoords.y, boarCoords.z, true);
+		if (shouldRemove)
+		{
+			RemoveBoar(boar);
+			return shouldRemove;
+		}
 
-        if (distance > maxDistance) {
-            DeleteEntity(boar);
-            if (boarBlips.count(boar)) {
-                REMOVE_BLIP(&boarBlips[boar]);
-                boarBlips.erase(boar);
-            }
-            return true;
-        }
+		MakeBoarCharge(boar);
+		ApplyBoarDamage(boar);
 
-        MakeBoarCharge(boar);
-        ApplyBoarDamage(boar);
-        return false;
-        }), spawnedBoars.end());
+		if (shouldRemove)
+			RemoveBoar(boar);
+
+		return shouldRemove;
+    }), spawnedBoars.end());
 
     while (spawnedBoars.size() < maxBoars) {
         SpawnBoar();
     }
 }
-
 static void OnStart()
 {
     spawnedBoars.clear();
@@ -136,11 +139,6 @@ static void OnStart()
 
 static void OnStop()
 {
-    for (auto const boar : spawnedBoars) {
-        if (DOES_ENTITY_EXIST(boar)) {
-            DeleteEntity(boar);
-        }
-    }
     spawnedBoars.clear();
     boarBlips.clear();
 }

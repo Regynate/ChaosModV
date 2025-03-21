@@ -277,6 +277,19 @@ _LUAFUNC static sol::object LuaInvoke(const sol::environment &env, std::uint64_t
 
 namespace
 {
+	float GetPedWetness()
+	{
+		auto const baseAddress     = reinterpret_cast<std::uint64_t>(GetModuleHandleA(NULL));
+		auto const absoluteAddress = baseAddress + static_cast<std::uint64_t>(0x02519830);
+
+		auto const offset0         = *reinterpret_cast<std::uintptr_t *>(absoluteAddress);
+		auto const offset1         = *reinterpret_cast<std::uintptr_t *>(offset0 + 0);
+		auto const offset2         = *reinterpret_cast<std::uintptr_t *>(offset1 + 0x2C8);
+		auto const wetness         = *reinterpret_cast<float *>(offset2 + 0x2C);
+
+		return wetness;
+	}
+
 	bool IsPedWet()
 	{
 		auto const baseAddress = reinterpret_cast<std::uint64_t>(GetModuleHandleA(NULL));
@@ -357,7 +370,7 @@ namespace
 		auto const pool      = *reinterpret_cast<std::uint64_t *>(base + ocean);
 		auto const size      = *reinterpret_cast<std::uint16_t *>(base + ocean + static_cast<std::uintptr_t>(0x8));
 
-		auto const myCoords  = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), true);
+		auto const myCoords  = GET_ENTITY_COORDS(PLAYER_PED_ID(), true);
 		auto closestDistance = std::numeric_limits<float>::max();
 		Quad *closestQuad {};
 
@@ -445,6 +458,13 @@ static const std::vector<ExposableFunc> ms_SafeExposables {
 	E("GetChaosModVersion", []() { return MOD_VERSION; }),
 	E("GetGameBuild", Memory::GetGameBuild),
 };
+
+static float rainRed{};
+static float rainGreen {};
+static float rainBlue {};
+static float rainLight {};
+static float rainGravity {};
+
 static const std::vector<ExposableFunc> ms_UnsafeExposables {
 	E("WAIT", WAIT),
 	E("APPLY_FORCE_TO_ENTITY", APPLY_FORCE_TO_ENTITY),
@@ -595,12 +615,72 @@ static const std::vector<ExposableFunc> ms_UnsafeExposables {
 	      *reinterpret_cast<float *>(gravityAddress)    = gravity;
 	      *reinterpret_cast<float *>(lightAddress)      = light;
 
-
 	  }),
 	E("IsPedWet", IsPedWet),
+	E("GetPedWetness", GetPedWetness),
 	E("SetWaterCollisionForPlayer", SetWaterCollisionForPlayer),
 	E("ClearEntityPool", ClearEntityPool),
-	E("DispatchRandomEffect", DispatchRandomEffect)
+	E("DispatchRandomEffect", DispatchRandomEffect),
+	E("CacheWeatherProperties",
+	      []()
+	      {
+	          auto constexpr rain       = static_cast<std::uint64_t>(0x26d6230);
+
+	          auto const base           = reinterpret_cast<std::uint64_t>(GetModuleHandleA(0));
+	          if (!base)
+		          return;
+
+	          auto const rainAddress = base + rain;
+	          if (!rainAddress)
+		          return;
+
+	          auto const colorRedAddress   = rainAddress + static_cast<std::uint64_t>(0xd0);
+	          auto const colorGreenAddress = rainAddress + static_cast<std::uint64_t>(0xd4);
+	          auto const colorBlueAddress  = rainAddress + static_cast<std::uint64_t>(0xd8);
+	          auto const gravityAddress    = rainAddress + static_cast<std::uint64_t>(0xc);
+	          auto const lightAddress      = rainAddress + static_cast<std::uint64_t>(0x150);
+
+	          if (!colorRedAddress || !colorGreenAddress || !colorBlueAddress || !gravityAddress || !lightAddress)
+		          return;
+
+			  rainRed = *reinterpret_cast<float *>(colorRedAddress);
+			  rainGreen = *reinterpret_cast<float *>(colorGreenAddress);
+	          rainBlue  = *reinterpret_cast<float *>(colorBlueAddress);
+
+			  rainGravity = *reinterpret_cast<float *>(gravityAddress);
+			  rainLight = *reinterpret_cast<float *>(lightAddress);
+          }),
+	E("RestoreRainUsingCachedProperties",
+	  []()
+	  {
+	      auto constexpr multiplier = 5.f;
+	      auto constexpr colorScale = 255.f;
+	      auto constexpr rain       = static_cast<std::uint64_t>(0x26d6230);
+
+	      auto const base           = reinterpret_cast<std::uint64_t>(GetModuleHandleA(0));
+	      if (!base)
+		      return;
+
+	      auto const rainAddress = base + rain;
+	      if (!rainAddress)
+		      return;
+
+	      auto const colorRedAddress   = rainAddress + static_cast<std::uint64_t>(0xd0);
+	      auto const colorGreenAddress = rainAddress + static_cast<std::uint64_t>(0xd4);
+	      auto const colorBlueAddress  = rainAddress + static_cast<std::uint64_t>(0xd8);
+	      auto const gravityAddress    = rainAddress + static_cast<std::uint64_t>(0xc);
+	      auto const lightAddress      = rainAddress + static_cast<std::uint64_t>(0x150);
+
+	      if (!colorRedAddress || !colorGreenAddress || !colorBlueAddress || !gravityAddress || !lightAddress)
+		      return;
+
+	      *reinterpret_cast<float *>(colorRedAddress)   = (rainRed / colorScale) * multiplier;
+	      *reinterpret_cast<float *>(colorGreenAddress) = (rainGreen / colorScale) * multiplier;
+	      *reinterpret_cast<float *>(colorBlueAddress)  = (rainBlue / colorScale) * multiplier;
+
+	      *reinterpret_cast<float *>(gravityAddress)    = rainGravity;
+	      *reinterpret_cast<float *>(lightAddress)      = rainLight;
+      })
 };
 #undef E
 

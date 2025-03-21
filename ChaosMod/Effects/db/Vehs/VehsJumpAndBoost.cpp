@@ -1,5 +1,6 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
+#include "Util/HelpText.h"
 
 static void OnStart()
 {
@@ -7,6 +8,8 @@ static void OnStart()
 
 static void OnTick()
 {
+	DisplayHelpText("Jump = SPACE | Boost = X", 20);
+
 	auto const player    = PLAYER_PED_ID();
 	auto const inVehicle = IS_PED_IN_ANY_VEHICLE(player, false);
 	if (!inVehicle)

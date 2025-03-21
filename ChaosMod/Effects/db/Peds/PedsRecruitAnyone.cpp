@@ -1,8 +1,9 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
+#include "Util/HelpText.h"
 
 static std::vector<std::int32_t> recruitedPeds;
-static constexpr std::int32_t KEY_E = 0x45; // "E"
+static constexpr std::int32_t KEY_E = 0x45;
 
 static std::int32_t GetAimedPed()
 {
@@ -30,7 +31,7 @@ static void RecruitPed()
 			                                                         GET_HASH_KEY("weapon_smg"),
 			                                                         GET_HASH_KEY("weapon_assaultrifle") };
 
-		auto constexpr max                                       = weaponList.size() - 1;
+		auto constexpr max                                       = weaponList.size();
 		auto const randomIndex                                   = GET_RANDOM_INT_IN_RANGE(0, max);
 		auto const randomWeapon                                  = weaponList[randomIndex];
 		
@@ -67,6 +68,7 @@ static void OnStop()
 
 static void OnTick()
 {
+	DisplayHelpText("Recruit: Aim at a ped and press 'E'", 20);
 	RecruitPed();
 }
 

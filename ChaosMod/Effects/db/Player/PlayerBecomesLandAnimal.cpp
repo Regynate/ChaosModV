@@ -37,7 +37,7 @@ static void OnStart()
 	else
 		previousModel = oldModel;
 
-	auto constexpr max          = landAnimals.size() - 1;
+	auto constexpr max          = landAnimals.size();
 	auto const randomLandAnimal = GET_RANDOM_INT_IN_RANGE(0, max);
 	auto const selectedAnimal   = landAnimals[randomLandAnimal];
 	SetPlayerModel(selectedAnimal);
@@ -70,6 +70,7 @@ REGISTER_EFFECT(OnStart, OnStop, OnTick,
     {
         .Name = "Player Becomes Land Animal", 
         .Id = "player_becomes_land_animal", 
-        .IsTimed = true
+        .IsTimed = true,
+		.IsShortDuration = true
     }
 );

@@ -568,6 +568,8 @@ void EffectDispatcher::DispatchEffect(const EffectIdentifier &effectId, Dispatch
 	if (increment)
 		EffectDispatchCount++;
 
+	SetLastEffectId(effectId.Id());
+
 	EffectDispatchQueue.push({ .Id = effectId, .Suffix = suffix, .Flags = dispatchEffectFlags });
 }
 
@@ -746,4 +748,17 @@ void EffectDispatcher::RegisterPermanentEffects()
 bool EffectDispatcher::IsClearingEffects() const
 {
 	return m_ClearEffectsState != ClearEffectsState::None;
+}
+
+std::string EffectDispatcher::GetLastEffectId() const
+{
+	return m_LastEffect;
+}
+
+void EffectDispatcher::SetLastEffectId(const std::string &effectId)
+{
+	auto const isNotRepeatEffect = (effectId.compare("misc_repeat_last_effect") != 0);
+
+	if (isNotRepeatEffect)
+		m_LastEffect = effectId;
 }

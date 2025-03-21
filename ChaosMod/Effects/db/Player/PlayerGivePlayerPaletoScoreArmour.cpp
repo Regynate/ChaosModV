@@ -1,5 +1,6 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
+#include <ranges>
 
 static void GiveFranklinPaletoScoreArmour()
 {
@@ -10,9 +11,12 @@ static void GiveFranklinPaletoScoreArmour()
 	auto constexpr legTextureId   = 3;
 	auto constexpr gloveComponent = 5;
 	auto constexpr gloveTextureId = 4;
+	auto constexpr armourComponent = 9;
+	auto constexpr armourTextureId = 3;
 	SET_PED_COMPONENT_VARIATION(player, torsoComponent, torsoTextureId, 0, 0);
 	SET_PED_COMPONENT_VARIATION(player, legComponent, legTextureId, 0, 0);
 	SET_PED_COMPONENT_VARIATION(player, gloveComponent, gloveTextureId, 0, 0);
+	SET_PED_COMPONENT_VARIATION(player, armourComponent, armourTextureId, 0, 0);
 }
 
 static void GiveMichealPaletoScoreArmour()
@@ -75,21 +79,37 @@ static void GivePlayerPaletoScoreArmour()
 
 static void OnTick()
 {
-	auto const player = PLAYER_PED_ID();
-	SET_ENTITY_HEALTH(player, 200, 0);
+
 }
 
 static void OnStart()
 {
 	GivePlayerPaletoScoreArmour();
+
+	static auto const healthHash = GET_HASH_KEY("PICKUP_HEALTH_STANDARD");
+	auto const player                  = PLAYER_PED_ID();
+	SET_ENTITY_MAX_HEALTH(player, 1000);
+
+	LoadModel(healthHash);
+
+	auto const coords = GET_ENTITY_COORDS(player, false);
+
+	for (auto const _ : std::ranges::iota_view {0, 8})
+		CREATE_AMBIENT_PICKUP(healthHash, coords.x, coords.y, coords.z, 1, 100, healthHash, false, true);
 }
 
 static void OnStop()
 {
+
+	SET_MODEL_AS_NO_LONGER_NEEDED(GET_HASH_KEY("PICKUP_HEALTH_STANDARD"));
+
+	auto const player = PLAYER_PED_ID();
+	SET_ENTITY_HEALTH(player, 200, 0);
+	SET_ENTITY_MAX_HEALTH(player, 200);
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStart, nullptr, OnTick, 
+REGISTER_EFFECT(OnStart, OnStop, nullptr, 
     {
         .Name = "Give Paleto Score Armour", 
         .Id = "player_give_paleto_score_armour", 

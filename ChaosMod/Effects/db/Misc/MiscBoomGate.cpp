@@ -45,15 +45,18 @@ static void OnStart() {
     auto const boomGateModel = GET_HASH_KEY("prop_sec_barrier_ld_01a");
 
     auto const player = PLAYER_PED_ID();
-    auto const coords = GET_ENTITY_COORDS(player, false);
+	auto const coords = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(player, -4.f, 0.f, 0.f);
 
     auto const rotation = GET_ENTITY_ROTATION(player, 0);
-    auto const inFront = GetCoordsInFront(coords, rotation, 15);
+    auto const inFront = GetCoordsInFront(coords, rotation, 5);
     auto const heading = GET_ENTITY_HEADING(player);
-
+	
     LoadModel(boomGateModel);
 
-    auto const boomGate = CreatePoolProp(boomGateModel, inFront.x, inFront.y, inFront.z, false);
+    float groundZ{};
+	GET_GROUND_Z_FOR_3D_COORD(inFront.x, inFront.y, inFront.z, &groundZ, true, false);
+
+    auto const boomGate = CreatePoolProp(boomGateModel, inFront.x, inFront.y, groundZ + 0.5f, true);
 
     SET_ENTITY_HEADING(boomGate, heading);
 

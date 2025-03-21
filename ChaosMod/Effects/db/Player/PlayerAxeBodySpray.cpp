@@ -19,7 +19,7 @@ static void OnTick()
     auto const coords = GET_ENTITY_COORDS(player, false);
 
     auto constexpr EXP_TAG_BZGAS = 21;
-    ADD_EXPLOSION(coords.x, coords.y, coords.z, EXP_TAG_BZGAS, 1000.f, true, false, 0.f, true);
+	ADD_EXPLOSION(coords.x, coords.y, coords.z, EXP_TAG_BZGAS, 1000.f, false, false, 0.f, true);
 
     WAIT(50);
 }

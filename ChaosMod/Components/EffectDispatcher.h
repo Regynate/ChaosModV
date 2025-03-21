@@ -93,6 +93,8 @@ class EffectDispatcher : public Component
 	std::array<std::uint8_t, 3> m_TextColor;
 	std::array<std::uint8_t, 3> m_EffectTimerColor;
 
+	std::string m_LastEffect;
+
 	bool m_DisableDrawEffectTexts     = false;
 
 	bool m_EnableNormalEffectDispatch = false;
@@ -147,4 +149,8 @@ class EffectDispatcher : public Component
 	void Reset(ClearEffectsFlags clearEffectFlags = ClearEffectsFlag_None);
 
 	bool IsClearingEffects() const;
+
+	std::string GetLastEffectId() const;
+
+	void SetLastEffectId(const std::string &effectId);
 };

@@ -54,7 +54,7 @@ static void GivePedsBlueBalls(const std::int32_t pedHandle)
 	auto const blueBall  = CreatePoolProp(blueBallModel, pedCoords.x, pedCoords.y, pedCoords.z + 5, false);
 
 	ATTACH_ENTITY_TO_ENTITY(blueBall, pedHandle, 0, 0, 0, 0, 0, 0, 0, false, false, false, false, 0, true);
-
+	SET_ENTITY_INVINCIBLE(blueBall, true);
 	affectedPeds.emplace(pedHandle, blueBall);
 }
 
@@ -121,11 +121,19 @@ static void OnStart()
 
 static void OnStop()
 {
+	auto const player = PLAYER_PED_ID();
+	if (IS_PED_DEAD_OR_DYING(player, false))
+		SET_ENTITY_ALPHA(player, 255, false);
+
 	CleanupBlueBalls();
 }
 
 static void OnTick()
 {
+	auto const player = PLAYER_PED_ID();
+	if (IS_PED_DEAD_OR_DYING(player, false))
+		SET_ENTITY_ALPHA(player, 255, false);
+
 	ped(GivePedsBlueBalls);
 	CheckPedsDistance();
 }
