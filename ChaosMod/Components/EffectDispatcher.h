@@ -33,6 +33,8 @@ class EffectDispatcher : public Component
 	};
 	std::queue<EffectDispatchEntry> EffectDispatchQueue;
 
+	std::size_t EffectDispatchCount{};
+
 	struct ActiveEffect
 	{
 		EffectIdentifier Id;
@@ -91,6 +93,8 @@ class EffectDispatcher : public Component
 	std::array<std::uint8_t, 3> m_TextColor;
 	std::array<std::uint8_t, 3> m_EffectTimerColor;
 
+	std::string m_LastEffect;
+
 	bool m_DisableDrawEffectTexts     = false;
 
 	bool m_EnableNormalEffectDispatch = false;
@@ -113,9 +117,16 @@ class EffectDispatcher : public Component
 
 	void DispatchEffect(const EffectIdentifier &effectId,
 	                    DispatchEffectFlags dispatchEffectFlags = DispatchEffectFlag_None,
-	                    const std::string &suffix               = {});
+	                    const std::string &suffix               = {},
+						const bool increment = true
+	);
+
+	void DispatchEffectForMeta(const EffectIdentifier &effectId, const bool increment);
+
+	std::string GetRandomEffectId() const;
 	void DispatchRandomEffect(DispatchEffectFlags dispatchEffectFlags = DispatchEffectFlag_None,
 	                          const std::string &suffix               = {});
+
 
 	void UpdateEffects(float deltaTime);
 	void UpdateMetaEffects(float deltaTime);
@@ -139,4 +150,8 @@ class EffectDispatcher : public Component
 	void Reset(ClearEffectsFlags clearEffectFlags = ClearEffectsFlag_None);
 
 	bool IsClearingEffects() const;
+
+	std::string GetLastEffectId() const;
+
+	void SetLastEffectId(const std::string &effectId);
 };

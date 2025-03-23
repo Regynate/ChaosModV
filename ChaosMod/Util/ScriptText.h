@@ -40,7 +40,7 @@ inline float GetScreenTextWidth(const std::string &text, float scale)
 
 	return _END_TEXT_COMMAND_GET_WIDTH(true);
 }
-
+#include "Util/Natives.h"
 inline void DrawScreenText(const std::string &text, const ScreenTextVector &textPos, float scale,
                            ScreenTextColor textColor, bool outline = false,
                            ScreenTextAdjust textAdjust      = ScreenTextAdjust::Center,
