@@ -39,7 +39,7 @@ static void OnTick()
 REGISTER_EFFECT(nullptr, nullptr, OnTick,
 	{
 		.Name = "Peds Think You Are A Cop",
-		.Id = "vehs_peds_think_you_are_a_cop",
+		.Id = "ped_peds_think_you_are_a_cop",
 		.IsTimed = true,
 	}
 );

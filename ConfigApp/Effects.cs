@@ -489,7 +489,11 @@
             { "player_walking_speed_100x", new EffectInfo("x100 Walk Speed", EffectCategory.Player, true) },
             { "player_what_if_i_was_the_hitman_all_along", new EffectInfo("What If I Was The Hitman All Along", EffectCategory.Player) },
             { "vehs_lost_and_damned", new EffectInfo("Lost And The Damned", EffectCategory.Vehicle) },
-
+            { "misc_mystery_effect", new EffectInfo("Mystery Effect", EffectCategory.Misc) },
+            { "veh_try_again", new EffectInfo("Try again", EffectCategory.Vehicle) },
+            { "ped_peds_think_you_are_a_cop", new EffectInfo("Peds Think You Are A Cop", EffectCategory.Peds) },
+            { "player_use_any_weapons_while_in_vehicle", new EffectInfo("Use Any Weapons while in Vehicles", EffectCategory.Player) },
+            { "player_forced_switch", new EffectInfo("Switch To Different Character", EffectCategory.Player) },
         };
     }
 }
