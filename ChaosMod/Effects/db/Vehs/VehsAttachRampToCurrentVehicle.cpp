@@ -1,7 +1,7 @@
 #include <stdafx.h>
 #include "Effects/Register/RegisterEffect.h"
 
-Vector3 GetCoordsInFront(const std::int32_t entity, const float distance) {
+Vector3 GetCoordsInFront(const Entity entity, const float distance) {
 	auto constexpr PI     = 3.1415f;
     auto const entityCoords = GET_ENTITY_COORDS(entity, false);
     auto const heading = GET_ENTITY_HEADING(entity) * (PI / 180.0f);

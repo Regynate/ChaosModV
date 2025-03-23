@@ -31,7 +31,7 @@ static int GetPlayerMoney()
 	return 0;
 }
 
-static void SetPlayerMoney(int amount)
+static void SetPlayerMoney(const int amount)
 {
 	auto const charSlot = GetCharacterSlot();
 	if (charSlot == -1)
@@ -43,20 +43,20 @@ static void SetPlayerMoney(int amount)
 	STAT_SET_INT(GET_HASH_KEY(statName), amount, true);
 }
 
-static void GivePlayerMoney(int amount)
+static void GivePlayerMoney(const int amount)
 {
 	auto const currentMoney = GetPlayerMoney();
 	SetPlayerMoney(currentMoney + amount);
 }
 
-static bool RequestControlEntity(std::int32_t entity)
+static bool RequestControlEntity(Entity entity)
 {
 	if (!DOES_ENTITY_EXIST(entity))
 		return false;
 	return NETWORK_HAS_CONTROL_OF_ENTITY(entity);
 }
 
-static void DeleteEntity(std::int32_t entity)
+static void DeleteEntity(Entity entity)
 {
 	if (!RequestControlEntity(entity))
 		return;
@@ -65,13 +65,13 @@ static void DeleteEntity(std::int32_t entity)
 	DELETE_ENTITY(&entity);
 }
 
-static int targetEntity     = 0;
-static int cletus           = 0;
-static int countdownTimeMs  = 30000;
-static int blip             = 0;
-static bool effectCompleted = false;
+CHAOS_VAR int targetEntity     = 0;
+CHAOS_VAR int cletus        = 0;
+CHAOS_VAR int countdownTimeMs  = 30000;
+CHAOS_VAR int blip             = 0;
+CHAOS_VAR bool effectCompleted = false;
 
-static Vector3 GetRandomSpawnLocation(const std::int32_t player)
+static Vector3 GetRandomSpawnLocation(const Ped player)
 {
 	auto const playerCoords   = GET_ENTITY_COORDS(player, true);
 	auto const randomAngle    = static_cast<float>(GET_RANDOM_FLOAT_IN_RANGE(0.0f, 360.0f));

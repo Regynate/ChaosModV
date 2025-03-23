@@ -1,14 +1,14 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
 
-static bool RequestControlEntity(std::int32_t entity)
+static bool RequestControlEntity(Entity entity)
 {
 	if (!DOES_ENTITY_EXIST(entity))
 		return false;
 	return NETWORK_HAS_CONTROL_OF_ENTITY(entity);
 }
 
-static void DeleteEntity(std::int32_t entity)
+static void DeleteEntity(Entity entity)
 {
 	if (!RequestControlEntity(entity))
 		return;
@@ -17,8 +17,8 @@ static void DeleteEntity(std::int32_t entity)
 	DELETE_ENTITY(&entity);
 }
 
-static auto constexpr degreesToRadians = 0.0174532924f;
-static auto constexpr PI               = 3.1415f;
+CHAOS_VAR auto constexpr degreesToRadians = 0.0174532924f;
+CHAOS_VAR auto constexpr PI               = 3.1415f;
 
 static Vector3 GetAimingCoords()
 {

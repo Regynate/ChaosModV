@@ -9,7 +9,7 @@ static bool RequestControlEntity(Entity entity)
 	return NETWORK_HAS_CONTROL_OF_ENTITY(entity);
 }
 
-static void DeleteEntity(std::int32_t entity)
+static void DeleteEntity(Entity entity)
 {
 	if (RequestControlEntity(entity))
 	{
@@ -19,57 +19,43 @@ static void DeleteEntity(std::int32_t entity)
 	}
 }
 
-static void ped(void (*processor)(std::int32_t))
-{
-	static constexpr std::int32_t MAX_ENTITIES = 100;
-	std::int32_t peds[MAX_ENTITIES];
-	auto const pedCount = worldGetAllPeds(peds, MAX_ENTITIES);
-
-	for (std::int32_t const i : std::ranges::iota_view { 0, pedCount })
-	{
-		auto const pedHandle = peds[i];
-
-		if (!DOES_ENTITY_EXIST(pedHandle))
-			continue;
-
-		processor(pedHandle);
-	}
-}
-
 struct ChopPed
 {
-	std::int32_t originalPed;
-	std::int32_t attachedChop;
+	Ped originalPed;
+	Ped attachedChop;
 	Vector3 originalCoords;
 };
 
-static std::vector<ChopPed> affectedPeds;
+CHAOS_VAR std::vector<ChopPed> affectedPeds;
 
-static void AttachChopToPed(const std::int32_t ped)
+static void AttachChopToPed()
 {
-	auto const chopModel = GET_HASH_KEY("A_C_Chop");
+	for (auto const ped : GetAllPeds())
+	{
+		auto const chopModel = GET_HASH_KEY("A_C_Chop");
 
-	if (!DOES_ENTITY_EXIST(ped) || IS_PED_DEAD_OR_DYING(ped, true) || IS_PED_A_PLAYER(ped) || !IS_PED_HUMAN(ped))
-		return;
+		if (!DOES_ENTITY_EXIST(ped) || IS_PED_DEAD_OR_DYING(ped, true) || IS_PED_A_PLAYER(ped) || !IS_PED_HUMAN(ped))
+			return;
 
-	if (std::any_of(affectedPeds.begin(), affectedPeds.end(),
-	                [&](const ChopPed &entry) { return entry.originalPed == ped; }))
-		return;
+		if (std::any_of(affectedPeds.begin(), affectedPeds.end(),
+		                [&](const ChopPed &entry) { return entry.originalPed == ped; }))
+			return;
 
-	LoadModel(chopModel);
+		LoadModel(chopModel);
 
-	auto const pedCoords    = GET_ENTITY_COORDS(ped, true);
-	SET_ENTITY_COORDS(ped, pedCoords.x, pedCoords.y, pedCoords.z, false, false, false, true);
+		auto const pedCoords = GET_ENTITY_COORDS(ped, true);
+		SET_ENTITY_COORDS(ped, pedCoords.x, pedCoords.y, pedCoords.z, false, false, false, true);
 
-	auto const heading = GET_ENTITY_HEADING(ped);
+		auto const heading = GET_ENTITY_HEADING(ped);
 
-	auto const chop = CreatePoolPed(28, chopModel, pedCoords.x, pedCoords.y, pedCoords.z, heading);
-	SET_ENTITY_AS_MISSION_ENTITY(chop, true, true);
+		auto const chop    = CreatePoolPed(28, chopModel, pedCoords.x, pedCoords.y, pedCoords.z, heading);
+		SET_ENTITY_AS_MISSION_ENTITY(chop, true, true);
 
-	SET_ENTITY_VISIBLE(ped, false, false);
-	ATTACH_ENTITY_TO_ENTITY(ped, chop, 0, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false, false, false, true, 0, true);
+		SET_ENTITY_VISIBLE(ped, false, false);
+		ATTACH_ENTITY_TO_ENTITY(ped, chop, 0, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false, false, false, true, 0, true);
 
-	affectedPeds.emplace_back(ChopPed { ped, chop, pedCoords });
+		affectedPeds.emplace_back(ChopPed { ped, chop, pedCoords });
+	}
 }
 
 static void RestorePeds()
@@ -152,7 +138,7 @@ static void OnStop()
 
 static void OnTick()
 {
-	ped(AttachChopToPed);
+	AttachChopToPed();
 	CheckChopDeaths();
 	CheckPedsDistance();
 }

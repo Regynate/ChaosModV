@@ -41,10 +41,10 @@ static void SetPlayerMoney(const int amount)
 	STAT_SET_INT(GET_HASH_KEY(statName), amount, true);
 }
 
-static auto constexpr PED_THROWN_OUT_FLAG = 4160;
-static auto constexpr MUG_AMOUNT          = 7;
-static auto constexpr PED_TYPE_CIVFEMALE  = 6;
-static auto constexpr DENISE_MODEL        = "cs_denise";
+CHAOS_VAR auto constexpr PED_THROWN_OUT_FLAG = 4160;
+CHAOS_VAR auto constexpr MUG_AMOUNT       = 7;
+CHAOS_VAR auto constexpr PED_TYPE_CIVFEMALE  = 6;
+CHAOS_VAR auto constexpr DENISE_MODEL                      = "cs_denise";
 
 static void RemoveSevenDollars()
 {
@@ -52,7 +52,7 @@ static void RemoveSevenDollars()
 	SetPlayerMoney(playerMoney - MUG_AMOUNT);
 }
 
-static std::int32_t SpawnDenise(Vector3 coords)
+static Ped SpawnDenise(Vector3 coords)
 {
 	auto const deniseModelHash = GET_HASH_KEY(DENISE_MODEL);
 	LoadModel(deniseModelHash);

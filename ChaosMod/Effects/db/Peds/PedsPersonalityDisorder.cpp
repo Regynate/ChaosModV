@@ -1,8 +1,8 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
 
-static std::vector<std::pair<Hash, int>> storedWeapons;
-static std::vector<Hash> WEAPON_HASHES = {
+CHAOS_VAR std::vector<std::pair<Hash, int>> storedWeapons;
+CHAOS_VAR std::vector<Hash> WEAPON_HASHES = {
 	0x92A27487, // dagger
 	0x958A4A8F, // bat
 	0xF9E6AA4B, // bottle
@@ -142,10 +142,10 @@ static void SetPlayerModel(const std::uint32_t hash)
 	RestoreWeapons();
 }
 
-static std::array<std::uint32_t, 3> characters { GET_HASH_KEY("player_zero"), GET_HASH_KEY("player_one"),
+static std::array<Hash, 3> characters { GET_HASH_KEY("player_zero"), GET_HASH_KEY("player_one"),
 	                                             GET_HASH_KEY("player_two") };
 
-static std::uint32_t previousModel {};
+static Hash previousModel {};
 
 static void OnStart()
 {
@@ -158,8 +158,8 @@ static void OnStart()
 
 	if (playerModel != michealModel && playerModel != franklinModel && playerModel != trevorModel)
 		previousModel = franklinModel;
-
-	previousModel = playerModel;
+	else 
+		previousModel = playerModel;
 }
 
 static void OnStop()
@@ -169,7 +169,7 @@ static void OnStop()
 
 static void OnTick()
 {
-	std::int32_t vehicle {};
+	Vehicle vehicle {};
 	auto player            = PLAYER_PED_ID();
 
 	auto const isInVehicle = IS_PED_IN_ANY_VEHICLE(player, true);

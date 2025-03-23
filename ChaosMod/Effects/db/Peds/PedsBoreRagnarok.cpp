@@ -23,15 +23,13 @@ static void DeleteEntity(Entity entity)
     }
 }
 
-
-static auto constexpr maxBoars   = 5;
-static auto constexpr spawnRadius = 20.0f;
-static auto constexpr maxDistance  = 50.0f;
-static auto constexpr boarDamage      = 10;
-static auto constexpr damageCooldownMs = 500;
-static std::vector<std::int32_t> spawnedBoars;
-static std::unordered_map<std::int32_t, std::int32_t> boarBlips;
-
+CHAOS_VAR auto constexpr maxBoars      = 5;
+CHAOS_VAR auto constexpr spawnRadius   = 20.0f;
+CHAOS_VAR auto constexpr maxDistance   = 50.0f;
+CHAOS_VAR auto constexpr boarDamage    = 10;
+CHAOS_VAR auto constexpr damageCooldownMs = 500;
+CHAOS_VAR std::vector<Ped> spawnedBoars;
+CHAOS_VAR std::unordered_map<int, int> boarBlips;
 
 static Vector3 GetRandomSpawnLocation(const Vector3 &playerCoords)
 {
@@ -46,14 +44,14 @@ static Vector3 GetRandomSpawnLocation(const Vector3 &playerCoords)
     return spawnCoords;
 }
 
-static void MakeBoarCharge(const ::int32_t boar)
+static void MakeBoarCharge(const Ped boar)
 {
     auto const player = PLAYER_PED_ID();
     auto const playerCoords = GET_ENTITY_COORDS(player, true);
     TASK_GO_STRAIGHT_TO_COORD(boar, playerCoords.x, playerCoords.y, playerCoords.z, 6.0f, -1, 0.0f, 0.0f);
 }
 
-static void ApplyBoarDamage(const std::int32_t boar)
+static void ApplyBoarDamage(const Ped boar)
 {
     auto const player = PLAYER_PED_ID();
     auto const playerCoords = GET_ENTITY_COORDS(player, true);
@@ -66,7 +64,7 @@ static void ApplyBoarDamage(const std::int32_t boar)
         WAIT(damageCooldownMs);
     }
 }
-static void RemoveBoar(const std::int32_t boar)
+static void RemoveBoar(const Ped boar)
 {
 	if (boarBlips.count(boar))
 	{
@@ -101,7 +99,7 @@ static void ManageBoars()
     auto const player = PLAYER_PED_ID();
     auto const playerCoords = GET_ENTITY_COORDS(player, true);
 
-    spawnedBoars.erase(std::remove_if(spawnedBoars.begin(), spawnedBoars.end(), [&](std::int32_t boar) {
+    spawnedBoars.erase(std::remove_if(spawnedBoars.begin(), spawnedBoars.end(), [&](Ped boar) {
 		auto const boarCoords = GET_ENTITY_COORDS(boar, true);
 		auto const distance   = GET_DISTANCE_BETWEEN_COORDS(
             playerCoords.x, playerCoords.y, playerCoords.z, boarCoords.x,

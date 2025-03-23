@@ -1,40 +1,27 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
-
-static void ped(void (*processor)(std::int32_t))
+static void InvinciblePedsWithNoRagdoll()
 {
-	static constexpr std::int32_t MAX_ENTITIES = 100;
-	std::int32_t peds[MAX_ENTITIES];
-	auto const ped_count = worldGetAllPeds(peds, MAX_ENTITIES);
-
-	for (std::int32_t const i : std::ranges::iota_view { 0, ped_count })
+	for (auto const ped : GetAllPeds())
 	{
-		auto const ped_handle        = peds[i];
-
-		auto const does_entity_exist = DOES_ENTITY_EXIST(ped_handle);
-		if (!does_entity_exist)
-			continue;
-
-		processor(ped_handle);
+		auto const player = PLAYER_PED_ID();
+		if (ped == player)
+			return;
+		SET_ENTITY_INVINCIBLE(ped, true);
+		SET_PED_CAN_RAGDOLL(ped, false);
 	}
 }
 
-static void InvinciblePedsWithNoRagdoll(std::int32_t ped)
+static void ResetInvinciblePedsWithNoRagdoll()
 {
-	auto const player = PLAYER_PED_ID();
-	if (ped == player)
-		return;
-	SET_ENTITY_INVINCIBLE(ped, true);
-	SET_PED_CAN_RAGDOLL(ped, false);
-}
-
-static void ResetInvinciblePedsWithNoRagdoll(std::int32_t ped)
-{
-	auto const player = PLAYER_PED_ID();
-	if (ped == player)
-		return;
-	SET_ENTITY_INVINCIBLE(ped, false);
-	SET_PED_CAN_RAGDOLL(ped, true);
+	for (auto const ped : GetAllPeds())
+	{
+		auto const player = PLAYER_PED_ID();
+		if (ped == player)
+			return;
+		SET_ENTITY_INVINCIBLE(ped, false);
+		SET_PED_CAN_RAGDOLL(ped, true);
+	}
 }
 
 static void OnStart()
@@ -43,7 +30,7 @@ static void OnStart()
 
 static void OnStop()
 {
-	ped(ResetInvinciblePedsWithNoRagdoll);
+	ResetInvinciblePedsWithNoRagdoll();
 }
 
 static void OnTick()
@@ -63,7 +50,7 @@ static void OnTick()
 
 	SKIP_TO_NEXT_SCRIPTED_CONVERSATION_LINE();
 
-	ped(InvinciblePedsWithNoRagdoll);
+	InvinciblePedsWithNoRagdoll();
 }
 
 // clang-format off

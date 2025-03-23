@@ -2,13 +2,13 @@
 #include <stdafx.h>
 #include "Util/HelpText.h"
 
-static std::vector<std::int32_t> recruitedPeds;
-static constexpr std::int32_t KEY_E = 0x45;
+CHAOS_VAR std::vector<Entity> recruitedPeds;
+CHAOS_VAR auto constexpr KEY_E = 0x45;
 
-static std::int32_t GetAimedPed()
+static Ped GetAimedPed()
 {
 	auto const player = PLAYER_PED_ID();
-	std::int32_t aimedEntity;
+	Ped aimedEntity;
 	auto const isAimingAtEntity = GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER_ID(), &aimedEntity);
 	auto const isPed            = IS_ENTITY_A_PED(aimedEntity);
 	auto const isNotInVehicle   = !IS_PED_IN_ANY_VEHICLE(aimedEntity, true);
@@ -27,7 +27,7 @@ static void RecruitPed()
 		if (!ped || alreadyRecruited)
 			return;
 
-				static const std::array<std::uint32_t, 3> weaponList = { GET_HASH_KEY("weapon_pistol"),
+				static const std::array<Hash, 3> weaponList = { GET_HASH_KEY("weapon_pistol"),
 			                                                         GET_HASH_KEY("weapon_smg"),
 			                                                         GET_HASH_KEY("weapon_assaultrifle") };
 

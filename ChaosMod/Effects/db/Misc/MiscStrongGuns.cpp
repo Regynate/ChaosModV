@@ -8,7 +8,7 @@ static bool RequestControlEntity(Entity entity)
 	return NETWORK_HAS_CONTROL_OF_ENTITY(entity);
 }
 
-static void DeleteEntity(std::int32_t entity)
+static void DeleteEntity(Entity entity)
 {
 	if (!RequestControlEntity(entity))
 		return;
@@ -25,7 +25,7 @@ static void OnTick()
 	if (!IS_PED_SHOOTING(player))
 		return;
 
-	std::int32_t entity{};
+	Entity entity{};
 	GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(playerId, &entity);
 
 	if (!DOES_ENTITY_EXIST(entity))

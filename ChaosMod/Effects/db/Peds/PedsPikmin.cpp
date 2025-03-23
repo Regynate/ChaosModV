@@ -1,23 +1,6 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
 
-static void ped(void (*processor)(std::int32_t))
-{
-	static constexpr std::int32_t MAX_ENTITIES = 100;
-	std::int32_t peds[MAX_ENTITIES];
-	auto const pedCount = worldGetAllPeds(peds, MAX_ENTITIES);
-
-	for (auto const i : std::ranges::iota_view { 0, pedCount })
-	{
-		auto const pedHandle = peds[i];
-
-		if (!DOES_ENTITY_EXIST(pedHandle))
-			continue;
-
-		processor(pedHandle);
-	}
-}
-
 static bool RequestControlEntity(const std::uint32_t entity)
 {
 	if (!DOES_ENTITY_EXIST(entity))
@@ -25,7 +8,7 @@ static bool RequestControlEntity(const std::uint32_t entity)
 	return NETWORK_HAS_CONTROL_OF_ENTITY(entity);
 }
 
-static void DeleteEntity(std::int32_t entity)
+static void DeleteEntity(Entity entity)
 {
 	if (!RequestControlEntity(entity))
 		return;
@@ -34,18 +17,7 @@ static void DeleteEntity(std::int32_t entity)
 	DELETE_ENTITY(&entity);
 }
 
-static std::int32_t randomPed {};
-
-static void MakePedFollowPlayer(const std::int32_t ped)
-{
-	auto const player            = PLAYER_PED_ID();
-	auto const behindCoordinates = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(player, -2.0f, -2.0f, 0.0f);
-
-	if (player == ped || !randomPed)
-		return;
-
-	TASK_GO_TO_ENTITY(ped, randomPed, 10000, 2.0f, 100.0f, 0, 0);
-}
+CHAOS_VAR Entity randomPed {};
 
 static void OnStart()
 {
@@ -68,7 +40,16 @@ static void OnStop()
 
 static void OnTick()
 {
-	ped(MakePedFollowPlayer);
+	for (auto const ped : GetAllPeds())
+	{
+		auto const player            = PLAYER_PED_ID();
+		auto const behindCoordinates = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(player, -2.0f, -2.0f, 0.0f);
+
+		if (player == ped || !randomPed)
+			return;
+
+		TASK_GO_TO_ENTITY(ped, randomPed, 10000, 2.0f, 100.0f, 0, 0);
+	}
 	WAIT(2000);
 }
 

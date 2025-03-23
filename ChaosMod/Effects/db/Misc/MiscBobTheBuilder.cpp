@@ -34,14 +34,14 @@ static Vector3 GetCoordsInFront(Vector3 pos, Vector3 rot, float dist)
 	return ret;
 }
 
-static bool RequestControlEntity(std::int32_t entity)
+static bool RequestControlEntity(Entity entity)
 {
 	if (!DOES_ENTITY_EXIST(entity))
 		return false;
 	return NETWORK_HAS_CONTROL_OF_ENTITY(entity);
 }
 
-static void DeleteEntity(std::int32_t entity)
+static void DeleteEntity(Entity entity)
 {
 	if (!RequestControlEntity(entity))
 		return;
@@ -55,7 +55,7 @@ static const std::array<std::uint32_t, 10> climbableObjects{
 	GET_HASH_KEY("prop_woodpile_04b"), GET_HASH_KEY("prop_cons_ply01"), GET_HASH_KEY("prop_conc_blocks01c"), GET_HASH_KEY("prop_pipes_01b"),
 	GET_HASH_KEY("prop_drywallpile_01"), GET_HASH_KEY("prop_cementbags01")
 };
-static std::vector<std::int32_t> spawnedObjects{};
+CHAOS_VAR std::vector<Entity> spawnedObjects {};
 static void OnStop()
 {
 	if (spawnedObjects.empty())

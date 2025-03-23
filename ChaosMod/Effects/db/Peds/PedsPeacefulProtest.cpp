@@ -1,12 +1,12 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
 
-static std::vector<int> spawnedPeds;
-static std::array<int, 6> protestModels = { GET_HASH_KEY("a_m_m_prolhost_01"), GET_HASH_KEY("a_f_y_hipster_02"),
+CHAOS_VAR std::vector<Ped> spawnedPeds;
+CHAOS_VAR std::array<Hash, 6> protestModels = { GET_HASH_KEY("a_m_m_prolhost_01"), GET_HASH_KEY("a_f_y_hipster_02"),
 	                                        GET_HASH_KEY("a_m_y_business_01"), GET_HASH_KEY("a_m_y_genstreet_01"),
 	                                        GET_HASH_KEY("a_f_y_vinewood_01"), GET_HASH_KEY("a_m_y_hipster_01") };
 
-static std::array<int, 2> signModels    = { GET_HASH_KEY("prop_sign_road_01a"), GET_HASH_KEY("prop_sign_road_02a") };
+CHAOS_VAR std::array<Hash, 2> signModels = { GET_HASH_KEY("prop_sign_road_01a"), GET_HASH_KEY("prop_sign_road_02a") };
 
 static int GetRandomPedModel()
 {
@@ -66,14 +66,6 @@ static void SpawnProtest()
 static void OnStart()
 {
 	SpawnProtest();
-}
-
-static void OnStop()
-{
-}
-
-static void OnTick()
-{
 }
 
 // clang-format off

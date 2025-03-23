@@ -1,14 +1,14 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
 
-static bool RequestControlEntity(std::int32_t entity)
+static bool RequestControlEntity(Entity entity)
 {
 	if (!DOES_ENTITY_EXIST(entity))
 		return false;
 	return NETWORK_HAS_CONTROL_OF_ENTITY(entity);
 }
 
-static void DeleteEntity(std::int32_t entity)
+static void DeleteEntity(Entity entity)
 {
 	if (!RequestControlEntity(entity))
 		return;

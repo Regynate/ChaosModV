@@ -2,12 +2,12 @@
 #include <stdafx.h>
 
 
-static std::vector<Ped> killedPeds;
-static Hash goldenGunHash              = GET_HASH_KEY("weapon_doubleaction");
-static int goldenGunAmmo               = 1;
+CHAOS_VAR std::vector<Ped> killedPeds;
+CHAOS_VAR Hash goldenGunHash = GET_HASH_KEY("weapon_doubleaction");
+CHAOS_VAR int goldenGunAmmo  = 1;
 
-static std::vector<std::pair<Hash, int>> storedWeapons;
-static std::vector<Hash> WEAPON_HASHES = {
+CHAOS_VAR std::vector<std::pair<Hash, int>> storedWeapons;
+CHAOS_VAR std::vector<Hash> WEAPON_HASHES = {
 	0x92A27487, // dagger
 	0x958A4A8F, // bat
 	0xF9E6AA4B, // bottle
@@ -140,24 +140,6 @@ static void RestoreWeapons()
 		GIVE_WEAPON_TO_PED(player, weaponData.first, weaponData.second, false, true);
 }
 
-static void ped(void (*processor)(std::int32_t))
-{
-	static constexpr std::int32_t MAX_ENTITIES = 100;
-	std::int32_t peds[MAX_ENTITIES];
-	auto const ped_count = worldGetAllPeds(peds, MAX_ENTITIES);
-
-	for (std::int32_t const i : std::ranges::iota_view { 0, ped_count })
-	{
-		auto const ped_handle        = peds[i];
-
-		auto const does_entity_exist = DOES_ENTITY_EXIST(ped_handle);
-		if (!does_entity_exist)
-			continue;
-
-		processor(ped_handle);
-	}
-}
-
 static void OnStart()
 {
 	StoreAndRemoveWeapons();
@@ -169,22 +151,25 @@ static void OnStop()
 	RestoreWeapons();
 }
 
-static void GiveAmmoOnPedKilled(const std::int32_t ped)
+static void GiveAmmoOnPedKilled()
 {
-	auto const player = PLAYER_PED_ID();
-
-	if (IS_PED_DEAD_OR_DYING(ped, false))
+	for (auto const ped : GetAllPeds())
 	{
-		auto const pedSourceOfDeath = GET_PED_SOURCE_OF_DEATH(ped);
-		if (pedSourceOfDeath == player)
-		{
-			auto it = std::find(killedPeds.begin(), killedPeds.end(), ped);
-			if (it == killedPeds.end())
-			{
-				killedPeds.push_back(ped);
+		auto const player = PLAYER_PED_ID();
 
-				goldenGunAmmo;
-				SET_AMMO_IN_CLIP(player, goldenGunHash, goldenGunAmmo);
+		if (IS_PED_DEAD_OR_DYING(ped, false))
+		{
+			auto const pedSourceOfDeath = GET_PED_SOURCE_OF_DEATH(ped);
+			if (pedSourceOfDeath == player)
+			{
+				auto it = std::find(killedPeds.begin(), killedPeds.end(), ped);
+				if (it == killedPeds.end())
+				{
+					killedPeds.push_back(ped);
+
+					goldenGunAmmo;
+					SET_AMMO_IN_CLIP(player, goldenGunHash, goldenGunAmmo);
+				}
 			}
 		}
 	}
@@ -192,7 +177,7 @@ static void GiveAmmoOnPedKilled(const std::int32_t ped)
 
 static void OnTick()
 {
-	ped(GiveAmmoOnPedKilled);	
+	GiveAmmoOnPedKilled();
 }
 
 // clang-format off

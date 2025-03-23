@@ -1,7 +1,7 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
 
-static std::vector<std::uint32_t> spawnedAnimals;
+CHAOS_VAR std::vector<Entity> spawnedAnimals;
 
 static bool RequestControlEntity(Entity entity)
 {
@@ -19,12 +19,12 @@ static void DeleteEntity(Entity entity)
 	DELETE_ENTITY(&entity);
 }
 
-static std::array<std::uint32_t, 4> landAnimals {
-	GET_HASH_KEY("a_c_mtlion"),   GET_HASH_KEY("a_c_rottweiler"), GET_HASH_KEY("a_c_shepherd"),     GET_HASH_KEY("a_c_coyote"),
-};
+CHAOS_VAR std::array<Hash, 4> landAnimals;
 
 static void OnStart()
 {
+	landAnimals = { GET_HASH_KEY("a_c_mtlion"), GET_HASH_KEY("a_c_rottweiler"), GET_HASH_KEY("a_c_shepherd"),
+		            GET_HASH_KEY("a_c_coyote") };
 	spawnedAnimals.clear();
 }
 
@@ -47,13 +47,13 @@ static void OnTick()
 	if (impactCoordinates.x == 0 && impactCoordinates.y == 0 && impactCoordinates.z == 0)
 		return;
 
-	auto constexpr maxIndex = landAnimals.size();
+	auto constexpr maxIndex = 4; 
 	auto const randomIndex  = GET_RANDOM_INT_IN_RANGE(0, maxIndex);
 	auto const modelHash    = landAnimals[randomIndex];
 	LoadModel(modelHash);
 
 	auto const hostileAnimal =
-	    CREATE_PED(28, modelHash, impactCoordinates.x, impactCoordinates.y, impactCoordinates.z, 0, false, false);
+	    CreatePoolPed(28, modelHash, impactCoordinates.x, impactCoordinates.y, impactCoordinates.z, 0.f);
 	spawnedAnimals.push_back(hostileAnimal);
 
 	WAIT(200);

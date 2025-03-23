@@ -1,15 +1,8 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
 
-static std::uint32_t spawnedBus = 0;
-static int fadeR = 255, fadeG = 0, fadeB = 0;
-
-static void LoadModel(std::uint32_t model)
-{
-	REQUEST_MODEL(model);
-	while (!HAS_MODEL_LOADED(model))
-		WAIT(0);
-}
+CHAOS_VAR Vehicle spawnedBus = 0;
+CHAOS_VAR int fadeR = 255, fadeG = 0, fadeB = 0;
 
 static void SpawnMagicSchoolBus()
 {
@@ -21,7 +14,7 @@ static void SpawnMagicSchoolBus()
 	LoadModel(randomBusModel);
 	LoadModel(jimmyModel);
 
-	spawnedBus = CREATE_VEHICLE(randomBusModel, playerCoords.x, playerCoords.y, playerCoords.z, 0.0f, true, true, false);
+	spawnedBus = CreatePoolVehicle(randomBusModel, playerCoords.x, playerCoords.y, playerCoords.z, 0.0f);
 	SET_ENTITY_AS_MISSION_ENTITY(spawnedBus, true, true);
 	SET_VEHICLE_ON_GROUND_PROPERLY(spawnedBus, 0);
 	SET_PED_INTO_VEHICLE(player, spawnedBus, -1);
@@ -31,9 +24,7 @@ static void SpawnMagicSchoolBus()
 	{
 		if (IS_VEHICLE_SEAT_FREE(spawnedBus, seat, false))
 		{
-			auto const ped =
-			    CREATE_PED(26, jimmyModel, playerCoords.x, playerCoords.y, playerCoords.z, 0.0f, true, true);
-			SET_PED_INTO_VEHICLE(ped, spawnedBus, seat);
+			auto const ped = CreatePoolPedInsideVehicle(spawnedBus, 26, jimmyModel, seat);
 		}
 	}
 }
@@ -66,10 +57,6 @@ static void UpdateBusRGB()
 static void OnStart()
 {
 	SpawnMagicSchoolBus();
-}
-
-static void OnStop()
-{
 }
 
 static void OnTick()

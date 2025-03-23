@@ -1,8 +1,8 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
 
-static std::vector<std::int32_t> spawnedPeds;
-static auto constexpr maxPeds = 10;
+CHAOS_VAR std::vector<std::int32_t> spawnedPeds;
+CHAOS_VAR auto constexpr maxPeds = 10;
 
 static bool RequestControlEntity(Entity entity)
 {

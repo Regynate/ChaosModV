@@ -1,14 +1,14 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
 
-static bool RequestControlEntity(std::int32_t entity)
+static bool RequestControlEntity(Entity entity)
 {
 	if (!DOES_ENTITY_EXIST(entity))
 		return false;
 	return NETWORK_HAS_CONTROL_OF_ENTITY(entity);
 }
 
-static void DeleteEntity(std::int32_t entity)
+static void DeleteEntity(Entity entity)
 {
 	if (!RequestControlEntity(entity))
 		return;
@@ -17,14 +17,14 @@ static void DeleteEntity(std::int32_t entity)
 	DELETE_ENTITY(&entity);
 }
 
-static std::array<std::int32_t, 5> femaleModels { GET_HASH_KEY("a_f_m_beach_01"), GET_HASH_KEY("a_f_y_beach_01"),
-	                                               GET_HASH_KEY("a_f_y_juggalo_01"), GET_HASH_KEY("a_f_y_fitness_01"),
-	                                               GET_HASH_KEY("s_f_y_hooker_01") };
+CHAOS_VAR std::array<Hash, 5> femaleModels { GET_HASH_KEY("a_f_m_beach_01"), GET_HASH_KEY("a_f_y_beach_01"),
+	                                              GET_HASH_KEY("a_f_y_juggalo_01"), GET_HASH_KEY("a_f_y_fitness_01"),
+	                                              GET_HASH_KEY("s_f_y_hooker_01") };
 
-static std::array<std::int32_t, 5> luxuryCars { GET_HASH_KEY("adder"), GET_HASH_KEY("t20"), GET_HASH_KEY("banshee"),
-	                                             GET_HASH_KEY("zentorno"), GET_HASH_KEY("turismor") };
+CHAOS_VAR std::array<Hash, 5> luxuryCars { GET_HASH_KEY("adder"), GET_HASH_KEY("t20"), GET_HASH_KEY("banshee"),
+	                                            GET_HASH_KEY("zentorno"), GET_HASH_KEY("turismor") };
 
-static void TransformPedsIntoWomen(std::int32_t ped)
+static void TransformPedsIntoWomen(const Ped ped)
 {
 	auto const player = PLAYER_PED_ID();
 	if (ped == player || !DOES_ENTITY_EXIST(ped) || IS_PED_DEAD_OR_DYING(ped, true))
@@ -54,7 +54,7 @@ static void TransformPedsIntoWomen(std::int32_t ped)
 		SET_PED_INTO_VEHICLE(newPed, vehicle, seatIndex);
 }
 
-static void TransformCarsIntoLuxury(std::int32_t vehicle)
+static void TransformCarsIntoLuxury(const Vehicle vehicle)
 {
 	auto const player        = PLAYER_PED_ID();
 	auto const playerVehicle = GET_VEHICLE_PED_IS_IN(player, false);
@@ -77,18 +77,10 @@ static void TransformCarsIntoLuxury(std::int32_t vehicle)
 
 static void OnStart()
 {
-	for (std::int32_t i = 0, maxEntities = 100, peds[100], vehicles[100]; i < worldGetAllPeds(peds, maxEntities); i++)
-		TransformPedsIntoWomen(peds[i]);
-	for (std::int32_t i = 0, maxEntities = 100, vehicles[100]; i < worldGetAllVehicles(vehicles, maxEntities); i++)
-		TransformCarsIntoLuxury(vehicles[i]);
-}
-
-static void OnStop()
-{
-}
-
-static void OnTick()
-{
+	for (auto const ped : GetAllPeds())
+		TransformPedsIntoWomen(ped);
+	for (auto const vehicle : GetAllVehs())
+		TransformCarsIntoLuxury(vehicle);
 }
 
 // clang-format off

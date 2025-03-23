@@ -1,30 +1,13 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
 
-static void ped(void (*processor)(const std::int32_t))
-{
-	static constexpr std::int32_t MAX_ENTITIES = 100;
-	std::int32_t peds[MAX_ENTITIES];
-	auto const pedCount = worldGetAllPeds(peds, MAX_ENTITIES);
+CHAOS_VAR int cinematicCamera             = 0;
+CHAOS_VAR bool isCinematicActive       = false;
+CHAOS_VAR auto constexpr slowMotionFactor = 0.2f;
+CHAOS_VAR auto constexpr triggerChance    = 25;
+CHAOS_VAR std::vector<Ped> processedPeds;
 
-	for (auto const i : std::ranges::iota_view { 0, pedCount })
-	{
-		auto const pedHandle = peds[i];
-
-		if (!DOES_ENTITY_EXIST(pedHandle))
-			continue;
-
-		processor(pedHandle);
-	}
-}
-
-static int cinematicCamera             = 0;
-static bool isCinematicActive          = false;
-static auto constexpr slowMotionFactor = 0.2f;
-static auto constexpr triggerChance    = 25;
-static std::vector<std::int32_t> processedPeds;
-
-static void StartCinematicKill(const std::int32_t ped)
+static void StartCinematicKill(const Ped ped)
 {
 	if (isCinematicActive)
 		return;
@@ -40,7 +23,7 @@ static void StartCinematicKill(const std::int32_t ped)
 
 	auto const pedCoords = GET_ENTITY_COORDS(ped, true);
 
-	cinematicCamera      = CREATE_CAM(const_cast<char *>("DEFAULT_SCRIPTED_CAMERA"), true);
+	cinematicCamera      = CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", true);
 	SET_CAM_COORD(cinematicCamera, pedCoords.x, pedCoords.y, pedCoords.z + 1.0f);
 	POINT_CAM_AT_ENTITY(cinematicCamera, ped, 0.0f, 0.0f, 0.0f, false);
 	SET_CAM_ACTIVE(cinematicCamera, true);
@@ -79,26 +62,29 @@ static void OnStop()
 	processedPeds.clear();
 }
 
-static void PedsDiedToPlayer(const std::int32_t ped)
+static void PedsDiedToPlayer()
 {
-	auto const isEntityDead        = IS_PED_DEAD_OR_DYING(ped, false);
-	auto const hasPlayerDamagedPed = HAS_PLAYER_DAMAGED_AT_LEAST_ONE_PED(PLAYER_ID());
+	for (auto const ped : GetAllPeds())
+	{
+		auto const isEntityDead        = IS_PED_DEAD_OR_DYING(ped, false);
+		auto const hasPlayerDamagedPed = HAS_PLAYER_DAMAGED_AT_LEAST_ONE_PED(PLAYER_ID());
 
-	if (!isEntityDead || !hasPlayerDamagedPed)
-		return;
-	auto const player        = PLAYER::PLAYER_PED_ID();
-	auto const sourceOfDeath = GET_PED_SOURCE_OF_DEATH(ped);
-	if (sourceOfDeath != player)
-		return;
+		if (!isEntityDead || !hasPlayerDamagedPed)
+			return;
+		auto const player        = PLAYER::PLAYER_PED_ID();
+		auto const sourceOfDeath = GET_PED_SOURCE_OF_DEATH(ped);
+		if (sourceOfDeath != player)
+			return;
 
-	StartCinematicKill(ped);
+		StartCinematicKill(ped);
+	}
 }
 static void OnTick()
 {
 	if (isCinematicActive)
 		return;
 
-	ped(PedsDiedToPlayer);
+	PedsDiedToPlayer();
 }
 
 // clang-format off

@@ -26,6 +26,7 @@
 #include "Util/OptionsManager.h"
 #include "Util/PoolSpawner.h"
 #include "Util/Text.h"
+#include "Util/Vehicle.h"
 
 #define FORCE_LEGACY_SOUND_MANAGER 1
 
@@ -256,6 +257,8 @@ static void MainRun()
 	while (true)
 	{
 		WAIT(0);
+
+		GetLastVehicleEntryCoords();
 
 		// This will run regardless if mod is disabled
 		if (ms_Flags.RunAntiSoftlock)

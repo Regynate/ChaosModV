@@ -127,6 +127,7 @@ class EffectDispatcher : public Component
 	void DispatchRandomEffect(DispatchEffectFlags dispatchEffectFlags = DispatchEffectFlag_None,
 	                          const std::string &suffix               = {});
 
+
 	void UpdateEffects(float deltaTime);
 	void UpdateMetaEffects(float deltaTime);
 

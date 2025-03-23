@@ -1,7 +1,6 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
-// TO-DO: MAKE PEDS GO INTO DRIVERS SEAT OF NEWLY SPAWNED MOTORCYCLES
-
+#include "Util/Vehicle.h"
 
 static bool RequestControlEntity(Entity entity)
 {
@@ -11,7 +10,7 @@ static bool RequestControlEntity(Entity entity)
 	return NETWORK_HAS_CONTROL_OF_ENTITY(entity);
 }
 
-static void DeleteEntity(std::int32_t entity)
+static void DeleteEntity(Entity entity)
 {
 	if (RequestControlEntity(entity))
 	{
@@ -33,10 +32,10 @@ static void OnStart()
 		auto const distanceToVehicle = GET_DISTANCE_BETWEEN_COORDS(coords.x, coords.y, coords.z, vehicleCoords.x,
 		                                                           vehicleCoords.y, vehicleCoords.z, false);
 
-		if (distanceToVehicle > 150.f)
+		if (distanceToVehicle > 125.f)
 			continue;
 
-		static std::array<std::int32_t, 6> bikeModels = { GET_HASH_KEY("bati"),    GET_HASH_KEY("hexer"),
+		static std::array<Hash, 6> bikeModels = { GET_HASH_KEY("bati"),    GET_HASH_KEY("hexer"),
 			                                              GET_HASH_KEY("daemon"),  GET_HASH_KEY("hakuchou"),
 			                                              GET_HASH_KEY("zombiea"), GET_HASH_KEY("sovereign") };
 
@@ -44,30 +43,8 @@ static void OnStart()
 		auto const randomBikeModel                    = GET_RANDOM_INT_IN_RANGE(0, max);
 		auto const selectedModel                      = bikeModels[randomBikeModel];
 
-		LoadModel(selectedModel);
-
-		auto const vehicleHeading = GET_ENTITY_HEADING(vehicle);
-
-		auto const driver         = GET_PED_IN_VEHICLE_SEAT(vehicle, -1, 0);
-		auto const driverCoords   = GET_ENTITY_COORDS(driver, false);
-
-		SET_ENTITY_COORDS(driver, driverCoords.x, driverCoords.y, driverCoords.z + 10, false, false, false, false);
-
-		DeleteEntity(vehicle);
-
-		auto const bike =
-		    CreatePoolVehicle(selectedModel, vehicleCoords.x, vehicleCoords.y, vehicleCoords.z, vehicleHeading);
-
-		SET_PED_INTO_VEHICLE(driver, bike, -1);
+		auto const bike = ReplaceVehicleWithModel(vehicle, selectedModel, true);
 	}
-}
-
-static void OnTick()
-{
-}
-
-static void OnStop()
-{
 }
 
 // clang-format off

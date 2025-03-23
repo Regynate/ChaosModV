@@ -23,7 +23,7 @@ static Vector3 GetAimingCoords()
 	BOOL hit {};
 	Vector3 coords {};
 	Vector3 surface {};
-	std::int32_t entity {};
+	Entity entity {};
 
 	GET_SHAPE_TEST_RESULT(raycast, &hit, &coords, &surface, &entity);
 

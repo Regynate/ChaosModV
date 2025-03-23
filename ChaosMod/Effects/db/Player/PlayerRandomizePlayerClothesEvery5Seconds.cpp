@@ -1,16 +1,16 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
 
-static std::vector<std::int32_t> originalClothes;
+CHAOS_VAR std::vector<Ped> originalClothes;
 
-static void SaveOriginalClothes(const std::int32_t player)
+static void SaveOriginalClothes(const Ped player)
 {
 	originalClothes.clear();
 	for (int i = 0; i <= 11; i++)
 		originalClothes.push_back(GET_PED_DRAWABLE_VARIATION(player, i));
 }
 
-static void RestoreOriginalClothes(const std::int32_t player)
+static void RestoreOriginalClothes(const Ped player)
 {
 	if (originalClothes.empty())
 		return;
@@ -18,7 +18,7 @@ static void RestoreOriginalClothes(const std::int32_t player)
 		SET_PED_COMPONENT_VARIATION(player, i, originalClothes[i], 0, 0);
 }
 
-static void RandomizePlayerClothes(const std::int32_t player)
+static void RandomizePlayerClothes(const Ped player)
 {
 	for (int i = 0; i <= 11; i++)
 	{
