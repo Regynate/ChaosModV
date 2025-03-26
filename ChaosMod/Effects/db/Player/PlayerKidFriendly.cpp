@@ -57,7 +57,7 @@ static void OnTick()
 REGISTER_EFFECT(nullptr, OnStop, OnTick, 
     {
         .Name = "Kid Friendly", 
-        .Id = "kid_friendly", 
+        .Id = "player_kid_friendly", 
         .IsTimed = true
     }
 );

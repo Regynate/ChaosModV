@@ -1,5 +1,5 @@
-#include <stdafx.h>
 #include "Effects/Register/RegisterEffect.h"
+#include <stdafx.h>
 
 static void OnTick()
 {
@@ -19,21 +19,20 @@ static void OnTick()
 		if (!driverExists)
 			continue;
 
-		if (driver == player)
+		auto const playersVehicle = GET_VEHICLE_PED_IS_IN(player, false);
+		if (vehicle == playersVehicle)
 			continue;
 
 		if (distanceToPlayer < 70.f)
 		{
-			auto const model            = GET_ENTITY_MODEL(vehicle);
-			auto const myVehicle        = GET_VEHICLE_PED_IS_IN(player, false);
-		
+			auto const model = GET_ENTITY_MODEL(vehicle);
+
 			TASK_VEHICLE_MISSION(driver, vehicle, myVehicle, 22, 10.f, 1074528293, 10.f, -1.f, true);
 			SET_VEHICLE_FORWARD_SPEED(vehicle, speed * 0.99);
 			WAIT(10);
 		}
 	}
 }
-
 
 // clang-format off
 REGISTER_EFFECT(nullptr, nullptr, OnTick,
