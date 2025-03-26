@@ -19,18 +19,6 @@ static void DeleteEntity(Entity entity)
 
 CHAOS_VAR auto constexpr degreesToRadians = 0.0174532924f;
 
-static Vector3 AddVector(Vector3 vector_a, Vector3 vector_b)
-{
-	Vector3 result;
-	result.x = vector_a.x;
-	result.y = vector_a.y;
-	result.z = vector_a.z;
-	result.x += vector_b.x;
-	result.y += vector_b.y;
-	result.z += vector_b.z;
-	return result;
-}
-
 static Vector3 multiplyVector(Vector3 vector, float x)
 {
 	Vector3 result;
@@ -61,17 +49,17 @@ static Vector3 RotationToDirection(Vector3 rot)
 
 static void DrawLine()
 {
-auto const player             = PLAYER_PED_ID();
+	auto const player             = PLAYER_PED_ID();
 	auto const playerCoords       = GET_ENTITY_COORDS(player, false);
 
 	auto const rotation           = GET_GAMEPLAY_CAM_ROT(0);
 	auto const direction          = RotationToDirection(rotation);
-	auto const startPosition      = AddVector(GET_GAMEPLAY_CAM_COORD(), multiplyVector(direction, 1.f));
-	auto const endPosition        = AddVector(GET_GAMEPLAY_CAM_COORD(), multiplyVector(direction, 9999.f));
+	auto const startPosition      = GET_GAMEPLAY_CAM_COORD() + multiplyVector(direction, 1.f);
+	auto const endPosition        = GET_GAMEPLAY_CAM_COORD() + multiplyVector(direction, 9999.f);
+	
+	auto const playerEyeCoords = GET_PED_BONE_COORDS(player, 0x796e, 0, 0, 0);
 
-	auto const player_head_coords = PED::GET_PED_BONE_COORDS(player, 0x796e, 0, 0, 0);
-
-	DRAW_LINE(player_head_coords.x, player_head_coords.y, player_head_coords.z, endPosition.x, endPosition.y,
+	DRAW_LINE(playerEyeCoords.x, playerEyeCoords.y, playerEyeCoords.z, endPosition.x, endPosition.y,
 	          endPosition.z, 255, 0, 0, 200);
 }
 
@@ -121,9 +109,7 @@ static void DeleteHitEntity()
 	GET_SHAPE_TEST_RESULT(raycast, &hit, &hitCoords, &surface, &hitEntity);
 	
 	if (aimingCoords.x == 0 && aimingCoords.y == 0 && aimingCoords.z == 0)
-	{
 		return;
-	}
 
 	DeleteEntity(hitEntity);
 	SET_ENTITY_COORDS(hitEntity, 0, 0, 0, false, false, false, true);

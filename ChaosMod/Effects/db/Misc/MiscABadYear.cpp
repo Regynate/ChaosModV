@@ -10,15 +10,15 @@ static void ShootGrenadesOnDeath()
 	for (auto const ped : GetAllPeds())
 	{
 		if (!DOES_ENTITY_EXIST(ped) || !IS_PED_DEAD_OR_DYING(ped, false))
-			return;
+			continue;
 
 		if (processedPeds.contains(ped))
-			return;
+			continue;
 
 		processedPeds.insert(ped);
 		auto const pedCoords   = GET_ENTITY_COORDS(ped, true);
 		auto const grenadeHash = GET_HASH_KEY("weapon_grenade");
-
+		
 		for (auto i = 0; i < grenadeCount; i++)
 		{
 			auto const offsetX  = GET_RANDOM_FLOAT_IN_RANGE(-0.5f, 0.5f);

@@ -46,7 +46,7 @@ static void OnTick()
 		auto const behindCoordinates = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(player, -2.0f, -2.0f, 0.0f);
 
 		if (player == ped || !randomPed)
-			return;
+			continue;
 
 		TASK_GO_TO_ENTITY(ped, randomPed, 10000, 2.0f, 100.0f, 0, 0);
 	}

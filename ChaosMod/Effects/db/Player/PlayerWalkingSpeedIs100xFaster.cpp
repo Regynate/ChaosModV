@@ -14,7 +14,7 @@ static void OnTick()
 // clang-format off
 REGISTER_EFFECT(nullptr, nullptr, OnTick, 
     {
-        .Name = "x100 Walk Speed",
+        .Name = "Slide Walk",
         .Id = "player_walking_speed_100x", 
         .IsTimed = true
     }

@@ -59,7 +59,7 @@ class Voting : public Component
 	bool m_AlternatedVotingRound                       = false;
 
 	VotingMode m_VotingMode                            = VotingMode::Majority;
-	bool EnableVotingChanceSystemRetainInitialChance = true;
+	bool m_EnableVotingChanceSystemRetainInitialChance = true;
 	bool m_EnableRandomEffectVoteable                  = true;
 
 	bool m_IsVotingRunning                             = false;
@@ -85,7 +85,7 @@ class Voting : public Component
 	void SendToPipe(std::string_view identifier, std::vector<std::string> params = {});
 	void ErrorOutWithMsg(std::string_view message);
 
-	bool EnableVoting = false;
+	bool m_EnableVoting = false;
 
 	virtual void OnModPauseCleanup() override;
 	virtual void OnRun() override;

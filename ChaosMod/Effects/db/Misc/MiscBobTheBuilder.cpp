@@ -1,6 +1,6 @@
 #include <stdafx.h>
 #include "Effects/Register/RegisterEffect.h"
-
+#include "Util/HelpText.h"
 
 static float DegreeToRadian(float deg)
 {
@@ -71,6 +71,8 @@ static void OnStop()
 
 static void OnTick()
 {
+	DisplayHelpText("Press: H");
+
 	auto constexpr KEY_H = 0x48;
 	if (GetAsyncKeyState(KEY_H))
 	{
@@ -97,7 +99,7 @@ static void OnTick()
 // clang-format off
 REGISTER_EFFECT(nullptr, OnStop, OnTick, 
 	{
-		.Name = "Bob The Builder (Press H)",
+		.Name = "Bob The Builder",
 		.Id = "player_bob_the_builder",
 		.IsTimed = true,
 	}

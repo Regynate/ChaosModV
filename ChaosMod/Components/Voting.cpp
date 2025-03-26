@@ -18,7 +18,7 @@
 
 Voting::Voting(const std::array<BYTE, 3> &textColor) : Component(), m_TextColor(textColor)
 {
-	EnableVoting =
+	m_EnableVoting =
 	    g_OptionsManager.GetVotingValue({ "EnableVoting", "EnableTwitchVoting" }, OPTION_DEFAULT_TWITCH_VOTING_ENABLED);
 	m_VoteablePrefix = g_OptionsManager.GetVotingValue<std::string>({ "VoteablePrefix" }, "");
 }
@@ -54,7 +54,7 @@ bool Voting::Init()
 	                                                     OPTION_DEFAULT_TWITCH_PROPORTIONAL_VOTING)
 	                       ? VotingMode::Percentage
 	                       : VotingMode::Majority;
-	EnableVotingChanceSystemRetainInitialChance =
+	m_EnableVotingChanceSystemRetainInitialChance =
 	    g_OptionsManager.GetVotingValue({ "VotingChanceSystemRetainChance", "TwitchVotingChanceSystemRetainChance" },
 	                                    OPTION_DEFAULT_TWITCH_PROPORTIONAL_VOTING_RETAIN_CHANCE);
 
@@ -91,7 +91,7 @@ bool Voting::Init()
 
 bool Voting::IsEnabled() const
 {
-	return EnableVoting;
+	return m_EnableVoting;
 }
 
 VotingMode Voting::GetVotingMode() const
@@ -218,7 +218,7 @@ void Voting::ErrorOutWithMsg(std::string_view message)
 	if (ComponentExists<EffectDispatchTimer>())
 		GetComponent<EffectDispatchTimer>()->SetShouldDispatchEffects(true);
 
-	EnableVoting = false;
+	m_EnableVoting = false;
 }
 
 void Voting::OnModPauseCleanup()
@@ -235,7 +235,7 @@ void Voting::OnModPauseCleanup()
 
 void Voting::OnRun()
 {
-	if (!EnableVoting || !ComponentExists<EffectDispatcher>() || !ComponentExists<EffectDispatchTimer>())
+	if (!m_EnableVoting || !ComponentExists<EffectDispatcher>() || !ComponentExists<EffectDispatchTimer>())
 		return;
 
 	if (!m_HasInitializedVoting)
@@ -265,7 +265,7 @@ void Voting::OnRun()
 
 		ConnectNamedPipe(m_PipeHandle, NULL);
 
-		if (EnableVoting)
+		if (m_EnableVoting)
 		{
 			if ((m_OverlayMode == OverlayMode::OverlayIngame || m_OverlayMode == OverlayMode::OverlayOBS)
 			    && ComponentExists<EffectDispatcher>())
@@ -457,7 +457,7 @@ void Voting::OnRun()
 			for (const auto &choosableEffect : m_EffectChoices)
 			{
 				int chanceVotes =
-				    choosableEffect->ChanceVotes + (EnableVotingChanceSystemRetainInitialChance ? 1 : 0);
+				    choosableEffect->ChanceVotes + (m_EnableVotingChanceSystemRetainInitialChance ? 1 : 0);
 
 				totalVotes += chanceVotes;
 			}
@@ -480,7 +480,7 @@ void Voting::OnRun()
 				else
 				{
 					int chanceVotes =
-					    choosableEffect->ChanceVotes + (EnableVotingChanceSystemRetainInitialChance ? 1 : 0);
+					    choosableEffect->ChanceVotes + (m_EnableVotingChanceSystemRetainInitialChance ? 1 : 0);
 
 					percentage =
 					    !chanceVotes

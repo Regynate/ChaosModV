@@ -9,7 +9,7 @@ static void OnStart()
 	auto const coords = GET_ENTITY_COORDS(player, false);
 	auto const SKEL_L_Foot = 14201;
 	auto const footCoords  = GET_PED_BONE_COORDS(player, SKEL_L_Foot, 0, 0, 0);
-	feetCam           = CREATE_CAM((char *)"DEFAULT_SCRIPTED_CAMERA", true);
+	feetCam           = CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", true);
 	SET_CAM_COORD(feetCam, footCoords.x, footCoords.y, footCoords.z);
 	SET_CAM_ROT(feetCam, 0.0f, 0.0f, GET_ENTITY_HEADING(player), 2);
 	RENDER_SCRIPT_CAMS(true, false, 0, true, true, 0);
@@ -20,10 +20,12 @@ static void OnTick()
 	auto const player = PLAYER_PED_ID();
 	auto const coords = GET_ENTITY_COORDS(player, false);
 	auto const SKEL_L_Foot = 14201;
-	auto const footCoords  = GET_PED_BONE_COORDS(player, SKEL_L_Foot, 0, 0, 0);
-	if (feetCam != 0)
+	auto footCoords  = GET_PED_BONE_COORDS(player, SKEL_L_Foot, 0, 0, 0);
+	auto const inVehicle   = IS_PED_IN_ANY_VEHICLE(player, false);
+
+	if (DOES_CAM_EXIST(feetCam))
 	{
-		SET_CAM_COORD(feetCam, footCoords.x, footCoords.y, footCoords.z);
+		SET_CAM_COORD(feetCam, footCoords.x, footCoords.y, footCoords.z + 0.05f);
 		SET_CAM_ROT(feetCam, 0.0f, 0.0f, GET_ENTITY_HEADING(player), 2);
 	}
 }

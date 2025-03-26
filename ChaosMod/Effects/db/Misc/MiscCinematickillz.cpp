@@ -1,19 +1,14 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
 
-CHAOS_VAR int cinematicCamera             = 0;
-CHAOS_VAR bool isCinematicActive       = false;
+CHAOS_VAR int cinematicCamera   = 0;
+CHAOS_VAR bool isCinematicActive = false;
 CHAOS_VAR auto constexpr slowMotionFactor = 0.2f;
-CHAOS_VAR auto constexpr triggerChance    = 25;
 CHAOS_VAR std::vector<Ped> processedPeds;
 
 static void StartCinematicKill(const Ped ped)
 {
 	if (isCinematicActive)
-		return;
-
-	auto const randomChance = GET_RANDOM_INT_IN_RANGE(0, 100);
-	if (randomChance > triggerChance)
 		return;
 
 	if (std::ranges::find(processedPeds, ped) != processedPeds.end())
@@ -70,12 +65,11 @@ static void PedsDiedToPlayer()
 		auto const hasPlayerDamagedPed = HAS_PLAYER_DAMAGED_AT_LEAST_ONE_PED(PLAYER_ID());
 
 		if (!isEntityDead || !hasPlayerDamagedPed)
-			return;
-		auto const player        = PLAYER::PLAYER_PED_ID();
+			continue;
+		auto const player        = PLAYER_PED_ID();
 		auto const sourceOfDeath = GET_PED_SOURCE_OF_DEATH(ped);
 		if (sourceOfDeath != player)
-			return;
-
+			continue;
 		StartCinematicKill(ped);
 	}
 }

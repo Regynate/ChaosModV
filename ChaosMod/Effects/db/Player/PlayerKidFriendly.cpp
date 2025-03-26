@@ -6,7 +6,7 @@ static void InvinciblePedsWithNoRagdoll()
 	{
 		auto const player = PLAYER_PED_ID();
 		if (ped == player)
-			return;
+			continue;
 		SET_ENTITY_INVINCIBLE(ped, true);
 		SET_PED_CAN_RAGDOLL(ped, false);
 	}
@@ -18,7 +18,7 @@ static void ResetInvinciblePedsWithNoRagdoll()
 	{
 		auto const player = PLAYER_PED_ID();
 		if (ped == player)
-			return;
+			continue;
 		SET_ENTITY_INVINCIBLE(ped, false);
 		SET_PED_CAN_RAGDOLL(ped, true);
 	}

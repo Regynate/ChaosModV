@@ -101,7 +101,6 @@ static void SpawnHuntingEntities()
 
 	blip = ADD_BLIP_FOR_ENTITY(targetEntity);
 	SET_BLIP_COLOUR(blip, 1);
-	DisplayHelpText("Hunt down and kill the dear in 25 seconds... or else", 10);
 	BEGIN_TEXT_COMMAND_SET_BLIP_NAME("STRING");
 	BEGIN_TEXT_COMMAND_SCALEFORM_STRING("Hunting Target");
 	END_TEXT_COMMAND_SET_BLIP_NAME(blip);
@@ -134,12 +133,17 @@ static void OnTick()
 {
 	if (effectCompleted)
 		return;
+
+	auto const remainingTime = countdownTimeMs / 1000;
+
+	DisplayHelpText(std::format("Hunt down and kill the dear in {} seconds... or else", remainingTime));
+
 	auto const player = PLAYER_PED_ID();
 	if (!DOES_ENTITY_EXIST(targetEntity) || IS_PED_DEAD_OR_DYING(targetEntity, false))
 	{
 		effectCompleted = true;
 		GivePlayerMoney(1000);
-		DisplayHelpText("Congratulations! Here's $1000", 5);
+		DisplayHelpText("Congratulations! Here's $1000");
 		PLAY_SOUND_FRONTEND(-1, "PROPERTY_PURCHASE", "HUD_AWARDS", false);
 		REMOVE_BLIP(&blip);
 		return;

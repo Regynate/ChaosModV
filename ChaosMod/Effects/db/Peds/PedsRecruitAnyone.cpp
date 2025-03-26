@@ -68,7 +68,7 @@ static void OnStop()
 
 static void OnTick()
 {
-	DisplayHelpText("Recruit: Aim at a ped and press 'E'", 20);
+	DisplayHelpText("Recruit: Aim at a ped and press 'E'");
 	RecruitPed();
 }
 

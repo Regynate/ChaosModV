@@ -28,7 +28,7 @@ static void PedsShootSnowballs()
 	for (auto const ped : GetAllPeds())
 	{
 		if (!IS_PED_SHOOTING(ped))
-			return;
+			continue;
 
 		auto const snowballHash   = GET_HASH_KEY("weapon_snowball");
 		auto const pedCoordinates = GET_ENTITY_COORDS(ped, false);

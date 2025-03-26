@@ -36,10 +36,6 @@ void OnStart() {
     SET_ENTITY_COLLISION(ramp, true, true);
 }
 
-void OnStop() {}
-
-void OnTick() {}
-
 REGISTER_EFFECT(OnStart, nullptr, nullptr, 
     {
         .Name = "Attach Ramp to Current Vehicle",

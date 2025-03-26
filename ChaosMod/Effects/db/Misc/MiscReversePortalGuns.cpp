@@ -35,7 +35,7 @@ static void OnTick()
 		Vector3 impactCoords{};
 		GET_PED_LAST_WEAPON_IMPACT_COORD(player, &impactCoords);
 
-		if (impactCoords.x == 0, impactCoords.y == 0, impactCoords.z == 0)
+		if (impactCoords.x == 0 && impactCoords.y == 0 && impactCoords.z == 0)
 			return;
 
 		SET_ENTITY_COORDS(player, impactCoords.x, impactCoords.y, impactCoords.z, false, false, false, false);
@@ -52,7 +52,7 @@ static void OnTick()
 // clang-format off
 REGISTER_EFFECT(nullptr, nullptr, OnTick, 
     {
-        .Name = "Reverse Portal Guns", 
+        .Name = "Get Over Here!", 
         .Id = "misc_reverse_portal_guns", 
         .IsTimed = true
     }

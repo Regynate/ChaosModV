@@ -27,7 +27,7 @@ static void OnStart()
 
 		auto const isDead           = IS_PED_DEAD_OR_DYING(ped, false);
 		if (isDead)
-			return;
+			continue;
 
 		auto const inCombatWithPlayer = IS_PED_IN_COMBAT(ped, player);
 		auto const relation           = GET_RELATIONSHIP_BETWEEN_PEDS(player, ped);

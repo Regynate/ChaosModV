@@ -9,17 +9,17 @@ static void ExplodePlayerOnHeadshot()
 
 		auto const player   = PLAYER_PED_ID();
 		if (player == ped)
-			return;
+			continue;
 
 		auto const sourceOfDeath = GET_PED_SOURCE_OF_DEATH(ped);
 		if (sourceOfDeath != player)
-			return;
+			continue;
 
 		int damagedBone{};
 		GET_PED_LAST_DAMAGE_BONE(ped, &damagedBone);
 
 		if (damagedBone != HEAD)
-			return;
+			continue;
 
 		auto const playerCoords = GET_ENTITY_COORDS(player, false);
 

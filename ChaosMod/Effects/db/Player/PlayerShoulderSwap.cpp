@@ -1,17 +1,17 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
 
-static std::int32_t shoulderCam = 0;
-
-static void OnStart()
-{
-}
+CHAOS_VAR Cam shoulderCam = 0;
 
 static void OnTick()
 {
 	auto const player = PLAYER_PED_ID();
 	auto const coords = GET_ENTITY_COORDS(player, false);
 	auto const aiming = IS_PLAYER_FREE_AIMING(PLAYER_ID());
+
+	auto const inVehicle = IS_PED_IN_ANY_VEHICLE(player, false);
+	if (inVehicle)
+		return;
 
 	if (!aiming)
 	{
@@ -22,7 +22,7 @@ static void OnTick()
 		return;
 	}
 
-	if (shoulderCam == 0)
+	if (!DOES_CAM_EXIST(shoulderCam))
 	{
 		shoulderCam = CREATE_CAM((char *)"DEFAULT_SCRIPTED_CAMERA", true);
 		RENDER_SCRIPT_CAMS(true, true, 250, true, true, 0);
@@ -52,7 +52,7 @@ static void OnStop()
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStart, OnStop, OnTick, 
+REGISTER_EFFECT(nullptr, OnStop, OnTick, 
 	{
 		.Name = "Shoulder Swap",
 		.Id = "player_shoulder_swap",

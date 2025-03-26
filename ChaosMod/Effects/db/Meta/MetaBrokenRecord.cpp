@@ -1,7 +1,3 @@
-/*
-    Effect by Last0xygen
-*/
-
 #include <stdafx.h>
 
 #include "Effects/Register/RegisterEffect.h"

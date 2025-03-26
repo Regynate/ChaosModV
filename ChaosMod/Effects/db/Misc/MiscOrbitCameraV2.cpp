@@ -1,11 +1,12 @@
 #include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
 
-static int orbitCamera               = 0;
-static float angle                   = 0.0f;
-static constexpr float rotationSpeed = 0.5f;
-static constexpr float orbitDistance = 5.0f;
-static constexpr auto DEG_TO_RAD     = [](float degrees)
+CHAOS_VAR int orbitCamera               = 0;
+CHAOS_VAR float angle                = 0.0f;
+CHAOS_VAR constexpr float rotationSpeed = 0.5f;
+CHAOS_VAR constexpr float orbitDistance = 5.0f;
+
+static float DEG_TO_RAD(float degrees) 
 {
 	auto constexpr PI = 3.1415f;
 	return degrees * (PI / 180.0f);

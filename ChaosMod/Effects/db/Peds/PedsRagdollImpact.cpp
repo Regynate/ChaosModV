@@ -21,10 +21,10 @@ static void OnTick()
 	for (auto const ped : GetAllPeds())
 	{
 		if (!DOES_ENTITY_EXIST(ped) || !IS_PED_DEAD_OR_DYING(ped, false))
-			return;
+			continue;
 
 		if (processedPeds.contains(ped))
-			return;
+			continue;
 
 		processedPeds.insert(ped);
 
@@ -42,7 +42,7 @@ static void OnTick()
 
 		auto const magnitude = sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
 		if (magnitude == 0.0f)
-			return;
+			continue;
 
 		direction.x /= magnitude;
 		direction.y /= magnitude;
@@ -55,7 +55,7 @@ static void OnTick()
 		{
 			APPLY_FORCE_TO_ENTITY(vehicle, 1, force.x, force.y, force.z, 0.0f, 0.0f, 0.0f, 0, false, true, true, false,
 			                      true);
-			return;
+			continue;
 		}
 
 		APPLY_FORCE_TO_ENTITY(ped, 1, force.x, force.y, force.z, 0.0f, 0.0f, 0.0f, 0, false, true, true, false, true);
@@ -65,7 +65,7 @@ static void OnTick()
 // clang-format off
 REGISTER_EFFECT(OnStart, OnStop, OnTick, 
     {
-        .Name = "Ragdoll Impact", 
+        .Name = "Launch Peds Towards Player When Killed", 
         .Id = "peds_ragdoll_impact", 
         .IsTimed = true
     }

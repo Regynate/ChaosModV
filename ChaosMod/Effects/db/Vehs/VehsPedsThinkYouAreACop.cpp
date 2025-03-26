@@ -27,7 +27,7 @@ static void OnTick()
 			auto const model            = GET_ENTITY_MODEL(vehicle);
 			auto const myVehicle        = GET_VEHICLE_PED_IS_IN(player, false);
 		
-			TASK_VEHICLE_MISSION(driver, vehicle, myVehicle, 22, 10.f, 1074528293, 10.f, 10.f, true);
+			TASK_VEHICLE_MISSION(driver, vehicle, myVehicle, 22, 10.f, 1074528293, 10.f, -1.f, true);
 			SET_VEHICLE_FORWARD_SPEED(vehicle, speed * 0.99);
 			WAIT(10);
 		}

@@ -24,7 +24,7 @@ static void RunTowardsTheNearestEnemy()
 		float nearestDistance        = 200.0f;
 
 		if (ped == player || !DOES_ENTITY_EXIST(ped) || IS_PED_DEAD_OR_DYING(ped, true))
-			return;
+			continue;
 
 		auto const inCombatWithPlayer = IS_PED_IN_COMBAT(ped, player);
 		auto const relation           = GET_RELATIONSHIP_BETWEEN_PEDS(player, ped);
@@ -33,7 +33,6 @@ static void RunTowardsTheNearestEnemy()
 		auto const isCop              = pedType == 6;
 		if (hatesPlayer || inCombatWithPlayer || isCop)
 		{
-
 			auto const pedCoordinates = GET_ENTITY_COORDS(ped, false);
 			auto const distance =
 			    GET_DISTANCE_BETWEEN_COORDS(playerCoordinates.x, playerCoordinates.y, playerCoordinates.z,
@@ -51,6 +50,7 @@ static void RunTowardsTheNearestEnemy()
 			CLEAR_PED_TASKS(player);
 			currentTarget = nearestEnemy;
 			TASK_GO_TO_ENTITY(player, currentTarget, -1, 0.0f, 5.0f, 0, 0);
+			WAIT(2000);
 		}
 	}
 }

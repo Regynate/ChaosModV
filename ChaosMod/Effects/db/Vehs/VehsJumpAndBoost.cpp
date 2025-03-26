@@ -2,13 +2,9 @@
 #include <stdafx.h>
 #include "Util/HelpText.h"
 
-static void OnStart()
-{
-}
-
 static void OnTick()
 {
-	DisplayHelpText("Jump = SPACE | Boost = X", 20);
+	DisplayHelpText("Jump = SPACE | Boost = X");
 
 	auto const player    = PLAYER_PED_ID();
 	auto const inVehicle = IS_PED_IN_ANY_VEHICLE(player, false);
@@ -37,10 +33,6 @@ static void OnTick()
 		while (IS_ENTITY_IN_AIR(vehicle))
 			WAIT(100);
 	}
-}
-
-static void OnStop()
-{
 }
 
 // clang-format off

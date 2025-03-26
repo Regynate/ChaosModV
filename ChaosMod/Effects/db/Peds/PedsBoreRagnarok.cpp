@@ -61,6 +61,7 @@ static void ApplyBoarDamage(const Ped boar)
     if (distance < 1.5f) {
         auto const currentHealth = GET_ENTITY_HEALTH(player);
         SET_ENTITY_HEALTH(player, currentHealth - boarDamage, 0);
+		PLAY_PAIN(player, 8, 0, 0);
         WAIT(damageCooldownMs);
     }
 }

@@ -77,11 +77,6 @@ static void GivePlayerPaletoScoreArmour()
 	}
 }
 
-static void OnTick()
-{
-
-}
-
 static void OnStart()
 {
 	GivePlayerPaletoScoreArmour();
@@ -96,23 +91,18 @@ static void OnStart()
 
 	for (auto const _ : std::ranges::iota_view {0, 8})
 		CREATE_AMBIENT_PICKUP(healthHash, coords.x, coords.y, coords.z, 1, 100, healthHash, false, true);
-}
-
-static void OnStop()
-{
+	
+	while (!IS_PED_DEAD_OR_DYING(player, false))
+		WAIT(1000);
 
 	SET_MODEL_AS_NO_LONGER_NEEDED(GET_HASH_KEY("PICKUP_HEALTH_STANDARD"));
-
-	auto const player = PLAYER_PED_ID();
-	SET_ENTITY_HEALTH(player, 200, 0);
 	SET_ENTITY_MAX_HEALTH(player, 200);
 }
 
 // clang-format off
-REGISTER_EFFECT(OnStart, OnStop, nullptr, 
+REGISTER_EFFECT(OnStart, nullptr, nullptr, 
     {
         .Name = "Give Paleto Score Armour", 
-        .Id = "player_give_paleto_score_armour", 
-        .IsTimed = true
+        .Id = "player_give_paleto_score_armour"
     }
 );
