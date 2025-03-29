@@ -136,10 +136,7 @@ static void OnTick()
 
 		SetPlayerModel(previousModel);
 		RestoreWeapons();
-
 		hasDiedOrFinished = true;
-
-		WAIT(10000);
 	}
 }
 

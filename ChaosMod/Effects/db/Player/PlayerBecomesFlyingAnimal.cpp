@@ -85,9 +85,8 @@ static void OnTick()
 	if (IS_PED_DEAD_OR_DYING(player, false))
 	{
 		SetPlayerModel(previousModel);
-		hasDiedOrFinished = true;
-		WAIT(10000);
 		RestoreWeapons();
+		hasDiedOrFinished = true;
 	}
 }
 
