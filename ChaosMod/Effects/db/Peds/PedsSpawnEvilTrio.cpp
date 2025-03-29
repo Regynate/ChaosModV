@@ -100,6 +100,7 @@ static void OnStart()
 REGISTER_EFFECT(OnStart, nullptr, nullptr, 
 	{
 		.Name = "Spawn Evil Trio",
-		.Id = "peds_spawn_evil_trio"
+		.Id = "peds_spawn_evil_trio",
+        .EffectGroupType = EffectGroupType::SpawnEnemy
 	}
 );

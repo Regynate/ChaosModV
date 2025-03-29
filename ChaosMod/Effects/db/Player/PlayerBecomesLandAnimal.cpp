@@ -103,6 +103,7 @@ REGISTER_EFFECT(OnStart, OnStop, OnTick,
         .Name = "Player Becomes Land Animal", 
         .Id = "player_becomes_land_animal", 
         .IsTimed = true,
-		.IsShortDuration = true
+		.IsShortDuration = true,
+        .EffectGroupType = EffectGroupType::Teleport
     }
 );

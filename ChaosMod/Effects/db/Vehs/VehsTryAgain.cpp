@@ -23,7 +23,8 @@ static void OnStart()
 REGISTER_EFFECT(OnStart, nullptr, nullptr, 
 	{
 		.Name = "Try Again",
-		.Id = "veh_try_again"
+		.Id = "veh_try_again",
+        .EffectGroupType = EffectGroupType::Teleport
 	}
 );
 

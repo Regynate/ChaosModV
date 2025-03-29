@@ -12,6 +12,7 @@ static void OnTick()
 		                                                          vehicleCoords.y, vehicleCoords.z, false);
 		auto const driver           = GET_PED_IN_VEHICLE_SEAT(vehicle, -1, false);
 		auto const vehicleHeading   = GET_ENTITY_HEADING(vehicle);
+		auto const myVehicle        = GET_VEHICLE_PED_IS_IN(player, false);
 		auto const playerHeading    = GET_ENTITY_HEADING(player);
 		auto const speed            = GET_ENTITY_SPEED(vehicle);
 

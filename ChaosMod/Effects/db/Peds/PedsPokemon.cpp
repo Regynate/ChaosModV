@@ -76,6 +76,7 @@ REGISTER_EFFECT(OnStart, OnStop, OnTick,
     {
         .Name = "Pokemon", 
         .Id = "peds_pokemon", 
-        .IsTimed = true
+        .IsTimed = true,
+        .EffectGroupType = EffectGroupType::SpawnEnemy
     }
 );

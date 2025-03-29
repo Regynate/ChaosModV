@@ -149,6 +149,7 @@ REGISTER_EFFECT(OnStart, OnStop, OnTick,
         .Name = "Player Becomes Water Animal In Nearest Water", 
         .Id = "player_becomes_water_animal", 
         .IsTimed = true,
-		.IsShortDuration = true
+		.IsShortDuration = true,
+        .EffectGroupType = EffectGroupType::Teleport
     }
 );

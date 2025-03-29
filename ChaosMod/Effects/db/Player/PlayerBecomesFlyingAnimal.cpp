@@ -97,6 +97,7 @@ REGISTER_EFFECT(OnStart, OnStop, OnTick,
         .Name = "Player Becomes Flying Animal", 
         .Id = "player_becomes_flying_animal", 
         .IsTimed = true,
-		.IsShortDuration = true
+		.IsShortDuration = true,
+        .EffectGroupType = EffectGroupType::Teleport
     }
 );
