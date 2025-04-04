@@ -295,23 +295,26 @@ LuaScripts::LuaScripts()
 	std::vector<std::unique_ptr<WorkerThread>> workerThreadPool;
 	workerThreadPool.resize(systemInfo.dwNumberOfProcessors - 1);
 
-	std::queue<std::filesystem::directory_entry> entryQueue;
+	std::queue<std::pair<std::string, std::filesystem::directory_entry>> entryQueue;
 	std::mutex entryQueueMutex;
 
-	std::queue<std::filesystem::directory_entry> threadUnsafeEntryQueue;
+	std::queue<std::pair<std::string, std::filesystem::directory_entry>> threadUnsafeEntryQueue;
 	std::mutex threadUnsafeEntryQueueMutex;
 
-	auto mainThread  = std::this_thread::get_id();
+	auto mainThread = std::this_thread::get_id();
 
-	bool isDone      = false;
+	bool isDone     = false;
 
-	auto parseScript = [this, mainThread, &threadUnsafeEntryQueue, &threadUnsafeEntryQueueMutex](
-	                       const std::filesystem::directory_entry &entry, bool printRunningLog = true)
+	auto parseScript =
+	    [this, mainThread, &threadUnsafeEntryQueue, &threadUnsafeEntryQueueMutex](
+	        const std::string &directory, const std::filesystem::directory_entry &entry, bool printRunningLog = true)
 	{
-		const auto &path     = entry.path();
-		const auto &fileName = path.filename().string();
-		const auto &pathStr  = path.string();
-		auto scriptName      = pathStr.substr(pathStr.find("\\") + 1);
+		const auto &path          = entry.path();
+		const auto &filename      = path.filename().string();
+		const auto &pathStr       = path.string();
+		const auto scriptName     = pathStr.substr(pathStr.find("\\") + 1);
+		const auto submissionPath = directory;
+		const auto scriptPath     = pathStr.starts_with(directory) ? pathStr.substr(directory.length() + 1) : pathStr;
 
 		if (printRunningLog)
 			LUA_LOG("Running script " << scriptName);
@@ -322,30 +325,27 @@ LuaScripts::LuaScripts()
 			parseScriptFlags |= ParseScriptFlag_IsAlienThread;
 
 		std::unordered_map<std::string, nlohmann::json> userEffectSettings;
-		if (pathStr.starts_with("chaosmod\\workshop") && ComponentExists<Workshop>())
+		if (ComponentExists<Workshop>())
 		{
 			// Read user script settings
-			auto tmp           = pathStr.substr(strlen("chaosmod\\workshop\\"));
-			userEffectSettings = GetComponent<Workshop>()->GetSubmissionScriptSettings(
-			    pathStr.substr(0, pathStr.find('\\', pathStr.find_first_not_of("chaosmod\\workshop\\"))),
-			    tmp.substr(tmp.find("\\") + 1));
+			userEffectSettings = GetComponent<Workshop>()->GetSubmissionScriptSettings(submissionPath, scriptPath);
 		}
 
-		if (ParseScriptRaw(fileName, path.string(), static_cast<LuaScripts::ParseScriptFlags>(parseScriptFlags),
+		if (ParseScriptRaw(filename, path.string(), static_cast<LuaScripts::ParseScriptFlags>(parseScriptFlags),
 		                   userEffectSettings)
 		    == ParseScriptReturnReason::Error_ThreadUnsafe)
 		{
 			std::lock_guard lock(threadUnsafeEntryQueueMutex);
-			threadUnsafeEntryQueue.push(entry);
+			threadUnsafeEntryQueue.push(std::pair(directory, entry));
 		}
 	};
 
-	auto parseScriptThreaded = [&](const std::filesystem::directory_entry &entry)
+	auto parseScriptThreaded = [&](const std::string &directory, const std::filesystem::directory_entry &entry)
 	{
 		// For our 1c/1t users out here we'll do evaluation immediately in the main thread
 		if (workerThreadPool.empty())
 		{
-			parseScript(entry);
+			parseScript(directory, entry);
 			return;
 		}
 
@@ -357,9 +357,9 @@ LuaScripts::LuaScripts()
 
 			workerThread         = std::make_unique<WorkerThread>();
 			workerThread->Thread = std::thread(
-			    [entry, parseScript, &entryQueue, &entryQueueMutex, &isDone]()
+			    [directory, entry, parseScript, &entryQueue, &entryQueueMutex, &isDone]()
 			    {
-				    parseScript(entry);
+				    parseScript(directory, entry);
 
 				    while (!isDone || !entryQueue.empty())
 				    {
@@ -369,12 +369,12 @@ LuaScripts::LuaScripts()
 					    if (entryQueue.empty())
 						    continue;
 
-					    auto entry = entryQueue.front();
+					    auto [directory, entry] = entryQueue.front();
 					    entryQueue.pop();
 
 					    lock.unlock();
 
-					    parseScript(entry);
+					    parseScript(directory, entry);
 				    }
 			    });
 
@@ -383,7 +383,7 @@ LuaScripts::LuaScripts()
 		}
 
 		if (!foundNewThread)
-			entryQueue.push(entry);
+			entryQueue.push(std::pair(directory, entry));
 	};
 
 	for (auto dir : ms_ScriptDirs)
@@ -397,18 +397,23 @@ LuaScripts::LuaScripts()
 			{
 				if (entry.is_directory() && ComponentExists<Workshop>())
 				{
-					for (const auto &entry : GetComponent<Workshop>()->GetSubmissionFiles(entry.path().string(),
-					                                                                      Workshop::FileType::Script))
+					for (const auto &submission : GetComponent<Workshop>()->GetSubmissionFiles(
+					         entry.path().string(), Workshop::FileType::Script))
 					{
-						parseScriptThreaded(entry);
+						parseScriptThreaded(entry.path().string(), submission);
 					}
 				}
 			}
 		}
 		else
 		{
-			for (const auto &entry : GetFiles(dir, ".lua", true))
-				parseScriptThreaded(entry);
+			std::vector<std::string> blacklistedFiles;
+
+			if (ComponentExists<Workshop>())
+				blacklistedFiles = GetComponent<Workshop>()->GetSubmissionBlacklistedFiles(dir);
+
+			for (const auto &entry : GetFiles(dir, ".lua", true, blacklistedFiles))
+				parseScriptThreaded(dir, entry);
 		}
 	}
 
@@ -420,8 +425,8 @@ LuaScripts::LuaScripts()
 
 	while (!threadUnsafeEntryQueue.empty())
 	{
-		auto &entry = threadUnsafeEntryQueue.front();
-		parseScript(entry, false);
+		auto &[dir, entry] = threadUnsafeEntryQueue.front();
+		parseScript(dir, entry, false);
 		threadUnsafeEntryQueue.pop();
 	}
 }
@@ -1073,6 +1078,9 @@ void LuaScripts::RemoveScriptEntry(const std::string &effectId)
 
 void LuaScripts::Execute(const std::string &effectId, ExecuteFuncType funcType)
 {
+	if (!m_RegisteredEffects.contains(effectId))
+		return;
+
 	const auto &script = m_RegisteredEffects.at(effectId);
 
 	switch (funcType)
