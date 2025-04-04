@@ -44,6 +44,10 @@ body {
 #barContainer {
 	overflow: hidden;
 	width: var(--bar-width);
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin: 5px 0;
 }
 
 #totalVotes,
@@ -69,7 +73,6 @@ body {
 .bar {
 	background-color: var(--bar-background);
 	height: var(--bar-height);
-	margin: 0 0 10px 0;
 	position: relative;
 	transition: background-color 100ms ease-in-out;
 	border-radius: var(--bar-border-radius);

@@ -92,10 +92,17 @@ export class BarOverlay {
 		// Add listener to the overlay client
 		overlayClient.addCreateVoteListener(this.onCreateVote);
 		overlayClient.addDisconnectListener(this.onDisconnect);
+		overlayClient.addConnectListener(this.onConnect);
 		overlayClient.addEndVoteListener(this.onEndVote);
 		overlayClient.addUpdateVoteListener(this.onUpdateVote);
 	}
 
+	private onConnect(): void {
+		this.bars.forEach((bar, index) => {
+			const ANIMATION_DELAY = index * ANIMATION_DELAY_DELTA;
+			bar.fadeIn(ANIMATION_LENGTH, ANIMATION_DELAY);
+		});
+	}
 	private onCreateVote(): void {
 		this.bars.forEach((bar, index) => {
 			const ANIMATION_DELAY = index * ANIMATION_DELAY_DELTA;
