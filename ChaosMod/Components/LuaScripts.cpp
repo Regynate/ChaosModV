@@ -2,7 +2,6 @@
 
 #include "LuaScripts.h"
 
-
 #include "Components/DebugSocket.h"
 #include "Components/EffectDispatcher.h"
 #include "Components/KeyStates.h"
@@ -599,8 +598,14 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 
 		E("SetAudioPitch", Hooks::SetAudioPitch),
 		E("ResetAudioPitch", Hooks::ResetAudioPitch),
-		E("SetAudioClearness", Hooks::SetAudioClearness),
-		E("ResetAudioClearness", Hooks::ResetAudioClearness),
+		E("SetAudioClearness", Hooks::SetAudioLPFCutoff),
+		E("ResetAudioClearness", Hooks::ResetAudioLPFCutoff),
+		E("SetAudioHPFCutoff", Hooks::SetAudioHPFCutoff),
+		E("ResetAudioHPFCutoff", Hooks::ResetAudioHPFCutoff),
+		E("SetAudioLPFCutoff", Hooks::SetAudioLPFCutoff),
+		E("ResetAudioLPFCutoff", Hooks::ResetAudioLPFCutoff),
+		E("SetAudioVolume", Hooks::SetAudioVolume),
+		E("ResetAudioVolume", Hooks::ResetAudioVolume),
 
 		E("GetGameplayCamOffsetInWorldCoords",
 		  [](LuaVector3 offset)
