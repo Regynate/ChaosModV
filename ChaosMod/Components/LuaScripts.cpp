@@ -542,7 +542,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		  [scriptName](const sol::this_state &lua, DWORD64 hash, LuaNativeReturnType returnType,
 		               const sol::variadic_args &args) { return LuaInvoke(scriptName, lua, hash, returnType, args); }),
 
-		E("WAIT", scriptWait),
+		E("WAIT", WAIT),
 
 		E("IsKeyPressed",
 		  [](unsigned char key)
@@ -864,60 +864,6 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 			return ParseScriptReturnReason::Error;
 		}
 	}
-
-	lua["WAIT"]                          = WAIT;
-
-	lua["GetEffectCompletionPercentage"] = [effectId](const sol::this_state &lua)
-	{
-		CurrentEffect::GetEffectCompletionPercentage();
-	};
-	lua["OverrideEffectName"] = [effectId](const sol::this_state &lua, const std::string &name)
-	{
-		CurrentEffect::OverrideEffectName(name);
-	};
-	lua["OverrideEffectNameById"] = [effectId](const sol::this_state &lua, const std::string &overrideId)
-	{
-		CurrentEffect::OverrideEffectNameFromId(overrideId);
-	};
-
-	auto getEffectSoundPlayOptions = []() -> EffectSoundPlayOptions *
-	{
-		auto sharedData = EffectThreads::GetThreadSharedData(GetCurrentFiber());
-		if (!sharedData)
-			return nullptr;
-		return &sharedData->EffectSoundPlayOptions;
-	};
-	lua["SetEffectSoundFollowPlayer"] = [effectId, getEffectSoundPlayOptions](const sol::this_state &lua)
-	{
-		auto soundPlayOptions      = getEffectSoundPlayOptions();
-		soundPlayOptions->PlayType = EffectSoundPlayType::FollowPlayer;
-	};
-	lua["SetEffectSoundFollowEntity"] = [effectId, getEffectSoundPlayOptions](const sol::this_state &lua, Entity entity)
-	{
-		auto soundPlayOptions      = getEffectSoundPlayOptions();
-		soundPlayOptions->PlayType = EffectSoundPlayType::FollowEntity;
-		soundPlayOptions->Entity   = entity;
-	};
-	lua["SetEffectSoundAtCoords"] =
-	    [effectId, getEffectSoundPlayOptions](const sol::this_state &lua, const LuaVector3 &coords)
-	{
-		auto soundPlayOptions      = getEffectSoundPlayOptions();
-		soundPlayOptions->PlayType = EffectSoundPlayType::AtCoords;
-		soundPlayOptions->Coords   = { coords.X, coords.Y, coords.Z };
-	};
-	lua["SetEffectSoundLooping"] = [effectId, getEffectSoundPlayOptions](const sol::this_state &lua, bool state)
-	{
-		auto soundPlayOptions       = getEffectSoundPlayOptions();
-		soundPlayOptions->PlayFlags = state ? soundPlayOptions->PlayFlags | EffectSoundPlayFlags_Looping
-		                                    : soundPlayOptions->PlayFlags & ~EffectSoundPlayFlags_Looping;
-	};
-	lua["SetEffectSoundStopOnEntityDeath"] =
-	    [effectId, getEffectSoundPlayOptions](const sol::this_state &lua, bool state)
-	{
-		auto soundPlayOptions       = getEffectSoundPlayOptions();
-		soundPlayOptions->PlayFlags = state ? soundPlayOptions->PlayFlags & ~EffectSoundPlayFlags_DontStopOnEntityDeath
-		                                    : soundPlayOptions->PlayFlags | EffectSoundPlayFlags_DontStopOnEntityDeath;
-	};
 
 	EffectData effectData;
 	effectData.Name                                    = effectName;
