@@ -654,6 +654,53 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 			      return lower;
 		      return g_Random.GetRandomFloat(lower, upper);
 		  }),
+		E("GetEffectCompletionPercentage", CurrentEffect::GetEffectCompletionPercentage),
+		E("OverrideEffectName", [](const std::string &name) { CurrentEffect::OverrideEffectName(name); }),
+		E("OverrideEffectNameById",
+		  [](const std::string &overrideId) { CurrentEffect::OverrideEffectNameFromId(overrideId); }),
+		E("SetEffectSoundFollowPlayer",
+		  []()
+		  {
+		      auto sharedData = EffectThreads::GetThreadSharedData(GetCurrentFiber());
+		      if (sharedData)
+			      sharedData->EffectSoundPlayOptions.PlayType = EffectSoundPlayType::FollowPlayer;
+		  }),
+		E("SetEffectSoundFollowEntity",
+		  [](Entity entity)
+		  {
+		      auto sharedData = EffectThreads::GetThreadSharedData(GetCurrentFiber());
+		      if (!sharedData)
+			      return;
+		      sharedData->EffectSoundPlayOptions.PlayType = EffectSoundPlayType::FollowEntity;
+		      sharedData->EffectSoundPlayOptions.Entity   = entity;
+          }),
+		E("SetEffectSoundAtCoords",
+		  [](const LuaVector3 &coords)
+		  {
+		      auto sharedData = EffectThreads::GetThreadSharedData(GetCurrentFiber());
+		      if (!sharedData)
+			      return;
+		      sharedData->EffectSoundPlayOptions.PlayType = EffectSoundPlayType::AtCoords;
+		      sharedData->EffectSoundPlayOptions.Coords   = Vector3(coords.X, coords.Y, coords.Z);
+          }),
+		E("SetEffectSoundLooping",
+		  [](bool state)
+		  {
+		      auto sharedData = EffectThreads::GetThreadSharedData(GetCurrentFiber());
+		      if (sharedData)
+			      sharedData->EffectSoundPlayOptions.PlayFlags =
+			          state ? sharedData->EffectSoundPlayOptions.PlayFlags | EffectSoundPlayFlags_Looping
+			                : sharedData->EffectSoundPlayOptions.PlayFlags & ~EffectSoundPlayFlags_Looping;
+		  }),
+		E("SetEffectSoundStopOnEntityDeath",
+		  [](bool state)
+		  {
+		      auto sharedData = EffectThreads::GetThreadSharedData(GetCurrentFiber());
+		      if (sharedData)
+			      sharedData->EffectSoundPlayOptions.PlayFlags =
+			          state ? sharedData->EffectSoundPlayOptions.PlayFlags & ~EffectSoundPlayFlags_DontStopOnEntityDeath
+			                : sharedData->EffectSoundPlayOptions.PlayFlags | EffectSoundPlayFlags_DontStopOnEntityDeath;
+		  })
 	};
 #undef E
 
