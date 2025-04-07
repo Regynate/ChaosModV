@@ -137,14 +137,14 @@ static void OnTick()
 
 	auto const remainingTime = countdownTimeMs / 1000;
 
-	DisplayHelpText(std::format("Hunt down and kill the dear in {} seconds... or else", remainingTime));
+	DisplayHelpText(std::format("Hunt down and kill the deer in {} seconds... or else", remainingTime));
 
 	auto const player = PLAYER_PED_ID();
 	if (!DOES_ENTITY_EXIST(targetEntity) || IS_PED_DEAD_OR_DYING(targetEntity, false))
 	{
 		effectCompleted = true;
 		GivePlayerMoney(1000);
-		DisplayHelpText("Congratulations! Here's $1000");
+		DisplayHelpText("Congratulations! Here's $1000", 10);
 		PLAY_SOUND_FRONTEND(-1, "PROPERTY_PURCHASE", "HUD_AWARDS", false);
 		REMOVE_BLIP(&blip);
 		return;
