@@ -63,12 +63,6 @@ static bool OnHook()
 	if (IsLegacy())
 		return false;
 
-	auto handle = Memory::FindPattern("48 81 EC B8 00 00 00 44 0F 29 B4 24 A0 00 00 00 66");
-	if (!handle.IsValid())
-		return false;
-
-	Memory::AddHook(handle.Get<void>(), _HK_rage__fwTimer__Update, &_OG_rage__fwTimer__Update);
-
 	sm_fMinimumFrameTime = []() -> float *
 	{
 		Handle handle = Memory::FindPattern("0F 28 D9 48 8B D1 F3", "F3 0F 10 15 ?? ?? ?? ?? 41 0F 28 CE");
@@ -121,6 +115,12 @@ static bool OnHook()
 
 		return handle.Get<float[4]>();
 	}();
+
+	auto handle = Memory::FindPattern("48 81 EC B8 00 00 00 44 0F 29 B4 24 A0 00 00 00 66");
+	if (!handle.IsValid())
+		return false;
+
+	Memory::AddHook(handle.Get<void>(), _HK_rage__fwTimer__Update, &_OG_rage__fwTimer__Update);
 
 	return true;
 }
