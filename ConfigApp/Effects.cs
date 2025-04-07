@@ -452,7 +452,7 @@
             { "misc_random_hospital", new EffectInfo("Random Hospital", EffectCategory.Misc, true) },
             { "misc_repeat_last_effect", new EffectInfo("Repeat Last Effect", EffectCategory.Misc) },
             { "misc_inverse_blimp_strats", new EffectInfo("Inverse Blimp Strats", EffectCategory.Misc) },
-            { "misc_reverse_portal_guns", new EffectInfo("Reverse Portal Guns", EffectCategory.Misc, true) },
+            { "misc_reverse_portal_guns", new EffectInfo("Get Over Here!", EffectCategory.Misc, true) },
             { "misc_shoot_random_animals", new EffectInfo("Shoot Random Animals", EffectCategory.Misc, true) },
             { "misc_snowball_fight", new EffectInfo("Snowball Fight", EffectCategory.Misc, true) },
             { "misc_strong_guns", new EffectInfo("Strong Guns", EffectCategory.Misc, true) },
