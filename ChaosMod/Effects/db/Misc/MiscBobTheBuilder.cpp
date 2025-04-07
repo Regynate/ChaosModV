@@ -1,5 +1,6 @@
-#include <stdafx.h>
 #include "Effects/Register/RegisterEffect.h"
+
+#include <stdafx.h>
 #include "Util/HelpText.h"
 
 static float DegreeToRadian(float deg)

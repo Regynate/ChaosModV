@@ -1,5 +1,6 @@
-#include <stdafx.h>
 #include "Effects/Register/RegisterEffect.h"
+
+#include <stdafx.h>
 
 CHAOS_VAR auto constexpr grenadeCount = 5;
 CHAOS_VAR std::unordered_set<Ped> processedPeds;

@@ -1,5 +1,6 @@
-#include <stdafx.h>
 #include "Effects/Register/RegisterEffect.h"
+
+#include <stdafx.h>
 
 Vector3 GetCoordsInFront(const Entity entity, const float distance) {
 	auto constexpr PI     = 3.1415f;

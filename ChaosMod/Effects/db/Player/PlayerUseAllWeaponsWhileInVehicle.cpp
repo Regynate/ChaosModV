@@ -1,5 +1,6 @@
-#include <stdafx.h>
 #include "Effects/Register/RegisterEffect.h"
+
+#include <stdafx.h>
 #include <ranges>
 
 CHAOS_VAR std::vector<std::uint32_t> OriginalWeaponGroup;
