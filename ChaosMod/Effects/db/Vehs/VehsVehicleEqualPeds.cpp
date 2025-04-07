@@ -1,5 +1,6 @@
-#include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
+
+#include "Effects/Register/RegisterEffect.h"
 #include <ranges>
 
 CHAOS_VAR std::array<Hash, 5> vehicleModels = { GET_HASH_KEY("adder"), GET_HASH_KEY("t20"), GET_HASH_KEY("banshee"),

@@ -1,5 +1,6 @@
-#include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
+
+#include "Effects/Register/RegisterEffect.h"
 
 CHAOS_VAR int orbitCamera               = 0;
 CHAOS_VAR float angle                = 0.0f;

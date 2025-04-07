@@ -1,5 +1,6 @@
-#include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
+
+#include "Effects/Register/RegisterEffect.h"
 static float DegreeToRadian(const float degrees)
 {
 	auto constexpr PI = 3.1415f;

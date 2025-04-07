@@ -1,5 +1,6 @@
-#include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
+
+#include "Effects/Register/RegisterEffect.h"
 
 
 CHAOS_VAR float launchForce = 75.0f;

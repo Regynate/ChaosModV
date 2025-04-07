@@ -1,5 +1,6 @@
-#include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
+
+#include "Effects/Register/RegisterEffect.h"
 
 static bool RequestControlEntity(const Entity entity)
 {

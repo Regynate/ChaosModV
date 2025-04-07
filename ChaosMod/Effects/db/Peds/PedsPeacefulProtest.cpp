@@ -1,5 +1,6 @@
-#include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
+
+#include "Effects/Register/RegisterEffect.h"
 
 CHAOS_VAR std::vector<Ped> spawnedPeds;
 CHAOS_VAR std::array<Hash, 6> protestModels = { GET_HASH_KEY("a_m_m_prolhost_01"), GET_HASH_KEY("a_f_y_hipster_02"),

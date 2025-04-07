@@ -1,5 +1,6 @@
-#include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
+
+#include "Effects/Register/RegisterEffect.h"
 
 CHAOS_VAR int cinematicCamera   = 0;
 CHAOS_VAR bool isCinematicActive = false;

@@ -1,5 +1,6 @@
-#include "Effects/Register/RegisterEffect.h"
 #include <stdafx.h>
+
+#include "Effects/Register/RegisterEffect.h"
 
 CHAOS_VAR Vehicle spawnedBus = 0;
 CHAOS_VAR int fadeR = 255, fadeG = 0, fadeB = 0;
