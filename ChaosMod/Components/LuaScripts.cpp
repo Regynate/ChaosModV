@@ -584,6 +584,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("CreateTempVehicleOnPlayerPos", CreateTempVehicleOnPlayerPos),
 		E("SetSurroundingPedsInVehicles", SetSurroundingPedsInVehicles),
 		E("ReplaceVehicle", ReplaceVehicle),
+		E("ReplaceVehicleWithModel", ReplaceVehicleWithModel),
 
 		E("GetAllProps", GetAllPropsArray),
 		E("CreatePoolProp", CreatePoolProp),
