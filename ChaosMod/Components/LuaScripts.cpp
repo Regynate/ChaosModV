@@ -12,6 +12,7 @@
 #include "Effects/Register/RegisteredEffects.h"
 #include "Effects/Register/RegisteredEffectsMetadata.h"
 #include "Info.h"
+#include "Memory/Hooks/GameSpeedHook.h"
 #include "Memory/Hooks/AudioSettingsHook.h"
 #include "Memory/Hooks/GetLabelTextHook.h"
 #include "Memory/Hooks/ShaderHook.h"
@@ -611,6 +612,8 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("ResetAudioLPFCutoff", Hooks::ResetAudioLPFCutoff),
 		E("SetAudioVolume", Hooks::SetAudioVolume),
 		E("ResetAudioVolume", Hooks::ResetAudioVolume),
+
+		E("SetTimeScale", Hooks::SetTimeScale),
 
 		E("GetGameplayCamOffsetInWorldCoords",
 		  [](LuaVector3 offset)
