@@ -8,8 +8,10 @@ static void OnStart() {
 		return;
 
     auto const effect = GetComponent<EffectDispatcher>()->GetLastEffectId();
-	if (effect.empty())
+	if (effect.Id().empty())
 		return;
+
+    LOG(effect.Id());
 
     GetComponent<EffectDispatcher>()->DispatchEffect(effect);
 }

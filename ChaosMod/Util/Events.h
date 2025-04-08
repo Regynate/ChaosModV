@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <vector>
+#include <type_traits>
 
 class _ChaosBaseEvent
 {

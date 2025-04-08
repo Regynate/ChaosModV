@@ -22,6 +22,12 @@
 
 static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDispatcher::EffectDispatchEntry &entry)
 {
+	if (!g_EnabledEffects.contains(entry.Id))
+	{
+		DEBUG_LOG("Tried dispatching effect " << entry.Id.Id() << ", which is not enabled!");
+		return;
+	}
+
 	auto &effectData = g_EnabledEffects.at(entry.Id);
 
 	if (effectData.TimedType == EffectTimedType::Permanent)
@@ -187,7 +193,7 @@ static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 		}
 	}
 
-	effectDispatcher->OnPostDispatchEffect.Fire(entry.Id);
+	effectDispatcher->OnPostDispatchEffect.Fire(entry.Id, entry.Context);
 }
 
 static void _OnRunEffects(LPVOID data)
@@ -563,19 +569,12 @@ void EffectDispatcher::DrawEffectTexts()
 }
 
 void EffectDispatcher::DispatchEffect(const EffectIdentifier &effectId, DispatchEffectFlags dispatchEffectFlags,
-                                      const std::string &suffix, const bool increment)
+                                      const std::string &suffix, const std::string& context)
 {
-	if (increment)
-		EffectDispatchCount++;
+	if (effectId == "misc_repeat_last_effect") // hack
+		dispatchEffectFlags = DispatchEffectFlag_NoAddToLog;
 
-	SetLastEffectId(effectId.Id());
-
-	EffectDispatchQueue.push({ .Id = effectId, .Suffix = suffix, .Flags = dispatchEffectFlags });
-}
-
-void EffectDispatcher::DispatchEffectForMeta(const EffectIdentifier &effectId, const bool increment)
-{
-	DispatchEffect(effectId, DispatchEffectFlag_None, {}, increment);
+	EffectDispatchQueue.push({ .Id = effectId, .Suffix = suffix, .Flags = dispatchEffectFlags, .Context = context });
 }
 
 std::string EffectDispatcher::GetRandomEffectId() const
@@ -598,27 +597,24 @@ std::string EffectDispatcher::GetRandomEffectId() const
 	float chosen = g_Random.GetRandomFloat(0.f, totalWeight);
 	totalWeight  = 0.f;
 
-
 	for (const auto &[effectId, effectData] : choosableEffects)
 	{
 		totalWeight += effectData.GetEffectWeight();
 		if (chosen <= totalWeight)
-		{
 			return effectId.Id();
-		}
 	}
 
 	return nullptr;
 }
 
-void EffectDispatcher::DispatchRandomEffect(DispatchEffectFlags dispatchEffectFlags, const std::string &suffix)
+void EffectDispatcher::DispatchRandomEffect(DispatchEffectFlags dispatchEffectFlags, const std::string &suffix, const std::string &context)
 {
 	auto const randomEffect = GetRandomEffectId();
 
 	if (randomEffect.empty())
 		return;
 
-	DispatchEffect(randomEffect, dispatchEffectFlags, suffix);
+	DispatchEffect(randomEffect, dispatchEffectFlags, suffix, context);
 }
 
 void EffectDispatcher::ClearEffect(const EffectIdentifier &effectId)
@@ -750,15 +746,10 @@ bool EffectDispatcher::IsClearingEffects() const
 	return m_ClearEffectsState != ClearEffectsState::None;
 }
 
-std::string EffectDispatcher::GetLastEffectId() const
+EffectIdentifier EffectDispatcher::GetLastEffectId() const
 {
-	return m_LastEffect;
-}
+	if (SharedState.DispatchedEffectsLog.size() > 0)
+		return SharedState.DispatchedEffectsLog.back()->GetId();
 
-void EffectDispatcher::SetLastEffectId(const std::string &effectId)
-{
-	auto const isNotRepeatEffect = (effectId.compare("misc_repeat_last_effect") != 0);
-
-	if (isNotRepeatEffect)
-		m_LastEffect = effectId;
+	return EffectIdentifier();
 }

@@ -30,10 +30,9 @@ class EffectDispatcher : public Component
 		EffectIdentifier Id;
 		std::string Suffix;
 		DispatchEffectFlags Flags;
+		std::string Context;
 	};
 	std::queue<EffectDispatchEntry> EffectDispatchQueue;
-
-	std::size_t EffectDispatchCount{};
 
 	struct ActiveEffect
 	{
@@ -71,7 +70,7 @@ class EffectDispatcher : public Component
 
   public:
 	ChaosCancellableEvent<const EffectIdentifier &> OnPreDispatchEffect;
-	ChaosEvent<const EffectIdentifier &> OnPostDispatchEffect;
+	ChaosEvent<const EffectIdentifier &, const std::string> OnPostDispatchEffect;
 
 	ChaosEvent<const EffectIdentifier &> OnPreRunEffect;
 	ChaosEvent<const EffectIdentifier &> OnPostRunEffect;
@@ -117,16 +116,11 @@ class EffectDispatcher : public Component
 
 	void DispatchEffect(const EffectIdentifier &effectId,
 	                    DispatchEffectFlags dispatchEffectFlags = DispatchEffectFlag_None,
-	                    const std::string &suffix               = {},
-						const bool increment = true
-	);
-
-	void DispatchEffectForMeta(const EffectIdentifier &effectId, const bool increment);
+	                    const std::string &suffix = {}, const std::string &context = {});
 
 	std::string GetRandomEffectId() const;
 	void DispatchRandomEffect(DispatchEffectFlags dispatchEffectFlags = DispatchEffectFlag_None,
-	                          const std::string &suffix               = {});
-
+	                          const std::string &suffix = {}, const std::string &context = {});
 
 	void UpdateEffects(float deltaTime);
 	void UpdateMetaEffects(float deltaTime);
@@ -151,7 +145,7 @@ class EffectDispatcher : public Component
 
 	bool IsClearingEffects() const;
 
-	std::string GetLastEffectId() const;
+	EffectIdentifier GetLastEffectId() const;
 
-	void SetLastEffectId(const std::string &effectId);
+	void SetLastEffectId(const EffectIdentifier &effectId);
 };
