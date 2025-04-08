@@ -12,7 +12,7 @@ static void OnTick()
 		    SET_ENTITY_PROOFS(player, false, false, true, false, false, false, false, false);
 		    WAIT(100);
 		    auto const coords = GET_ENTITY_COORDS(player, false);
-		    ADD_EXPLOSION(coords.x, coords.y, coords.z - 1, 5, 1000, true, false, 1, false);
+		    ADD_EXPLOSION(coords.x, coords.y, coords.z - 1, 5, 1000.f, true, false, 1.f, false);
 		    WAIT(750);
 	    }
 	    else

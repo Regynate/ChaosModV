@@ -4,11 +4,12 @@
 
 static void ExplodePlayerOnHeadshot()
 {
+	auto constexpr HEAD = 31086;
+
+	auto const player   = PLAYER_PED_ID();
+
 	for (auto const ped : GetAllPeds())
 	{
-		auto constexpr HEAD = 31086;
-
-		auto const player   = PLAYER_PED_ID();
 		if (player == ped)
 			continue;
 
@@ -16,16 +17,15 @@ static void ExplodePlayerOnHeadshot()
 		if (sourceOfDeath != player)
 			continue;
 
-		int damagedBone{};
+		int damagedBone {};
 		GET_PED_LAST_DAMAGE_BONE(ped, &damagedBone);
 
 		if (damagedBone != HEAD)
 			continue;
 
-		auto const playerCoords = GET_ENTITY_COORDS(player, false);
-
-		ADD_EXPLOSION(playerCoords.x, playerCoords.y, playerCoords.z, 29, 100.f, true, false, 5.f, false);
-		APPLY_DAMAGE_TO_PED(player, 1337, true, 0);
+		auto const boneCoords = GET_PED_BONE_COORDS(player, HEAD, 0.0, 0.0, 0.0);
+		ADD_EXPLOSION(boneCoords.x, boneCoords.y, boneCoords.z, 5, 9999.f, true, false, 1.f, false);
+		SET_ENTITY_HEALTH(player, 0, 0);
 
 		CLEAR_PED_LAST_DAMAGE_BONE(ped);
 	}
