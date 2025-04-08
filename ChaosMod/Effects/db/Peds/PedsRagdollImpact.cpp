@@ -2,10 +2,8 @@
 
 #include "Effects/Register/RegisterEffect.h"
 
-
 CHAOS_VAR float launchForce = 75.0f;
 CHAOS_VAR std::unordered_set<std::uint32_t> processedPeds;
-
 
 static void OnStart()
 {
@@ -53,20 +51,18 @@ static void OnTick()
 		    Vector3 { direction.x * launchForce, direction.y * launchForce, direction.z * launchForce + 2.0f };
 
 		if (inVehicle)
-		{
 			APPLY_FORCE_TO_ENTITY(vehicle, 1, force.x, force.y, force.z, 0.0f, 0.0f, 0.0f, 0, false, true, true, false,
 			                      true);
-			continue;
-		}
-
-		APPLY_FORCE_TO_ENTITY(ped, 1, force.x, force.y, force.z, 0.0f, 0.0f, 0.0f, 0, false, true, true, false, true);
+		else
+			APPLY_FORCE_TO_ENTITY(ped, 1, force.x, force.y, force.z, 0.0f, 0.0f, 0.0f, 0, false, true, true, false,
+			                      true);
 	}
 }
 
 // clang-format off
 REGISTER_EFFECT(OnStart, OnStop, OnTick, 
     {
-        .Name = "Launch Peds Towards Player When Killed", 
+        .Name = "Launch Peds On Death", 
         .Id = "peds_ragdoll_impact", 
         .IsTimed = true
     }
