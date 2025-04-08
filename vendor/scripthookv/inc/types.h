@@ -64,7 +64,7 @@ struct Vector3
 		return Vector3(x, y, z);
 	}
 
-	Vector3 operator +(Vector3 val)
+	Vector3 operator +(const Vector3 val) const
 	{
 		return Vector3::Init(
 			this->x + val.x,
@@ -73,7 +73,7 @@ struct Vector3
 		);
 	}
 
-	Vector3 operator -(Vector3 val)
+	Vector3 operator -(const Vector3 val) const
 	{
 		return Vector3::Init(
 			this->x - val.x,
@@ -81,7 +81,7 @@ struct Vector3
 			this->z - val.z);
 	}
 
-	Vector3 operator *(float val)
+	Vector3 operator *(const float val) const
 	{
 		return Vector3::Init(
 			this->x * val,
@@ -90,7 +90,7 @@ struct Vector3
 		);
 	}
 
-	Vector3 operator /(float val)
+	Vector3 operator /(const float val) const
 	{
 		return Vector3::Init(
 			this->x / val,
@@ -99,7 +99,7 @@ struct Vector3
 		);
 	}
 
-	static Vector3 Cross(Vector3 left, Vector3 right)
+	static Vector3 Cross(const Vector3 left, const Vector3 right)
 	{
 		return Vector3::Init(
 			left.y * right.z - left.z * right.y,
@@ -108,17 +108,17 @@ struct Vector3
 		);
 	}
 
-	float Length()
+	float Length() const
 	{
 		return std::sqrt((this->x * this->x) + (this->y * this->y) + (this->z * this->z));
 	}
 
-	float DistanceTo(Vector3 otherVector)
+	float DistanceTo(Vector3 otherVector) const
 	{
 		return (otherVector - *this).Length();
 	}
 
-	Vector3 GetDirectionForRotation()
+	Vector3 GetDirectionForRotation() const
 	{
 		double rotX = this->x / 57.295779513082320876798154814105;
 		double rotZ = this->z / 57.295779513082320876798154814105;
@@ -130,7 +130,7 @@ struct Vector3
 		);
 	}
 
-	bool IsDefault()
+	bool IsDefault() const
 	{
 		return this->x == 0 && this->y == 0 && this->z == 0;
 	}

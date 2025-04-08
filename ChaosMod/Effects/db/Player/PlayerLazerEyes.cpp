@@ -1,131 +1,102 @@
 #include <stdafx.h>
 
 #include "Effects/Register/RegisterEffect.h"
+#include "Util/Camera.h"
 
-static bool RequestControlEntity(const Entity entity)
+static void DrawLine(Vector3 startPosition, Vector3 endPosition)
 {
-	if (!DOES_ENTITY_EXIST(entity))
-		return false;
-	return NETWORK_HAS_CONTROL_OF_ENTITY(entity);
+	DRAW_LINE(startPosition.x, startPosition.y, startPosition.z, endPosition.x, endPosition.y, endPosition.z, 255, 0, 0,
+	          200);
 }
 
-static void DeleteEntity(Entity entity)
+CHAOS_VAR std::list<Ped> pedsOnFire {};
+
+static void StartFire(Ped ped)
 {
-	if (!RequestControlEntity(entity))
+	if (IS_ENTITY_ON_FIRE(ped))
 		return;
-	if (!IS_ENTITY_A_MISSION_ENTITY(entity))
-		SET_ENTITY_AS_MISSION_ENTITY(entity, true, true);
-	DELETE_ENTITY(&entity);
+
+	while (pedsOnFire.size() > 10)
+	{
+		STOP_ENTITY_FIRE(pedsOnFire.front());
+		pedsOnFire.pop_front();
+	}
+
+	pedsOnFire.push_back(ped);
+	START_ENTITY_FIRE(ped);
 }
 
-CHAOS_VAR auto constexpr degreesToRadians = 0.0174532924f;
-
-static Vector3 multiplyVector(Vector3 vector, float x)
+static void OnTick()
 {
-	Vector3 result;
-	result.x = vector.x;
-	result.y = vector.y;
-	result.z = vector.z;
-	result.x *= x;
-	result.y *= x;
-	result.z *= x;
-	return result;
-}
+	auto const playerPed     = PLAYER_PED_ID();
+	auto const playerCoords  = GET_ENTITY_COORDS(playerPed, false);
+	auto const camRot        = GET_GAMEPLAY_CAM_ROT(2);
 
-static float DegreeToRadian(float deg)
-{
-	const double rad = (3.14159265359f / 180) * deg;
-	return (float)rad;
-}
+	auto constexpr HEAD      = 31086;
 
-static Vector3 RotationToDirection(Vector3 rot)
-{
-	float x   = DegreeToRadian(rot.x);
-	float z   = DegreeToRadian(rot.z);
+	auto const eyeCoords1    = GET_PED_BONE_COORDS(playerPed, HEAD, 0.06f, 0.1f, 0.05f);
+	auto const eyeCoords2    = GET_PED_BONE_COORDS(playerPed, HEAD, 0.06f, 0.1f, -0.05f);
 
-	float num = abs(cos(x));
+	auto const headRot       = invoke<Vector3>(0xCE6294A232D03786, playerPed, GET_PED_BONE_INDEX(playerPed, HEAD));
 
-	return Vector3 { -sin(z) * num, cos(z) * num, sin(x) };
-}
+	auto const direction     = (IS_AIM_CAM_ACTIVE() ? camRot : headRot).GetDirectionForRotation() * 200.f;
 
-static void DrawLine()
-{
-	auto const player             = PLAYER_PED_ID();
-	auto const playerCoords       = GET_ENTITY_COORDS(player, false);
+	auto const targetCoords1 = eyeCoords1 + direction;
+	auto const targetCoords2 = eyeCoords2 + direction;
 
-	auto const rotation           = GET_GAMEPLAY_CAM_ROT(0);
-	auto const direction          = RotationToDirection(rotation);
-	auto const startPosition      = GET_GAMEPLAY_CAM_COORD() + multiplyVector(direction, 1.f);
-	auto const endPosition        = GET_GAMEPLAY_CAM_COORD() + multiplyVector(direction, 9999.f);
-	
-	auto const playerEyeCoords = GET_PED_BONE_COORDS(player, 0x796e, 0, 0, 0);
+	DrawLine(eyeCoords1, targetCoords1);
+	DrawLine(eyeCoords2, targetCoords2);
 
-	DRAW_LINE(playerEyeCoords.x, playerEyeCoords.y, playerEyeCoords.z, endPosition.x, endPosition.y,
-	          endPosition.z, 255, 0, 0, 200);
-}
-
-static Vector3 GetAimingCoords()
-{
-	auto const player      = PLAYER_PED_ID();
-	auto const camRotation = GET_GAMEPLAY_CAM_ROT(0);
-	auto const rotation    = std::abs(std::cos(camRotation.x * degreesToRadians));
-
-	Vector3 direction { -std::sin(camRotation.z * degreesToRadians) * rotation,
-		                std::cos(camRotation.z * degreesToRadians) * rotation,
-		                std::sin(camRotation.x * degreesToRadians) };
-
-	auto start   = GET_GAMEPLAY_CAM_COORD();
-	auto const end     = start + direction * 200.0f;
-
-	auto const raycast =
-	    START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(start.x, start.y, start.z, end.x, end.y, end.z, -1, player, 0);
-
-	BOOL hit {};
-	Vector3 coords {};
-	Vector3 surface {};
-	Entity entity {};
-
-	GET_SHAPE_TEST_RESULT(raycast, &hit, &coords, &surface, &entity);
-
-	return coords;
-}
-
-static void DeleteHitEntity()
-{
-	auto const player       = PLAYER_PED_ID();
-	auto const playerCoords = GET_ENTITY_COORDS(player, false);
-	auto const aimingCoords = GetAimingCoords();
-
-	DrawLine();
-
-	auto const raycast      = START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(
-        playerCoords.x, playerCoords.y, playerCoords.z, aimingCoords.x,
-	                                                   aimingCoords.y, aimingCoords.z, -1, player, 0);
+	auto const raycast = START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(
+	    eyeCoords1.x, eyeCoords1.y, eyeCoords1.z, targetCoords1.x, targetCoords1.y, targetCoords1.z, 511, playerPed, 0);
 
 	BOOL hit {};
 	Vector3 hitCoords {};
 	Vector3 surface {};
 	Entity hitEntity {};
 
-	GET_SHAPE_TEST_RESULT(raycast, &hit, &hitCoords, &surface, &hitEntity);
-	
-	if (aimingCoords.x == 0 && aimingCoords.y == 0 && aimingCoords.z == 0)
-		return;
-
-	DeleteEntity(hitEntity);
-	SET_ENTITY_COORDS(hitEntity, 0, 0, 0, false, false, false, true);
+	if (GET_SHAPE_TEST_RESULT(raycast, &hit, &hitCoords, &surface, &hitEntity) == 2)
+	{
+		if (hit)
+		{
+			if (hitEntity)
+			{
+				if (IS_ENTITY_A_VEHICLE(hitEntity))
+				{
+					for (Ped ped : GetAllPeds())
+						if (IS_PED_IN_VEHICLE(ped, hitEntity, false))
+							StartFire(ped);
+				}
+				else if (IS_ENTITY_A_PED(hitEntity))
+				{
+					StartFire(hitEntity);
+				}
+			}
+			if (!hitCoords.IsDefault())
+			{
+				USE_PARTICLE_FX_ASSET("core");
+				START_PARTICLE_FX_NON_LOOPED_AT_COORD("exp_grd_gren_sp", hitCoords.x, hitCoords.y, hitCoords.z, 0.f,
+				                                      0.f, 0.f, 0.2f, 0, 0, 0);
+			}
+		}
+	}
 }
 
-static void OnTick()
+static void OnStart()
 {
-	DeleteHitEntity();
+	REQUEST_NAMED_PTFX_ASSET("core");
+	while (!HAS_NAMED_PTFX_ASSET_LOADED("core"))
+		WAIT(0);
+
+	pedsOnFire.clear();
 }
 
 // clang-format off
-REGISTER_EFFECT(nullptr, nullptr, OnTick, 
+REGISTER_EFFECT(OnStart, nullptr, OnTick, 
     {
-        .Name = "Laser Eyes", 
+        .Name = "Lazer Eyes", 
         .Id = "player_laser_eyes", 
-        .IsTimed = true
+        .IsTimed = true,
+		.IsShortDuration = true
     }
 );
