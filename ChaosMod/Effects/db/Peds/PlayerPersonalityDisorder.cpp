@@ -110,6 +110,7 @@ REGISTER_EFFECT(OnStart, OnStop, OnTick,
     {
         .Name = "Personality Disorder", 
         .Id = "player_personality_disorder", 
-        .IsTimed = true
+        .IsTimed = true,
+		.IsShortDuration = true
     }
 );
