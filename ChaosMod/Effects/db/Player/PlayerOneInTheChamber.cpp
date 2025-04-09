@@ -2,21 +2,21 @@
 #include "Memory/WeaponPool.h"
 #include <stdafx.h>
 
-CHAOS_VAR std::vector<Ped> killedPeds;
-CHAOS_VAR Hash goldenGunHash = GET_HASH_KEY("weapon_doubleaction");
-CHAOS_VAR int goldenGunAmmo  = 1;
+CHAOS_VAR constexpr Hash goldenGunHash = GET_HASH_KEY("weapon_doubleaction");
 
 CHAOS_VAR std::vector<std::pair<Hash, int>> storedWeapons;
 
+CHAOS_VAR bool hasBullet = true;
+
 static void StoreWeapons()
 {
-	auto const player = PLAYER_PED_ID();
+	auto const playerPed = PLAYER_PED_ID();
 
-	for (auto const weaponHash : Memory::GetAllWeapons())
+	for (auto const &weaponHash : Memory::GetAllWeapons())
 	{
-		if (HAS_PED_GOT_WEAPON(player, weaponHash, false))
+		if (HAS_PED_GOT_WEAPON(playerPed, weaponHash, false))
 		{
-			auto const ammo = GET_AMMO_IN_PED_WEAPON(player, weaponHash);
+			auto const ammo = GET_AMMO_IN_PED_WEAPON(playerPed, weaponHash);
 			storedWeapons.push_back({ weaponHash, ammo });
 		}
 	}
@@ -24,68 +24,66 @@ static void StoreWeapons()
 
 static void RestoreWeapons()
 {
-	auto const player = PLAYER_PED_ID();
+	auto const playerPed = PLAYER_PED_ID();
 
-	REMOVE_ALL_PED_WEAPONS(player, false);
+	REMOVE_ALL_PED_WEAPONS(playerPed, false);
 
-	for (auto const &weaponData : storedWeapons)
-		GIVE_WEAPON_TO_PED(player, weaponData.first, weaponData.second, false, true);
+	for (auto const &[weapon, ammo] : storedWeapons)
+	{
+		GIVE_WEAPON_TO_PED(playerPed, weapon, ammo, false, false);
+		SET_PED_AMMO(playerPed, weapon, ammo, false);
+	}
 }
 
-static void GiveGoldenGun()
+static void GiveGoldenGun(bool forceInHand)
 {
-	auto const player = PLAYER_PED_ID();
-	GIVE_WEAPON_TO_PED(player, goldenGunHash, goldenGunAmmo, false, true);
+	auto const playerPed = PLAYER_PED_ID();
+	if (!HAS_PED_GOT_WEAPON(playerPed, goldenGunHash, false))
+	{
+		GIVE_WEAPON_TO_PED(playerPed, goldenGunHash, 0, false, forceInHand);
+		SET_PED_AMMO(playerPed, goldenGunHash, hasBullet ? 1 : 0, false);
+	}
 }
 
-static void GiveAmmoOnPedKilled()
+static void CheckPedDamage()
 {
-	auto const player = PLAYER_PED_ID();
+	auto const playerPed = PLAYER_PED_ID();
 	for (auto const ped : GetAllPeds())
 	{
-		if (IS_PED_DEAD_OR_DYING(ped, false))
+		if (HAS_ENTITY_BEEN_DAMAGED_BY_ENTITY(ped, playerPed, true)
+		    && HAS_ENTITY_BEEN_DAMAGED_BY_WEAPON(ped, goldenGunHash, 0))
 		{
-			auto const pedSourceOfDeath = GET_PED_SOURCE_OF_DEATH(ped);
-			if (pedSourceOfDeath == player)
-			{
-				auto it = std::find(killedPeds.begin(), killedPeds.end(), ped);
-				if (it == killedPeds.end())
-				{
-					killedPeds.push_back(ped);
+			SET_ENTITY_HEALTH(ped, 0, 0);
+			CLEAR_ENTITY_LAST_DAMAGE_ENTITY(ped);
 
-					goldenGunAmmo++;
-					SET_AMMO_IN_CLIP(player, goldenGunHash, goldenGunAmmo);
-				}
-			}
+			// workaround the rapid fire bug
+			WAIT(1000);
+
+			GIVE_WEAPON_TO_PED(playerPed, goldenGunHash, 0, false, true);
+			SET_PED_AMMO(playerPed, goldenGunHash, 1, false);
+			SET_AMMO_IN_CLIP(playerPed, goldenGunHash, 0);
 		}
 	}
+
+	if (GET_AMMO_IN_PED_WEAPON(playerPed, goldenGunHash) == 0)
+		hasBullet = false;
 }
 
-static void CheckMissedShot()
+static void RemoveWeapons()
 {
-	auto const player = PLAYER_PED_ID();
+	auto const playerPed = PLAYER_PED_ID();
 
-	if (IS_PED_SHOOTING(player))
-	{
-		Entity aimedEntity{};
-		bool isAiming = GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER_ID(), &aimedEntity);
-
-		if (!isAiming || !DOES_ENTITY_EXIST(aimedEntity))
-		{
-			if (goldenGunAmmo > 0)
-			{
-				goldenGunAmmo--;
-				SET_AMMO_IN_CLIP(player, goldenGunHash, goldenGunAmmo);
-			}
-		}
-	}
+	for (const auto &weaponHash : Memory::GetAllWeapons())
+		if (HAS_PED_GOT_WEAPON(playerPed, weaponHash, false) && weaponHash != goldenGunHash)
+			REMOVE_WEAPON_FROM_PED(playerPed, weaponHash);
 }
 
 static void OnStart()
 {
+	hasBullet = true;
 	StoreWeapons();
 	REMOVE_ALL_PED_WEAPONS(PLAYER_PED_ID(), false);
-	GiveGoldenGun();
+	GiveGoldenGun(true);
 }
 
 static void OnStop()
@@ -95,8 +93,8 @@ static void OnStop()
 
 static void OnTick()
 {
-	CheckMissedShot();
-	GiveAmmoOnPedKilled();
+	GiveGoldenGun(false);
+	CheckPedDamage();
 }
 
 // clang-format off
