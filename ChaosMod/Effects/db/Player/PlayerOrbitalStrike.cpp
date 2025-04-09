@@ -9,15 +9,17 @@ static void OnStart()
 
 	SET_ENTITY_INVINCIBLE(player, true);
 
-	ADD_EXPLOSION(coords.x + 5, coords.y, coords.z, 29, 1000.f, true, false, 1.f, false);
-	ADD_EXPLOSION(coords.x + 10, coords.y, coords.z, 29, 1000.f, true, false, 1.f, false);
-	ADD_EXPLOSION(coords.x - 5, coords.y, coords.z, 29, 1000.f, true, false, 1.f, false);
-	ADD_EXPLOSION(coords.x - 10, coords.y, coords.z, 29, 1000.f, true, false, 1.f, false);
-	ADD_EXPLOSION(coords.x, coords.y + 5, coords.z, 29, 1000.f, true, false, 1.f, false);
-	ADD_EXPLOSION(coords.x, coords.y + 10, coords.z, 29, 1000.f, true, false, 1.f, false);
-	ADD_EXPLOSION(coords.x, coords.y - 5, coords.z, 29, 1000.f, true, false, 1.f, false);
-	ADD_EXPLOSION(coords.x, coords.y - 10, coords.z, 29, 1000.f, true, false, 1.f, false);
-
+	ADD_EXPLOSION(coords.x, coords.y, coords.z, 82, 1000.f, true, false, 1.f, false);
+	ADD_EXPLOSION(coords.x - 5, coords.y - 5, coords.z, 82, 1000.f, true, false, 1.f, false);
+	ADD_EXPLOSION(coords.x - 5, coords.y, coords.z, 82, 1000.f, true, false, 1.f, false);
+	ADD_EXPLOSION(coords.x - 5, coords.y + 5, coords.z, 82, 1000.f, true, false, 1.f, false);
+	ADD_EXPLOSION(coords.x, coords.y - 5, coords.z, 82, 1000.f, true, false, 1.f, false);
+	ADD_EXPLOSION(coords.x, coords.y, coords.z, 82, 1000.f, true, false, 1.f, false);
+	ADD_EXPLOSION(coords.x, coords.y + 5, coords.z, 82, 1000.f, true, false, 1.f, false);
+	ADD_EXPLOSION(coords.x + 5, coords.y - 5, coords.z, 82, 1000.f, true, false, 1.f, false);
+	ADD_EXPLOSION(coords.x + 5, coords.y, coords.z, 82, 1000.f, true, false, 1.f, false);
+	ADD_EXPLOSION(coords.x + 5, coords.y + 5, coords.z, 82, 1000.f, true, false, 1.f, false);
+	
 	WAIT(1000);
 
 	SET_ENTITY_INVINCIBLE(player, false);
