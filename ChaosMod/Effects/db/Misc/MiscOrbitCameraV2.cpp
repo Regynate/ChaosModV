@@ -70,6 +70,7 @@ REGISTER_EFFECT(OnStart, OnStop, OnTick,
     {
         .Name = "Orbit Camera V2", 
         .Id = "misc_orbit_camera_v2", 
-        .IsTimed = true
+        .IsTimed = true,
+		.IsShortDuration = true
     }
 );
