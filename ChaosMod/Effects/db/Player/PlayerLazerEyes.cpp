@@ -28,29 +28,33 @@ static void StartFire(Ped ped)
 
 static void OnTick()
 {
-	auto const playerPed     = PLAYER_PED_ID();
-	auto const playerCoords  = GET_ENTITY_COORDS(playerPed, false);
-	auto const camRot        = GET_GAMEPLAY_CAM_ROT(2);
+	auto const playerPed       = PLAYER_PED_ID();
+	auto const playerCoords    = GET_ENTITY_COORDS(playerPed, false);
+	auto const camRot          = GET_GAMEPLAY_CAM_ROT(2);
 
-	auto constexpr HEAD      = 31086;
+	auto constexpr HEAD        = 31086;
 
-	auto const eyeCoords1    = GET_PED_BONE_COORDS(playerPed, HEAD, 0.06f, 0.1f, 0.05f);
-	auto const eyeCoords2    = GET_PED_BONE_COORDS(playerPed, HEAD, 0.06f, 0.1f, -0.05f);
+	auto const eyeCoords1      = GET_PED_BONE_COORDS(playerPed, HEAD, 0.06f, 0.1f, 0.05f);
+	auto const eyeCoords2      = GET_PED_BONE_COORDS(playerPed, HEAD, 0.06f, 0.1f, -0.05f);
+	auto const eyeCoordsMid    = (eyeCoords1 + eyeCoords2) / 2;
 
-	auto const headRot       = invoke<Vector3>(0xCE6294A232D03786, playerPed, GET_PED_BONE_INDEX(playerPed, HEAD));
+	auto const headRot         = invoke<Vector3>(0xCE6294A232D03786, playerPed, GET_PED_BONE_INDEX(playerPed, HEAD));
 
-	auto const direction     = (IS_AIM_CAM_ACTIVE() ? camRot : headRot).GetDirectionForRotation() * 200.f;
+	auto const direction       = (IS_AIM_CAM_ACTIVE() ? camRot : headRot).GetDirectionForRotation() * 200.f;
 
-	auto const targetCoords1 = eyeCoords1 + direction;
-	auto const targetCoords2 = eyeCoords2 + direction;
+	auto const targetCoords1   = eyeCoords1 + direction;
+	auto const targetCoords2   = eyeCoords2 + direction;
+	auto const targetCoordsMid = eyeCoordsMid + direction;
 
 	DrawLine(eyeCoords1, targetCoords1);
 	DrawLine(eyeCoords2, targetCoords2);
 
-	auto const ignoreEntity = IS_PED_IN_ANY_VEHICLE(playerPed, false) ? GET_VEHICLE_PED_IS_IN(playerPed, false) : playerPed;
+	auto const ignoreEntity =
+	    IS_PED_IN_ANY_VEHICLE(playerPed, false) ? GET_VEHICLE_PED_IS_IN(playerPed, false) : playerPed;
 
 	auto const raycast = START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(
-	    eyeCoords1.x, eyeCoords1.y, eyeCoords1.z, targetCoords1.x, targetCoords1.y, targetCoords1.z, 511, ignoreEntity, 0);
+	    eyeCoordsMid.x, eyeCoordsMid.y, eyeCoordsMid.z, targetCoordsMid.x, targetCoordsMid.y, targetCoordsMid.z, 511,
+	    ignoreEntity, 0);
 
 	BOOL hit {};
 	Vector3 hitCoords {};
@@ -98,7 +102,6 @@ REGISTER_EFFECT(OnStart, nullptr, OnTick,
     {
         .Name = "Lazer Eyes", 
         .Id = "player_laser_eyes", 
-        .IsTimed = true,
-		.IsShortDuration = true
+        .IsTimed = true
     }
 );
