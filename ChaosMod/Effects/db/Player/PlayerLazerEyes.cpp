@@ -47,8 +47,10 @@ static void OnTick()
 	DrawLine(eyeCoords1, targetCoords1);
 	DrawLine(eyeCoords2, targetCoords2);
 
+	auto const ignoreEntity = IS_PED_IN_ANY_VEHICLE(playerPed, false) ? GET_VEHICLE_PED_IS_IN(playerPed, false) : playerPed;
+
 	auto const raycast = START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(
-	    eyeCoords1.x, eyeCoords1.y, eyeCoords1.z, targetCoords1.x, targetCoords1.y, targetCoords1.z, 511, playerPed, 0);
+	    eyeCoords1.x, eyeCoords1.y, eyeCoords1.z, targetCoords1.x, targetCoords1.y, targetCoords1.z, 511, ignoreEntity, 0);
 
 	BOOL hit {};
 	Vector3 hitCoords {};
@@ -61,7 +63,7 @@ static void OnTick()
 		{
 			if (hitEntity)
 			{
-				if (IS_ENTITY_A_VEHICLE(hitEntity))
+				if (IS_ENTITY_A_VEHICLE(hitEntity) && !IS_PED_IN_VEHICLE(playerPed, hitEntity, false))
 				{
 					for (Ped ped : GetAllPeds())
 						if (IS_PED_IN_VEHICLE(ped, hitEntity, false))
