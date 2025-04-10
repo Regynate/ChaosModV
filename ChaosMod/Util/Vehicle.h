@@ -281,32 +281,3 @@ inline void DeleteVehicle(Vehicle vehicle)
 	for (Ped ped : vehPeds)
 		SET_ENTITY_VELOCITY(ped, vehVel.x, vehVel.y, vehVel.z);
 }
-
-struct TryAgainData
-{
-	Vehicle vehicle;
-	float vehicleHeading;
-	float playerHeading;
-	Vector3 vehicleCoords;
-	Vector3 playerCoords;
-};
-
-inline TryAgainData GetLastVehicleEntryCoords()
-{
-	static TryAgainData data{};
-
-	auto const player    = PLAYER_PED_ID();
-	auto const inVehicle = IS_PED_IN_ANY_VEHICLE(player, true);
-	auto const vehicle   = GET_VEHICLE_PED_IS_IN(player, true);
-
-	if (!inVehicle || data.vehicle == vehicle)
-		return data;
-
-	data.vehicle        = vehicle;
-	data.vehicleHeading = GET_ENTITY_HEADING(vehicle);
-	data.playerHeading  = GET_ENTITY_HEADING(player);
-	data.vehicleCoords  = GET_ENTITY_COORDS(vehicle, false);
-	data.playerCoords   = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(player, -2.f, 2.f, 0.f);
-
-	return data;
-}

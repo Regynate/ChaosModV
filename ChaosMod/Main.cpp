@@ -9,6 +9,7 @@
 #include "Components/EffectDispatcher.h"
 #include "Components/EffectShortcuts.h"
 #include "Components/EffectSound/EffectSoundManagers.h"
+#include "Components/EntityTracking.h"
 #include "Components/Failsafe.h"
 #include "Components/HelpTextQueue.h"
 #include "Components/KeyStates.h"
@@ -222,6 +223,8 @@ static void Init()
 
 	INIT_COMPONENT("CrossingChallenge", "Crossing Challenge", CrossingChallenge);
 
+	INIT_COMPONENT("EntityTracking", "Entity Tracking", EntityTracking);
+
 #ifdef WITH_DEBUG_PANEL_SUPPORT
 	if (DoesFeatureFlagExist("enabledebugsocket"))
 		INIT_COMPONENT("DebugSocket", "Debug Websocket", DebugSocket);
@@ -257,8 +260,6 @@ static void MainRun()
 	while (true)
 	{
 		WAIT(0);
-
-		GetLastVehicleEntryCoords();
 
 		// This will run regardless if mod is disabled
 		if (ms_Flags.RunAntiSoftlock)
