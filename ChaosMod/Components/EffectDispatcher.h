@@ -146,6 +146,4 @@ class EffectDispatcher : public Component
 	bool IsClearingEffects() const;
 
 	EffectIdentifier GetLastEffectId() const;
-
-	void SetLastEffectId(const EffectIdentifier &effectId);
 };
