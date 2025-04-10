@@ -67,6 +67,7 @@ REGISTER_EFFECT(OnStart, OnStop, OnTick,
     {
         .Name = "Run Towards Nearest Enemy", 
         .Id = "player_run_towards_nearest_enemy", 
-        .IsTimed = true
+        .IsTimed = true,
+        .IsShortDuration = true
     }
 );
