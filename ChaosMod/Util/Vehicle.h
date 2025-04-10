@@ -211,6 +211,7 @@ inline Vehicle ReplaceVehicleWithModel(Vehicle veh, Hash model, bool addToPool)
 			vehPeds.push_back(seatPed);
 			auto pedCoords = GET_ENTITY_COORDS(ped, true);
 			SET_ENTITY_COORDS(ped, pedCoords.x, pedCoords.y, pedCoords.z + 3, 0, 0, 0, false);
+			SET_ENTITY_AS_MISSION_ENTITY(ped, false, false);
 		}
 	}
 
