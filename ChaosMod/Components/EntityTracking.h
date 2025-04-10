@@ -40,7 +40,7 @@ class EntityTracking : public Component
 	virtual void OnRun() override;
 	virtual void OnModPauseCleanup() override;
 
-	void AddTracker(Entity entity, std::function<void(Entity)> tracker, std::string id = "");
+	void AddTracker(Entity entity, const std::function<void(Entity)>& tracker, std::string id = "");
 
 	VehicleEntryPoint GetLastPlayerVehicleEntryPoint();
 };

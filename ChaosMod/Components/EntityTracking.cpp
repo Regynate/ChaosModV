@@ -40,8 +40,19 @@ void EntityTracking::OnRun()
 {
 	UpdateVehicleEntryPoint();
 
-	for (auto const &trackedEntity : m_TrackedEntities)
-		trackedEntity.foo(trackedEntity.entity);
+	for (auto it = m_TrackedEntities.begin(); it != m_TrackedEntities.end();)
+    {
+        auto const trackedEntity = *it;
+        if (DOES_ENTITY_EXIST(trackedEntity.entity))
+        {
+            trackedEntity.foo(trackedEntity.entity);
+            ++it;
+        }
+        else
+        {
+            it = m_TrackedEntities.erase(it);
+        }
+    }
 }
 
 void EntityTracking::OnModPauseCleanup()
@@ -49,7 +60,7 @@ void EntityTracking::OnModPauseCleanup()
 	m_TrackedEntities.clear();
 }
 
-void EntityTracking::AddTracker(Entity entity, std::function<void(Entity)> tracker, std::string id)
+void EntityTracking::AddTracker(Entity entity, const std::function<void(Entity)>& tracker, std::string id)
 {
 	m_TrackedEntities.emplace_back(TrackedEntity { entity, tracker, id });
 }
