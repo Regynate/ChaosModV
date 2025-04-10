@@ -71,6 +71,7 @@ REGISTER_EFFECT(OnStart, OnStop, OnTick,
         .Name = "Orbit Camera V2", 
         .Id = "misc_orbit_camera_v2", 
         .IsTimed = true,
-		.IsShortDuration = true
+		.IsShortDuration = true,
+		.EffectCategory = EffectCategory::Camera
     }
 );

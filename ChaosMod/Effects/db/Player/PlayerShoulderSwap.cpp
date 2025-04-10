@@ -6,45 +6,56 @@ CHAOS_VAR Cam shoulderCam = 0;
 
 static void OnTick()
 {
-	auto const player = PLAYER_PED_ID();
-	auto const coords = GET_ENTITY_COORDS(player, false);
-	auto const aiming = IS_PLAYER_FREE_AIMING(PLAYER_ID());
+	auto const playerPed    = PLAYER_PED_ID();
+	auto const aiming    = IS_PLAYER_FREE_AIMING(PLAYER_ID());
 
-	auto const inVehicle = IS_PED_IN_ANY_VEHICLE(player, false);
-	if (inVehicle)
-		return;
+	auto const inVehicle = IS_PED_IN_ANY_VEHICLE(playerPed, false);
 
-	if (!aiming)
+	if (!aiming || inVehicle)
 	{
 		RENDER_SCRIPT_CAMS(false, true, 250, true, true, 0);
-		SET_CAM_ACTIVE(shoulderCam, false);
-		DESTROY_CAM(shoulderCam, false);
-		shoulderCam = 0;
+		if (shoulderCam)
+		{
+			SET_CAM_ACTIVE(shoulderCam, false);
+			DESTROY_CAM(shoulderCam, false);
+			shoulderCam = 0;
+		}
 		return;
 	}
 
 	if (!DOES_CAM_EXIST(shoulderCam))
 	{
-		shoulderCam = CREATE_CAM((char *)"DEFAULT_SCRIPTED_CAMERA", true);
+		shoulderCam = CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", true);
 		RENDER_SCRIPT_CAMS(true, true, 250, true, true, 0);
 	}
 
 	if (shoulderCam != 0)
 	{
-		float heading    = GET_ENTITY_HEADING(player);
-		float headingRad = heading * (3.14159f / 180.0f);
-		float offsetX    = -0.5f * cos(headingRad);
-		float offsetY    = -0.5f * sin(headingRad);
-		float offsetZ    = 0.6f;
-		SET_CAM_COORD(shoulderCam, coords.x + offsetX, coords.y + offsetY, coords.z + offsetZ);
-		SET_CAM_ROT(shoulderCam, 0.0f, 0.0f, heading, 2);
+		auto const rotationAngle = -30.f;
+
+		auto const rotCoords     = GET_PED_BONE_COORDS(playerPed, 31086, 0.f, 0.f, 0.f);
+		auto const ogRotation    = GET_GAMEPLAY_CAM_ROT(2);
+		auto const ogPosition    = GET_GAMEPLAY_CAM_COORD();
+
+		auto const ogVector      = ogPosition - rotCoords;
+
+		auto const rotatedX      = ogVector.x * COS(rotationAngle) - ogVector.y * SIN(rotationAngle);
+		auto const rotatedY      = ogVector.x * SIN(rotationAngle) + ogVector.y * COS(rotationAngle);
+		auto const rotatedZ      = ogVector.z;
+
+		auto const rotatedHeading = aiming ? GET_ENTITY_HEADING(playerPed) : ogRotation.z + rotationAngle;
+
+		SET_CAM_COORD(shoulderCam, rotCoords.x + rotatedX, rotCoords.y + rotatedY, rotCoords.z + rotatedZ);
+		SET_CAM_ROT(shoulderCam, ogRotation.x, ogRotation.y, rotatedHeading, 2);
+		SET_CAM_FOV(shoulderCam, GET_GAMEPLAY_CAM_FOV());
 		SET_CAM_ACTIVE(shoulderCam, true);
+		SET_CAM_AFFECTS_AIMING(shoulderCam, false);
 	}
 }
 
 static void OnStop()
 {
-	RENDER_SCRIPT_CAMS(false, false, 0, true, true, 0);
+	RENDER_SCRIPT_CAMS(false, false, 250, true, true, 0);
 	if (shoulderCam != 0)
 	{
 		DESTROY_CAM(shoulderCam, false);
@@ -58,5 +69,6 @@ REGISTER_EFFECT(nullptr, OnStop, OnTick,
 		.Name = "Shoulder Swap",
 		.Id = "player_shoulder_swap",
 		.IsTimed = true,
+		.EffectCategory = EffectCategory::Camera
 	}
 );
