@@ -32,10 +32,10 @@ static void TransformPedIntoWomen(const Ped ped)
 	if (ped == player || !DOES_ENTITY_EXIST(ped) || IS_PED_DEAD_OR_DYING(ped, true))
 		return;
 
-	auto const pedCoords       = GET_ENTITY_COORDS(ped, true);
-	auto const playerCoords    = GET_ENTITY_COORDS(player, false);
-	auto const distance        = GET_DISTANCE_BETWEEN_COORDS(pedCoords.x, pedCoords.y, pedCoords.z, playerCoords.x,
-	                                                         playerCoords.y, playerCoords.z, false);
+	auto const pedCoords    = GET_ENTITY_COORDS(ped, true);
+	auto const playerCoords = GET_ENTITY_COORDS(player, false);
+	auto const distance     = GET_DISTANCE_BETWEEN_COORDS(pedCoords.x, pedCoords.y, pedCoords.z, playerCoords.x,
+	                                                      playerCoords.y, playerCoords.z, false);
 
 	if (distance > 100)
 		return;
@@ -45,9 +45,9 @@ static void TransformPedIntoWomen(const Ped ped)
 	auto const heading     = GET_ENTITY_HEADING(ped);
 	auto const vehicle     = GET_VEHICLE_PED_IS_IN(ped, false);
 
+	auto const spawnHeightOffset = IS_PED_IN_ANY_VEHICLE(ped, false) ? 2.0f : 0.0f;
+	
 	DeleteEntity(ped);
-
-	auto const spawnHeightOffset = DOES_ENTITY_EXIST(vehicle) ? 2.0f : 0.0f;
 	auto const newPed =
 	    CreatePoolPed(26, randomModel, pedCoords.x, pedCoords.y, pedCoords.z + spawnHeightOffset, heading);
 
@@ -76,15 +76,12 @@ static void TransformCarsIntoLuxury(const Vehicle vehicle)
 	if (vehicle == playerVehicle || !DOES_ENTITY_EXIST(vehicle))
 		return;
 
-	auto const randomModel = luxuryCars[GET_RANDOM_INT_IN_RANGE(0, luxuryCars.size() -1)];
+	auto const randomModel   = luxuryCars[GET_RANDOM_INT_IN_RANGE(0, luxuryCars.size() - 1)];
 
 	auto const vehicleCoords = GET_ENTITY_COORDS(vehicle, true);
-	auto const playerCoords = GET_ENTITY_COORDS(player, false);
+	auto const playerCoords  = GET_ENTITY_COORDS(player, false);
 	auto const distance = GET_DISTANCE_BETWEEN_COORDS(vehicleCoords.x, vehicleCoords.y, vehicleCoords.z, playerCoords.x,
-	                                                     playerCoords.y, playerCoords.z, false);
-
-	if (distance > 100)
-		return;
+	                                                  playerCoords.y, playerCoords.z, false);
 
 	auto const heading       = GET_ENTITY_HEADING(vehicle);
 
@@ -95,11 +92,27 @@ static void TransformCarsIntoLuxury(const Vehicle vehicle)
 
 static void OnStart()
 {
+	int counter = 5;
+
 	for (auto const vehicle : GetAllVehs())
+	{
 		TransformCarsIntoLuxury(vehicle);
+		if (counter-- <= 0)
+		{
+			WAIT(0);
+			counter = 5;
+		}
+	}
 
 	for (auto const ped : GetAllPeds())
+	{
 		TransformPedIntoWomen(ped);
+		if (counter-- <= 0)
+		{
+			WAIT(0);
+			counter = 5;
+		}
+	}
 }
 // clang-format off
 REGISTER_EFFECT(OnStart, nullptr, nullptr,
