@@ -592,7 +592,7 @@ std::string EffectDispatcher::GetRandomEffectId() const
 		totalWeight += effectData.GetEffectWeight();
 
 	if (totalWeight <= 0.f)
-		return nullptr;
+		return {};
 
 	float chosen = g_Random.GetRandomFloat(0.f, totalWeight);
 	totalWeight  = 0.f;
@@ -604,7 +604,7 @@ std::string EffectDispatcher::GetRandomEffectId() const
 			return effectId.Id();
 	}
 
-	return nullptr;
+	return {};
 }
 
 void EffectDispatcher::DispatchRandomEffect(DispatchEffectFlags dispatchEffectFlags, const std::string &suffix, const std::string &context)
