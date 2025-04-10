@@ -4,7 +4,9 @@
 #include "Util/HelpText.h"
 
 CHAOS_VAR std::vector<Entity> recruitedPeds;
-CHAOS_VAR auto constexpr KEY_E = 0x45;
+
+CHAOS_VAR const std::array<Hash, 3> weaponList = { GET_HASH_KEY("weapon_pistol"), GET_HASH_KEY("weapon_smg"),
+	                                               GET_HASH_KEY("weapon_assaultrifle") };
 
 static Ped GetAimedPed()
 {
@@ -21,23 +23,18 @@ static Ped GetAimedPed()
 
 static void RecruitPed()
 {
-	if (GetAsyncKeyState(KEY_E))
+	if (IS_DISABLED_CONTROL_JUST_PRESSED(0, 46)) // INPUT_TALK
 	{
 		auto const ped              = GetAimedPed();
 		auto const alreadyRecruited = std::find(recruitedPeds.begin(), recruitedPeds.end(), ped) != recruitedPeds.end();
 		if (!ped || alreadyRecruited)
 			return;
 
-				static const std::array<Hash, 3> weaponList = { GET_HASH_KEY("weapon_pistol"),
-			                                                         GET_HASH_KEY("weapon_smg"),
-			                                                         GET_HASH_KEY("weapon_assaultrifle") };
+		auto const max          = weaponList.size();
+		auto const randomIndex  = GET_RANDOM_INT_IN_RANGE(0, max);
+		auto const randomWeapon = weaponList[randomIndex];
 
-		auto constexpr max                                       = weaponList.size();
-		auto const randomIndex                                   = GET_RANDOM_INT_IN_RANGE(0, max);
-		auto const randomWeapon                                  = weaponList[randomIndex];
-		
-
-		auto const group = GET_PED_GROUP_INDEX(PLAYER_PED_ID());
+		auto const group        = GET_PED_GROUP_INDEX(PLAYER_PED_ID());
 		SET_PED_AS_GROUP_MEMBER(ped, group);
 		SET_PED_COMBAT_RANGE(ped, 2);
 		SET_PED_ALERTNESS(ped, 100);
