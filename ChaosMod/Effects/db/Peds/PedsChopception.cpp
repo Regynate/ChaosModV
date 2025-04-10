@@ -16,10 +16,19 @@ struct ChopPed
 {
 	Ped originalPed;
 	Ped attachedChop;
-	Vector3 originalCoords;
 };
 
 CHAOS_VAR std::vector<ChopPed> affectedPeds;
+
+static int GetPedSeatIndex(Ped ped)
+{
+	auto const vehicle = GET_VEHICLE_PED_IS_IN(ped, false);
+	int maxSeats       = GET_VEHICLE_MODEL_NUMBER_OF_SEATS(GET_ENTITY_MODEL(vehicle));
+	for (int i = -1; i < maxSeats; i++)
+		if (!IS_VEHICLE_SEAT_FREE(vehicle, i, false) && GET_PED_IN_VEHICLE_SEAT(vehicle, i, 0) == ped)
+			return i;
+	return -2;
+}
 
 static void AttachChopToPed()
 {
@@ -49,22 +58,13 @@ static void AttachChopToPed()
 		auto const vehicle   = GET_VEHICLE_PED_IS_IN(ped, false);
 		int seat             = -2;
 
-		
 		if (inVehicle)
 		{
 			SET_ENTITY_AS_MISSION_ENTITY(vehicle, false, false);
-			int maxSeats = GET_VEHICLE_MODEL_NUMBER_OF_SEATS(GET_ENTITY_MODEL(vehicle));
-			for (int i = -1; i < maxSeats; i++)
-			{
-				if (!IS_VEHICLE_SEAT_FREE(vehicle, i, false) && GET_PED_IN_VEHICLE_SEAT(vehicle, i, 0) == ped)
-				{
-					seat = i;
-					break;
-				}
-			}
+			seat = GetPedSeatIndex(ped);
 		}
-		
-		SET_ENTITY_COORDS(ped, pedCoords.x, pedCoords.y, pedCoords.z + 2.5f, false, false, false, false);
+
+		SET_ENTITY_COORDS(ped, pedCoords.x, pedCoords.y, pedCoords.z + 4.0f, false, false, false, false);
 
 		auto const chop = CreatePoolPed(28, chopModel, pedCoords.x, pedCoords.y,
 		                                inVehicle ? pedCoords.z + 2.0 : pedCoords.z, heading);
@@ -77,10 +77,9 @@ static void AttachChopToPed()
 		}
 
 		SET_ENTITY_VISIBLE(ped, false, false);
+		SET_ENTITY_COLLISION(ped, false, false);
 
-		ATTACH_ENTITY_TO_ENTITY(ped, chop, 0, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false, false, false, true, 0, true);
-
-		affectedPeds.emplace_back(ChopPed { ped, chop, pedCoords });
+		affectedPeds.emplace_back(ChopPed { ped, chop });
 
 		if (--counter <= 0)
 		{
@@ -90,19 +89,58 @@ static void AttachChopToPed()
 	}
 }
 
+static void UpdateCoords()
+{
+	for (auto const &entry : affectedPeds)
+	{
+		auto const ped  = entry.originalPed;
+		auto const chop = entry.attachedChop;
+
+		if (DOES_ENTITY_EXIST(ped) && DOES_ENTITY_EXIST(chop))
+		{
+			auto const chopCoords = GET_ENTITY_COORDS(chop, false);
+			SET_ENTITY_COORDS(ped, chopCoords.x, chopCoords.y, chopCoords.z + 1.f, true, false, false, false);
+		}
+	}
+}
+
+static void DetachChop(Ped ped, Ped chop)
+{
+	if (DOES_ENTITY_EXIST(ped))
+	{
+		SET_ENTITY_AS_MISSION_ENTITY(ped, false, false);
+		SET_ENTITY_VISIBLE(ped, true, false);
+		SET_ENTITY_COLLISION(ped, true, true);
+
+		if (DOES_ENTITY_EXIST(chop))
+		{
+			auto const chopCoords = GET_ENTITY_COORDS(chop, false);
+
+			if (IS_PED_IN_ANY_VEHICLE(chop, false))
+			{
+				const auto seat       = GetPedSeatIndex(chop);
+				
+				SET_ENTITY_COORDS(chop, chopCoords.x, chopCoords.y, chopCoords.z + 4.0f, true, false, false, false);
+				SET_PED_INTO_VEHICLE(ped, GET_VEHICLE_PED_IS_IN(chop, false), seat);
+			}
+			else
+			{
+				SET_ENTITY_COORDS(ped, chopCoords.x, chopCoords.y, chopCoords.z, true, false, false, false);
+			}
+		}
+	}
+	if (DOES_ENTITY_EXIST(chop))
+		DeleteEntity(chop);
+}
+
 static void RestorePeds()
 {
 	for (auto &entry : affectedPeds)
 	{
-		if (DOES_ENTITY_EXIST(entry.originalPed))
-		{
-			DETACH_ENTITY(entry.originalPed, true, true);
-			SET_ENTITY_VISIBLE(entry.originalPed, true, false);
-			SET_ENTITY_COORDS(entry.originalPed, entry.originalCoords.x, entry.originalCoords.y, entry.originalCoords.z,
-			                  false, false, false, true);
-		}
-		if (DOES_ENTITY_EXIST(entry.attachedChop))
-			DeleteEntity(entry.attachedChop);
+		auto const ped  = entry.originalPed;
+		auto const chop = entry.attachedChop;
+
+		DetachChop(ped, chop);
 	}
 	affectedPeds.clear();
 }
@@ -147,9 +185,7 @@ static void CheckPedsDistance()
 
 		if (distance > 100.0f)
 		{
-			DETACH_ENTITY(ped, true, true);
-			SET_ENTITY_VISIBLE(ped, true, false);
-			DeleteEntity(chop);
+			DetachChop(ped, chop);
 			it = affectedPeds.erase(it);
 		}
 		else
@@ -157,10 +193,6 @@ static void CheckPedsDistance()
 			++it;
 		}
 	}
-}
-
-static void OnStart()
-{
 }
 
 static void OnStop()
@@ -171,8 +203,9 @@ static void OnStop()
 static void OnTick()
 {
 	AttachChopToPed();
+	UpdateCoords();
 	CheckChopDeaths();
-	CheckPedsDistance();
+	//CheckPedsDistance();
 }
 
 // clang-format off
