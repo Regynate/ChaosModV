@@ -9,6 +9,7 @@
 #include "Components/EffectDispatcher.h"
 #include "Components/EffectShortcuts.h"
 #include "Components/EffectSound/EffectSoundManagers.h"
+#include "Components/EntityTracking.h"
 #include "Components/Failsafe.h"
 #include "Components/HelpTextQueue.h"
 #include "Components/KeyStates.h"
@@ -26,6 +27,7 @@
 #include "Util/OptionsManager.h"
 #include "Util/PoolSpawner.h"
 #include "Util/Text.h"
+#include "Util/Vehicle.h"
 
 #define FORCE_LEGACY_SOUND_MANAGER 1
 
@@ -220,6 +222,8 @@ static void Init()
 	INIT_COMPONENT("HelpTextQueue", "script help text queue", HelpTextQueue);
 
 	INIT_COMPONENT("CrossingChallenge", "Crossing Challenge", CrossingChallenge);
+
+	INIT_COMPONENT("EntityTracking", "Entity Tracking", EntityTracking);
 
 #ifdef WITH_DEBUG_PANEL_SUPPORT
 	if (DoesFeatureFlagExist("enabledebugsocket"))
