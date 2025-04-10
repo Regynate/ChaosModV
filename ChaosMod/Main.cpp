@@ -27,7 +27,6 @@
 #include "Util/OptionsManager.h"
 #include "Util/PoolSpawner.h"
 #include "Util/Text.h"
-#include "Util/Vehicle.h"
 
 #define FORCE_LEGACY_SOUND_MANAGER 1
 
