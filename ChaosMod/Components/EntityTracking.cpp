@@ -28,7 +28,6 @@ void EntityTracking::UpdateVehicleEntryPoint()
 		m_LastVehicleEntryPoint.vehicleCoords  = GET_ENTITY_COORDS(vehicle, false);
 		m_LastVehicleEntryPoint.playerCoords   = GET_ENTITY_COORDS(playerPed, false);
 		m_LastVehicleEntryPoint.insideVehicle  = inVehicle;
-        LOG("entering: " << enteringVehicle << " invehicle: " << inVehicle);
 	}
 }
 
