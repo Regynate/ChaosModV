@@ -88,7 +88,7 @@ struct SeatPed
 
 inline Vehicle CreateVehicleWithPeds(Hash model, Vehicle oldHandle, const std::vector<SeatPed> &seatPeds,
                                      bool addToPool, const Vector3 &coords, float heading, bool engineRunning,
-                                     const Vector3 &velocity, float forwardSpeed)
+                                     const Vector3 &velocity, float forwardSpeed, bool randomComponents = true)
 {
 	if (!IS_MODEL_VALID(model))
 		return oldHandle;
@@ -141,44 +141,50 @@ inline Vehicle CreateVehicleWithPeds(Hash model, Vehicle oldHandle, const std::v
 		}
 	}
 
-	// Also apply random upgrades
-	SET_VEHICLE_MOD_KIT(newVehicle, 0);
-
-	SET_VEHICLE_WHEEL_TYPE(newVehicle, g_RandomNoDeterm.GetRandomInt(0, 12));
-
-	for (int i = 0; i < 50; i++)
+	if (randomComponents)
 	{
-		int max = GET_NUM_VEHICLE_MODS(newVehicle, i);
-		if (max > 0)
+		// Also apply random upgrades
+		SET_VEHICLE_MOD_KIT(newVehicle, 0);
+
+		SET_VEHICLE_WHEEL_TYPE(newVehicle, g_RandomNoDeterm.GetRandomInt(0, 12));
+
+		for (int i = 0; i < 50; i++)
 		{
-			SET_VEHICLE_MOD(newVehicle, i, g_RandomNoDeterm.GetRandomInt(0, max - 1),
-			                g_RandomNoDeterm.GetRandomInt(0, 1));
+			int max = GET_NUM_VEHICLE_MODS(newVehicle, i);
+			if (max > 0)
+			{
+				auto const modIndex    = g_RandomNoDeterm.GetRandomInt(0, max - 1);
+				auto const customTires = g_RandomNoDeterm.GetRandomInt(0, 1);
+
+				SET_VEHICLE_MOD(newVehicle, i, modIndex, customTires); // 0 10 1
+			}
+
+			TOGGLE_VEHICLE_MOD(newVehicle, i, g_RandomNoDeterm.GetRandomInt(0, 1));
 		}
 
-		TOGGLE_VEHICLE_MOD(newVehicle, i, g_RandomNoDeterm.GetRandomInt(0, 1));
+		SET_VEHICLE_TYRES_CAN_BURST(newVehicle, g_RandomNoDeterm.GetRandomInt(0, 1));
+		SET_VEHICLE_WINDOW_TINT(newVehicle, g_RandomNoDeterm.GetRandomInt(0, 6));
+
+		SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(newVehicle, g_RandomNoDeterm.GetRandomInt(0, 255),
+		                                  g_RandomNoDeterm.GetRandomInt(0, 255), g_RandomNoDeterm.GetRandomInt(0, 255));
+		SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(newVehicle, g_RandomNoDeterm.GetRandomInt(0, 255),
+		                                    g_RandomNoDeterm.GetRandomInt(0, 255),
+		                                    g_RandomNoDeterm.GetRandomInt(0, 255));
+
+		_SET_VEHICLE_NEON_LIGHTS_COLOUR(newVehicle, g_RandomNoDeterm.GetRandomInt(0, 255),
+		                                g_RandomNoDeterm.GetRandomInt(0, 255), g_RandomNoDeterm.GetRandomInt(0, 255));
+		for (int i = 0; i < 4; i++)
+			_SET_VEHICLE_NEON_LIGHT_ENABLED(newVehicle, i, true);
+
+		_SET_VEHICLE_XENON_LIGHTS_COLOR(newVehicle, g_RandomNoDeterm.GetRandomInt(0, 12));
 	}
-
-	SET_VEHICLE_TYRES_CAN_BURST(newVehicle, g_RandomNoDeterm.GetRandomInt(0, 1));
-	SET_VEHICLE_WINDOW_TINT(newVehicle, g_RandomNoDeterm.GetRandomInt(0, 6));
-
-	SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(newVehicle, g_RandomNoDeterm.GetRandomInt(0, 255),
-	                                  g_RandomNoDeterm.GetRandomInt(0, 255), g_RandomNoDeterm.GetRandomInt(0, 255));
-	SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(newVehicle, g_RandomNoDeterm.GetRandomInt(0, 255),
-	                                    g_RandomNoDeterm.GetRandomInt(0, 255), g_RandomNoDeterm.GetRandomInt(0, 255));
-
-	_SET_VEHICLE_NEON_LIGHTS_COLOUR(newVehicle, g_RandomNoDeterm.GetRandomInt(0, 255),
-	                                g_RandomNoDeterm.GetRandomInt(0, 255), g_RandomNoDeterm.GetRandomInt(0, 255));
-	for (int i = 0; i < 4; i++)
-		_SET_VEHICLE_NEON_LIGHT_ENABLED(newVehicle, i, true);
-
-	_SET_VEHICLE_XENON_LIGHTS_COLOR(newVehicle, g_RandomNoDeterm.GetRandomInt(0, 12));
 
 	return newVehicle;
 }
 
 inline Vehicle CreateRandomVehicleWithPeds(Vehicle oldHandle, const std::vector<SeatPed> &seatPeds, bool addToPool,
                                            const Vector3 &coords, float heading, bool engineRunning,
-                                           const Vector3 &velocity, float forwardSpeed)
+                                           const Vector3 &velocity, float forwardSpeed, bool randomComponents = true)
 {
 	static const std::vector<Hash> &vehicleModels = Memory::GetAllVehModels();
 	if (vehicleModels.empty())
@@ -195,10 +201,10 @@ inline Vehicle CreateRandomVehicleWithPeds(Vehicle oldHandle, const std::vector<
 		return oldHandle;
 
 	return CreateVehicleWithPeds(newVehModel, oldHandle, seatPeds, addToPool, coords, heading, engineRunning, velocity,
-	                             forwardSpeed);
+	                             forwardSpeed, randomComponents);
 }
 
-inline Vehicle ReplaceVehicleWithModel(Vehicle veh, Hash model, bool addToPool)
+inline Vehicle ReplaceVehicleWithModel(Vehicle veh, Hash model, bool addToPool, bool randomComponents = true)
 {
 	std::vector<SeatPed> vehPeds;
 	int numberOfSeats = GET_VEHICLE_MODEL_NUMBER_OF_SEATS(GET_ENTITY_MODEL(veh));
@@ -226,10 +232,10 @@ inline Vehicle ReplaceVehicleWithModel(Vehicle veh, Hash model, bool addToPool)
 	float forwardSpeed = GET_ENTITY_SPEED(veh);
 
 	return CreateVehicleWithPeds(model, veh, vehPeds, addToPool, vehCoords, heading, engineRunning, velocity,
-	                             forwardSpeed);
+	                             forwardSpeed, randomComponents);
 }
 
-inline Vehicle ReplaceVehicle(Vehicle veh, bool addToPool)
+inline Vehicle ReplaceVehicle(Vehicle veh, bool addToPool, bool randomComponents = true)
 {
 	std::vector<SeatPed> vehPeds;
 	int numberOfSeats = GET_VEHICLE_MODEL_NUMBER_OF_SEATS(GET_ENTITY_MODEL(veh));
@@ -254,7 +260,7 @@ inline Vehicle ReplaceVehicle(Vehicle veh, bool addToPool)
 	float forwardSpeed = GET_ENTITY_SPEED(veh);
 
 	return CreateRandomVehicleWithPeds(veh, vehPeds, addToPool, vehCoords, heading, engineRunning, velocity,
-	                                   forwardSpeed);
+	                                   forwardSpeed, randomComponents);
 }
 
 inline void DeleteVehicle(Vehicle vehicle)

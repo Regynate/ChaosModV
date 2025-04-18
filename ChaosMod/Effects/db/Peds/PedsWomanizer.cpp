@@ -26,11 +26,11 @@ CHAOS_VAR std::array<Hash, 5> femaleModels { GET_HASH_KEY("a_f_m_beach_01"), GET
 CHAOS_VAR std::array<Hash, 5> luxuryCars { GET_HASH_KEY("adder"), GET_HASH_KEY("t20"), GET_HASH_KEY("banshee"),
 	                                       GET_HASH_KEY("zentorno"), GET_HASH_KEY("turismor") };
 
-static void TransformPedIntoWomen(const Ped ped)
+static Ped TransformPedIntoWomen(const Ped ped)
 {
 	auto const player = PLAYER_PED_ID();
 	if (ped == player || !DOES_ENTITY_EXIST(ped) || IS_PED_DEAD_OR_DYING(ped, true))
-		return;
+		return 0;
 
 	auto const pedCoords    = GET_ENTITY_COORDS(ped, true);
 	auto const playerCoords = GET_ENTITY_COORDS(player, false);
@@ -38,15 +38,15 @@ static void TransformPedIntoWomen(const Ped ped)
 	                                                      playerCoords.y, playerCoords.z, false);
 
 	if (distance > 100)
-		return;
+		return 0;
 
-	auto const randomModel = femaleModels[GET_RANDOM_INT_IN_RANGE(0, femaleModels.size())];
+	auto const randomModel       = femaleModels[GET_RANDOM_INT_IN_RANGE(0, femaleModels.size())];
 
-	auto const heading     = GET_ENTITY_HEADING(ped);
-	auto const vehicle     = GET_VEHICLE_PED_IS_IN(ped, false);
+	auto const heading           = GET_ENTITY_HEADING(ped);
+	auto const vehicle           = GET_VEHICLE_PED_IS_IN(ped, false);
 
 	auto const spawnHeightOffset = IS_PED_IN_ANY_VEHICLE(ped, false) ? 2.0f : 0.0f;
-	
+
 	DeleteEntity(ped);
 	auto const newPed =
 	    CreatePoolPed(26, randomModel, pedCoords.x, pedCoords.y, pedCoords.z + spawnHeightOffset, heading);
@@ -64,49 +64,55 @@ static void TransformPedIntoWomen(const Ped ped)
 		{
 			SET_PED_INTO_VEHICLE(newPed, vehicle, i);
 			if (IS_PED_IN_ANY_VEHICLE(newPed, false))
-				return;
+				return 0;
 		}
 	}
+
+	return newPed;
 }
 
-static void TransformCarsIntoLuxury(const Vehicle vehicle)
+static Vehicle TransformCarsIntoLuxury(const Vehicle vehicle)
 {
-	auto const player        = PLAYER_PED_ID();
-	auto const playerVehicle = GET_VEHICLE_PED_IS_IN(player, false);
-	if (vehicle == playerVehicle || !DOES_ENTITY_EXIST(vehicle))
-		return;
+	auto const player = PLAYER_PED_ID();
+	if (IS_PED_IN_VEHICLE(player, vehicle, false) || !DOES_ENTITY_EXIST(vehicle))
+		return 0;
 
 	auto const randomModel   = luxuryCars[GET_RANDOM_INT_IN_RANGE(0, luxuryCars.size() - 1)];
 
-	auto const vehicleCoords = GET_ENTITY_COORDS(vehicle, true);
-	auto const playerCoords  = GET_ENTITY_COORDS(player, false);
-	auto const distance = GET_DISTANCE_BETWEEN_COORDS(vehicleCoords.x, vehicleCoords.y, vehicleCoords.z, playerCoords.x,
-	                                                  playerCoords.y, playerCoords.z, false);
-
-	auto const heading       = GET_ENTITY_HEADING(vehicle);
-
-	auto const luxuryVehicle = ReplaceVehicleWithModel(vehicle, randomModel, true);
+	auto const luxuryVehicle = ReplaceVehicleWithModel(vehicle, randomModel, true, false);
 	SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(luxuryVehicle, 255, 0, 255);
 	SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(luxuryVehicle, 150, 0, 150);
+
+	return luxuryVehicle;
 }
 
 static void OnStart()
 {
+	std::set<Entity> replacedEntities;
+
 	int counter = 5;
 
 	for (auto const vehicle : GetAllVehs())
 	{
-		TransformCarsIntoLuxury(vehicle);
+		if (!replacedEntities.contains(vehicle))
+		{
+			const auto newVeh = TransformCarsIntoLuxury(vehicle);
+			replacedEntities.emplace(newVeh);
+		}
 		if (counter-- <= 0)
 		{
 			WAIT(0);
 			counter = 5;
 		}
 	}
-
+	
 	for (auto const ped : GetAllPeds())
 	{
-		TransformPedIntoWomen(ped);
+		if (!replacedEntities.contains(ped))
+		{
+			const auto newPed = TransformPedIntoWomen(ped);
+			replacedEntities.emplace(newPed);
+		}
 		if (counter-- <= 0)
 		{
 			WAIT(0);
