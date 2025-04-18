@@ -210,8 +210,12 @@ inline Vehicle ReplaceVehicleWithModel(Vehicle veh, Hash model, bool addToPool)
 			SeatPed seatPed = { ped, i };
 			vehPeds.push_back(seatPed);
 			auto pedCoords = GET_ENTITY_COORDS(ped, true);
-			SET_ENTITY_COORDS(ped, pedCoords.x, pedCoords.y, pedCoords.z + 3, 0, 0, 0, false);
-			SET_ENTITY_AS_MISSION_ENTITY(ped, false, false);
+
+			if (!IS_PED_A_PLAYER(ped))
+			{
+				SET_ENTITY_COORDS(ped, pedCoords.x, pedCoords.y, pedCoords.z + 3, 0, 0, 0, false);
+				SET_ENTITY_AS_MISSION_ENTITY(ped, false, false);
+			}
 		}
 	}
 
@@ -222,7 +226,7 @@ inline Vehicle ReplaceVehicleWithModel(Vehicle veh, Hash model, bool addToPool)
 	float forwardSpeed = GET_ENTITY_SPEED(veh);
 
 	return CreateVehicleWithPeds(model, veh, vehPeds, addToPool, vehCoords, heading, engineRunning, velocity,
-	                                   forwardSpeed);
+	                             forwardSpeed);
 }
 
 inline Vehicle ReplaceVehicle(Vehicle veh, bool addToPool)
@@ -237,7 +241,9 @@ inline Vehicle ReplaceVehicle(Vehicle veh, bool addToPool)
 			SeatPed seatPed = { ped, i };
 			vehPeds.push_back(seatPed);
 			auto pedCoords = GET_ENTITY_COORDS(ped, true);
-			SET_ENTITY_COORDS(ped, pedCoords.x, pedCoords.y, pedCoords.z + 3, 0, 0, 0, false);
+
+			if (!IS_PED_A_PLAYER(ped))
+				SET_ENTITY_COORDS(ped, pedCoords.x, pedCoords.y, pedCoords.z + 3, 0, 0, 0, false);
 		}
 	}
 
