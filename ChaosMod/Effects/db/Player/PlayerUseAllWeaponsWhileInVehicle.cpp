@@ -1,95 +1,54 @@
 #include "Effects/Register/RegisterEffect.h"
 
 #include <stdafx.h>
-#include <ranges>
 
-CHAOS_VAR std::vector<std::uint32_t> OriginalWeaponGroup;
+#include "Memory/WeaponPool.h"
+
+CHAOS_VAR std::vector<std::uint32_t> OriginalWeaponGroups;
+
+CHAOS_VAR const int weaponGroupOffset = 0x5C;
+CHAOS_VAR const int pistolGroupHash   = 0x18D5FA97;
+
+static int *GetWeaponGroup(DWORD64 weapon)
+{
+	auto const weaponGroup = weapon + weaponGroupOffset;
+
+	return reinterpret_cast<int *>(weaponGroup);
+}
 
 static void BackupWeaponProperties()
 {
-	static auto handle = Memory::FindPattern("48 8B 05 ? ? ? ? 48 8B 04 F0");
-	if (!handle.IsValid())
-		return;
+	const auto weapons = Memory::GetAllWeaponPointers();
 
-	auto const absolute                = handle.At(2).Into().Addr();
+	OriginalWeaponGroups.clear();
 
-	auto constexpr weaponGroupOffset = static_cast<std::uint64_t>(0x5c);
-
-	auto const weaponInfo             = *reinterpret_cast<std::uintptr_t ***>(absolute);
-	auto const weaponCount            = *reinterpret_cast<std::uint16_t *>(absolute + 0x8);
-
-	OriginalWeaponGroup.clear();
-
-	std::ranges::for_each(std::views::iota(std::uint16_t { 0 }, weaponCount),
-	    [&](std::uint16_t i)
-	    {
-		    auto const weapon = weaponInfo[i];
-
-		    if (!weapon)
-			    return;
-
-		    auto const ptr          = reinterpret_cast<std::uintptr_t>(weapon);
-		    auto const weaponGroup = ptr + weaponGroupOffset;
-
-		                      
-		    OriginalWeaponGroup.push_back(*reinterpret_cast<std::uint32_t *>(weaponGroup));
-	    });
+	for (size_t i = 0; i < weapons->count; i++)
+	{
+		const auto weapon = weapons->elements[i];
+		OriginalWeaponGroups.push_back(*GetWeaponGroup(weapon));
+	}
 }
 
 static void ModifyWeaponProperties()
 {
-	auto constexpr weaponGroupOffset = static_cast<std::uint64_t>(0x5c);
+	const auto weapons = Memory::GetAllWeaponPointers();
 
-	static auto handle               = Memory::FindPattern("48 8B 05 ? ? ? ? 48 8B 04 F0");
-	if (!handle.IsValid())
-		return;
-
-	auto const absolute               = handle.At(2).Into().Addr();
-
-	auto const weaponInfo             = *reinterpret_cast<std::uintptr_t ***>(absolute);
-	auto const weaponCount            = *reinterpret_cast<std::uint16_t *>(absolute + 0x8);
-
-	std::ranges::for_each(std::views::iota(std::uint16_t { 0 }, weaponCount),
-	    [&](std::uint16_t i)
-	    {
-		    auto const weapon = weaponInfo[i];
-
-		    if (!weapon)
-			    return;
-
-		    auto const ptr          = reinterpret_cast<std::uintptr_t>(weapon);
-		    auto const weaponGroup = ptr + weaponGroupOffset;
-
-		    *reinterpret_cast<std::uint32_t *>(weaponGroup) = 0x18D5FA97;
-	    });
+	for (size_t i = 0; i < weapons->count; i++)
+	{
+		const auto weapon = weapons->elements[i];
+		*GetWeaponGroup(weapon) = pistolGroupHash;
+	}
 }
 
 static void RestoreWeaponProperties()
 {
-	auto constexpr weaponGroupOffset = static_cast<std::uint64_t>(0x5c);
+	const auto weapons = Memory::GetAllWeaponPointers();
 
-	static auto handle               = Memory::FindPattern("48 8B 05 ? ? ? ? 48 8B 04 F0");
-	if (!handle.IsValid())
-		return;
-
-	auto const absolute               = handle.At(2).Into().Addr();
-
-	auto const weaponInfo             = *reinterpret_cast<std::uintptr_t ***>(absolute);
-	auto const weaponCount            = *reinterpret_cast<std::uint16_t *>(absolute + 0x8);
-
-	std::ranges::for_each(std::views::iota(std::uint16_t { 0 }, weaponCount),
-	    [&](std::uint16_t i)
-	    {
-		    auto const weapon = weaponInfo[i];
-
-		    if (!weapon)
-			    return;
-
-		    auto const ptr          = reinterpret_cast<std::uintptr_t>(weapon);
-		    auto const weaponGroup = ptr + weaponGroupOffset;
-
-		    *reinterpret_cast<std::uint32_t *>(weaponGroup) = OriginalWeaponGroup[i];
-	    });
+	for (size_t i = 0; i < weapons->count; i++)
+	{
+		const auto weapon = weapons->elements[i];
+		*GetWeaponGroup(weapon) = OriginalWeaponGroups[i];
+	}
 }
 
 static void OnStart()

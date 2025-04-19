@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Lib/array.h"
+
 #include "Memory.h"
 
 #include "../Util/Natives.h"
@@ -12,34 +14,34 @@ using WORD    = unsigned short;
 
 namespace Memory
 {
+	inline const rage::array<DWORD64> *GetAllWeaponPointers()
+	{
+		static Handle handle =
+		    Memory::FindPattern("74 42 0F B7 15 ? ? ? 01", "48 89 35 ?? ?? ?? ?? 0F B7 2D ?? ?? ?? ?? E9 06 FE FF FF");
+		if (!handle.IsValid())
+			return nullptr;
+
+		if (IsLegacy())
+			return handle.At(18).Into().Get<rage::array<DWORD64>>();
+		else
+			return handle.At(2).Into().Get<rage::array<DWORD64>>();
+	}
+
 	inline const std::vector<Hash> &GetAllWeapons()
 	{
 		static std::vector<Hash> weapons;
 
 		if (weapons.empty())
 		{
-			Handle handle;
-
-			handle = Memory::FindPattern("74 42 0F B7 15 ? ? ? 01", "48 89 35 ?? ?? ?? ?? 0F B7 2D ?? ?? ?? ?? E9 06 FE FF FF");
+			// Get address of CWeaponInfo's vftable and store it
+			static Handle handle = Memory::FindPattern("48 8D 05 ? ? ? ? 4C 89 71 08 4C 89 71 10",
+			                                           "48 8D 05 ?? ?? ?? ?? 48 89 01 C7 41 5C 00 00 00 00");
 			if (!handle.IsValid())
 				return weapons;
 
-			WORD *infoptrs__count;
-			DWORD64 *infoptrs__elements;
-			if (IsLegacy())
-			{
-				infoptrs__count    = handle.At(4).Into().Get<WORD>();
-				infoptrs__elements = handle.At(18).Into().Get<DWORD64>();
-			}
-			else
-			{
-				infoptrs__elements = handle.At(2).Into().Get<DWORD64>();
-				infoptrs__count    = handle.At(9).Into().Get<WORD>();
-			}
+			const auto weaponPtrArray = GetAllWeaponPointers();
 
-			// Get address of CWeaponInfo's vftable and store it
-			handle = Memory::FindPattern("48 8D 05 ? ? ? ? 4C 89 71 08 4C 89 71 10", "48 8D 05 ?? ?? ?? ?? 48 89 01 C7 41 5C 00 00 00 00");
-			if (!handle.IsValid())
+			if (!weaponPtrArray)
 				return weapons;
 
 			auto CWeaponInfo_vftable = handle.At(2).Into().Addr();
@@ -48,11 +50,11 @@ namespace Memory
 			DWORD64 v4;
 			DWORD64 vftableAddrPtr;
 
-			for (v3 = *infoptrs__count - 1; v3 >= 0; v3 = v4 - 1)
+			for (v3 = weaponPtrArray->count - 1; v3 >= 0; v3 = v4 - 1)
 			{
 				v4             = static_cast<DWORD>(v3);
 
-				vftableAddrPtr = *(reinterpret_cast<DWORD64 *>(*infoptrs__elements) + v4);
+				vftableAddrPtr = weaponPtrArray->elements[v4];
 
 				// Only include actual ped weapons by checking if vftable pointed to is CWeaponInfo's
 				if (*reinterpret_cast<DWORD64 *>(vftableAddrPtr) != CWeaponInfo_vftable)
