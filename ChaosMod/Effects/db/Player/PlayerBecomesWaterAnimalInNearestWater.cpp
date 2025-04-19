@@ -1,21 +1,22 @@
 #include "Components/EffectDispatcher.h"
 #include "Effects/Register/RegisterEffect.h"
+#include "Memory/Water.h"
+#include "Memory/WeaponPool.h"
+#include "Util/LuaAPI.h"
 #include <ranges>
 #include <stdafx.h>
-#include "Util/LuaAPI.h"
-#include "Memory/WeaponPool.h"
 
 CHAOS_VAR std::vector<std::pair<Hash, int>> storedWeapons;
 
 static void StoreWeapons()
 {
-	auto const player = PLAYER_PED_ID();
+	auto const playerPed = PLAYER_PED_ID();
 
 	for (auto const weaponHash : Memory::GetAllWeapons())
 	{
-		if (HAS_PED_GOT_WEAPON(player, weaponHash, false))
+		if (HAS_PED_GOT_WEAPON(playerPed, weaponHash, false))
 		{
-			auto const ammo = GET_AMMO_IN_PED_WEAPON(player, weaponHash);
+			auto const ammo = GET_AMMO_IN_PED_WEAPON(playerPed, weaponHash);
 			storedWeapons.push_back({ weaponHash, ammo });
 		}
 	}
@@ -23,14 +24,13 @@ static void StoreWeapons()
 
 static void RestoreWeapons()
 {
-	auto const player = PLAYER_PED_ID();
+	auto const playerPed = PLAYER_PED_ID();
 
-	REMOVE_ALL_PED_WEAPONS(player, false);
+	REMOVE_ALL_PED_WEAPONS(playerPed, false);
 
 	for (auto const &weaponData : storedWeapons)
-		GIVE_WEAPON_TO_PED(player, weaponData.first, weaponData.second, false, true);
+		GIVE_WEAPON_TO_PED(playerPed, weaponData.first, weaponData.second, false, true);
 }
-
 
 static void SetPlayerModel(const std::uint32_t hash)
 {
@@ -52,20 +52,19 @@ CHAOS_VAR bool hasDiedOrFinished { false };
 
 static void SpawnSharkOnChance()
 {
-	auto const player = PLAYER_PED_ID();
-	auto const result = GET_RANDOM_INT_IN_RANGE(0, 100);
-	auto const coords     = GET_ENTITY_COORDS(player, false);
+	auto const playerPed  = PLAYER_PED_ID();
+	auto const result     = GET_RANDOM_INT_IN_RANGE(0, 100);
+	auto const coords     = GET_ENTITY_COORDS(playerPed, false);
 	auto const sharkModel = GET_HASH_KEY("a_c_sharktiger");
 	if (result == 69)
 		CreatePoolPed(28, sharkModel, coords.x, coords.y, coords.z, 0.f);
-	
 }
 
 static void OnStart()
 {
-	auto const player        = PLAYER_PED_ID();
+	auto const playerPed     = PLAYER_PED_ID();
 
-	auto const oldModel      = GET_ENTITY_MODEL(player);
+	auto const oldModel      = GET_ENTITY_MODEL(playerPed);
 	auto const michealModel  = GET_HASH_KEY("player_zero");
 	auto const franklinModel = GET_HASH_KEY("player_one");
 	auto const trevorModel   = GET_HASH_KEY("player_two");
@@ -85,31 +84,27 @@ static void OnStart()
 
 	LoadModel(selectedAnimal);
 
-	auto const swimming         = IS_PED_SWIMMING(player);
+	auto const swimming = IS_PED_SWIMMING(playerPed);
 	if (swimming)
 	{
-		auto const coords = GET_ENTITY_COORDS(player, false);
-		SET_ENTITY_COORDS(player, coords.x, coords.y, coords.z -3.f, false, false, false, false);
+		auto const coords = GET_ENTITY_COORDS(playerPed, false);
+		SET_ENTITY_COORDS(playerPed, coords.x, coords.y, coords.z - 3.f, false, false, false, false);
 		StoreWeapons();
 		SetPlayerModel(selectedAnimal);
 		SpawnSharkOnChance();
 		return;
 	}
 
-	auto const nearestWaterQuad = GetClosestQuad();
+	auto const nearestWaterQuad = Memory::GetClosestWaterQuad(GET_ENTITY_COORDS(playerPed, false));
 
-	for (auto const _ : std::ranges::iota_view { 0, 5 })
-	{
-		SET_ENTITY_COORDS(player, nearestWaterQuad.x, nearestWaterQuad.y, nearestWaterQuad.z - 5.0f, false, false,
-		                  false, false);
-		WAIT(0);
-	}
+	auto const quadCenter       = Vector3((nearestWaterQuad->MinX + nearestWaterQuad->MaxX) / 2.f,
+	                                      (nearestWaterQuad->MinY + nearestWaterQuad->MaxY) / 2.f, nearestWaterQuad->Z);
 
-	while (!IS_ENTITY_IN_WATER(player))
-		WAIT(500);
+	SET_ENTITY_COORDS(playerPed, quadCenter.x, quadCenter.y, quadCenter.z - 5.0f, false,
+	                  false, false, false);
 
-	while (!IS_PED_SWIMMING(player))
-		WAIT(500);
+	WAIT(1000);
+
 	StoreWeapons();
 	SetPlayerModel(selectedAnimal);
 
@@ -126,14 +121,13 @@ static void OnStop()
 
 static void OnTick()
 {
-	auto const player = PLAYER_PED_ID();
+	auto const playerPed = PLAYER_PED_ID();
 
 	if (hasDiedOrFinished)
 		return;
 
-	if (IS_PED_DEAD_OR_DYING(player, false))
+	if (IS_PED_DEAD_OR_DYING(playerPed, false))
 	{
-
 		SetPlayerModel(previousModel);
 		RestoreWeapons();
 		hasDiedOrFinished = true;

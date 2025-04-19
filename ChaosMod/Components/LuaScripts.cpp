@@ -708,13 +708,8 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 			          state ? sharedData->EffectSoundPlayOptions.PlayFlags & ~EffectSoundPlayFlags_DontStopOnEntityDeath
 			                : sharedData->EffectSoundPlayOptions.PlayFlags | EffectSoundPlayFlags_DontStopOnEntityDeath;
 		  }),
-		E("GetClosestQuad", GetClosestQuad),
-		E("SetRainProperties", SetRainProperties),
-		E("IsPedWet", IsPedWet),
-		E("SetWaterCollisionForPlayer", SetWaterCollisionForPlayer),
 		E("ClearEntityPool", ClearEntityPool),
 		E("DispatchRandomEffect", DispatchRandomEffect),
-		E("RestoreRainProperties", RestoreRainProperties),
 	};
 #undef E
 

@@ -84,4 +84,59 @@ namespace Memory
 
 		return *handle.At(2).Into().Get<CWaveQuad *>();
 	}
+
+	inline bool IsPedWet(const Ped ped)
+	{
+		auto const entityAddress = Memory::GetScriptHandleBaseAddress(ped);
+		if (!entityAddress)
+			return false;
+		auto const wetness = *reinterpret_cast<float *>(entityAddress + 0x31C);
+
+		return wetness > 0.005;
+	}
+
+	inline void SetWaterCollisionForPed(const Ped ped, const bool toggle)
+	{
+		auto const entityAddress = Memory::GetScriptHandleBaseAddress(ped);
+		if (!entityAddress)
+			return;
+
+		auto const navigation = *reinterpret_cast<std::uintptr_t *>(entityAddress + 0x30);
+		if (!navigation)
+			return;
+
+		auto const damp = *reinterpret_cast<std::uintptr_t *>(navigation + 0x10);
+		if (!damp)
+			return;
+
+		auto const collision = reinterpret_cast<float *>(damp + 0x54);
+		if (!collision)
+			return;
+
+		*collision = toggle ? 1.f : 0.f;
+	}
+
+	inline CWaterQuad *GetClosestWaterQuad(const Vector3 &pos)
+	{
+		auto const waterQuads = GetAllWaterQuads();
+		if (!waterQuads)
+			return nullptr;
+
+		CWaterQuad *closestQuad = nullptr;
+		float closestDistance   = std::numeric_limits<float>::max();
+
+		for (int i = 0; i < 821; i++)
+		{
+			auto const quad     = &waterQuads[i];
+			auto const center   = Vector3((quad->MinX + quad->MaxX) / 2.f, (quad->MinY + quad->MaxY) / 2.f, quad->Z);
+			auto const distance = pos.DistanceTo(center);
+			if (distance < closestDistance)
+			{
+				closestDistance = distance;
+				closestQuad     = quad;
+			}
+		}
+
+		return closestQuad;
+	}
 }
