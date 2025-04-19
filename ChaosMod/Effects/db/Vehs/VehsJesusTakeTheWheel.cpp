@@ -6,6 +6,8 @@
 
 #include "Effects/Register/RegisterEffect.h"
 
+#include "Components/EntityTracking.h"
+
 static void OnStart()
 {
 	Ped playerPed = PLAYER_PED_ID();
@@ -66,6 +68,29 @@ static void OnStart()
 
 	SET_PED_KEEP_TASK(jesus, true);
 	SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(jesus, true);
+
+	if (ComponentExists<EntityTracking>())
+	{
+		const auto foo = [veh](Entity jesus)
+		{
+			if (IS_WAYPOINT_ACTIVE())
+			{
+				static auto lastCoords = Vector3();
+				const auto coords      = GET_BLIP_COORDS(GET_FIRST_BLIP_INFO_ID(8));
+
+				if (lastCoords.x != coords.x || lastCoords.y != coords.y || lastCoords.z != coords.z)
+				{
+					CLEAR_PED_TASKS(jesus);
+					TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE(jesus, veh, coords.x, coords.y, coords.z, 9999.f, 262668,
+					                                      0.f);
+				}
+
+				lastCoords = coords;
+			}
+		};
+
+		GetComponent<EntityTracking>()->AddTracker(jesus, foo);
+	}
 }
 
 // clang-format off
