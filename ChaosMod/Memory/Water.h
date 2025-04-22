@@ -116,7 +116,15 @@ namespace Memory
 		*collision = toggle ? 1.f : 0.f;
 	}
 
-	inline CWaterQuad *GetClosestWaterQuad(const Vector3 &pos)
+	inline Vector3 GetWaterQuadCenter(const CWaterQuad *quad)
+	{
+		if (!quad)
+			return Vector3(0.f, 0.f, 0.f);
+
+		return Vector3((quad->MinX + quad->MaxX) / 2.f, (quad->MinY + quad->MaxY) / 2.f, quad->Z);
+	}
+
+	inline CWaterQuad *GetClosestWaterQuad(const Vector3 &pos, float minDepth)
 	{
 		auto const waterQuads = GetAllWaterQuads();
 		if (!waterQuads)
@@ -127,8 +135,15 @@ namespace Memory
 
 		for (int i = 0; i < 821; i++)
 		{
-			auto const quad     = &waterQuads[i];
-			auto const center   = Vector3((quad->MinX + quad->MaxX) / 2.f, (quad->MinY + quad->MaxY) / 2.f, quad->Z);
+			auto const quad   = &waterQuads[i];
+			auto const center = GetWaterQuadCenter(quad);
+
+			float groundZ;
+			const auto success = GET_GROUND_Z_FOR_3D_COORD(center.x, center.y, center.z + 100.f, &groundZ, true, false);
+
+			if (!success || waterQuads[i].Z - groundZ < minDepth)
+				continue;
+
 			auto const distance = pos.DistanceTo(center);
 			if (distance < closestDistance)
 			{
@@ -138,5 +153,14 @@ namespace Memory
 		}
 
 		return closestQuad;
+	}
+
+	inline Vector3 GetClosestWaterQuadCenter(const Vector3 &pos, float minDepth)
+	{
+		auto const waterQuad = GetClosestWaterQuad(pos, minDepth);
+
+		if (!waterQuad)
+			return Vector3(-22.f, 680.f, 196.4f);
+		return GetWaterQuadCenter(waterQuad);
 	}
 }

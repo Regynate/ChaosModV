@@ -14,13 +14,14 @@
 #include "Info.h"
 #include "Memory/EntityFragments.h"
 #include "Memory/Gravity.h"
-#include "Memory/Hooks/GameSpeedHook.h"
 #include "Memory/Hooks/AudioSettingsHook.h"
+#include "Memory/Hooks/GameSpeedHook.h"
 #include "Memory/Hooks/GetLabelTextHook.h"
 #include "Memory/Hooks/ShaderHook.h"
 #include "Memory/PedModels.h"
 #include "Memory/Snow.h"
 #include "Memory/Vehicle.h"
+#include "Memory/Water.h"
 #include "Memory/WeaponPool.h"
 #include "Util/Camera.h"
 #include "Util/EntityIterator.h"
@@ -520,11 +521,13 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 	lua.new_enum("EOverrideShaderType", "LensDistortion", OverrideShaderType::LensDistortion, "Snow",
 	             OverrideShaderType::Snow);
 
-#define E(x, y)               \
-	{ x, [=](sol::state &lua) \
-	  {                       \
-		  lua[x] = y;         \
-	  } }
+#define E(x, y)                 \
+	{                           \
+		x, [=](sol::state &lua) \
+		{                       \
+			lua[x] = y;         \
+		}                       \
+	}
 	struct ExposableFunc
 	{
 		const char *Name;
@@ -713,7 +716,14 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("ClearEntityPool", ClearEntityPool),
 		E("DispatchRandomEffect", DispatchRandomEffect),
 		E("SetGravityLevel", Memory::SetGravityLevel),
-		E("DetachBone", Memory::DetachBone)
+		E("DetachBone", Memory::DetachBone),
+		E("SetWaterCollisionForPed", Memory::SetWaterCollisionForPed),
+		E("GetClosestWaterQuadCenter",
+		  [](const LuaVector3 &coords, float minDepth)
+		  {
+		      const auto res = Memory::GetClosestWaterQuadCenter(Vector3(coords.X, coords.Y, coords.Z), minDepth);
+		      return LuaVector3(res.x, res.y, res.z);
+		  }),
 	};
 #undef E
 

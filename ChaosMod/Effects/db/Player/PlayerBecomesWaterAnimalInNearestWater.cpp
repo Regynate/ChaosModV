@@ -95,13 +95,9 @@ static void OnStart()
 		return;
 	}
 
-	auto const nearestWaterQuad = Memory::GetClosestWaterQuad(GET_ENTITY_COORDS(playerPed, false));
+	auto const quadCenter = Memory::GetClosestWaterQuadCenter(GET_ENTITY_COORDS(playerPed, false), 0.f);
 
-	auto const quadCenter       = Vector3((nearestWaterQuad->MinX + nearestWaterQuad->MaxX) / 2.f,
-	                                      (nearestWaterQuad->MinY + nearestWaterQuad->MaxY) / 2.f, nearestWaterQuad->Z);
-
-	SET_ENTITY_COORDS(playerPed, quadCenter.x, quadCenter.y, quadCenter.z - 5.0f, false,
-	                  false, false, false);
+	SET_ENTITY_COORDS(playerPed, quadCenter.x, quadCenter.y, quadCenter.z - 5.0f, false, false, false, false);
 
 	WAIT(1000);
 
