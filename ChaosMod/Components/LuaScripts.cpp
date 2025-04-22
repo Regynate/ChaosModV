@@ -924,7 +924,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 			else
 			{
 				effectData.TimedType  = EffectTimedType::Custom;
-				effectData.CustomTime = std::numeric_limits<decltype(effectData.CustomTime)>::max();
+				effectData.CustomTime = static_cast<float>(std::max(1, *durationOpt));
 			}
 		}
 		else
