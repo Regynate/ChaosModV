@@ -12,6 +12,7 @@
 #include "Effects/Register/RegisteredEffects.h"
 #include "Effects/Register/RegisteredEffectsMetadata.h"
 #include "Info.h"
+#include "Memory/EntityFragments.h"
 #include "Memory/Gravity.h"
 #include "Memory/Hooks/GameSpeedHook.h"
 #include "Memory/Hooks/AudioSettingsHook.h"
@@ -711,7 +712,8 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		  }),
 		E("ClearEntityPool", ClearEntityPool),
 		E("DispatchRandomEffect", DispatchRandomEffect),
-		E("SetGravityLevel", Memory::SetGravityLevel)
+		E("SetGravityLevel", Memory::SetGravityLevel),
+		E("DetachBone", Memory::DetachBone)
 	};
 #undef E
 
