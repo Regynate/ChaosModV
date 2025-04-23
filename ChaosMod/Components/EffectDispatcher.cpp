@@ -15,9 +15,9 @@
 #include "Util/ScriptText.h"
 
 #define EFFECT_TEXT_INNER_SPACING_MIN .030f
-#define EFFECT_TEXT_INNER_SPACING_MAX .075f
+#define EFFECT_TEXT_INNER_SPACING_MAX .065f
 #define EFFECT_TEXT_TOP_SPACING .2f
-#define EFFECT_TEXT_TOP_SPACING_EXTRA .35f
+#define EFFECT_TEXT_TOP_SPACING_EXTRA .40f
 #define EFFECT_NONTIMED_TIMER_SPEEDUP_MIN_EFFECTS 3
 
 static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDispatcher::EffectDispatchEntry &entry)

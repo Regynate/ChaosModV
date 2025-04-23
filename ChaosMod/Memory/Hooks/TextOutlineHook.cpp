@@ -9,9 +9,7 @@
 
 #include "Memory/Allocator/MemoryBuffer.h"
 
-typedef unsigned long long DWORD64;
-typedef unsigned long DWORD;
-typedef unsigned char BYTE;
+#include "Memory/Rain.h"
 
 static float *strengthPtr;
 static float *newRadiusPtr;
@@ -51,8 +49,10 @@ static void OnCleanup()
 {
 	FreeBuffer(newRadiusPtr);
 	strengthPtr = newRadiusPtr = nullptr;
-	*jmpPtr                    = oldJmpValue;
-	*strengthPtr               = 2000.f;
+	if (jmpPtr)
+		*jmpPtr = oldJmpValue;
+	if (strengthPtr)
+		*strengthPtr = 2000.f;
 }
 
 namespace Hooks
