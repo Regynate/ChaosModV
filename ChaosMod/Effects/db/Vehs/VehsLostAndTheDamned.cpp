@@ -3,24 +3,6 @@
 #include "Effects/Register/RegisterEffect.h"
 #include "Util/Vehicle.h"
 
-static bool RequestControlEntity(Entity entity)
-{
-	if (!DOES_ENTITY_EXIST(entity))
-		return false;
-
-	return NETWORK_HAS_CONTROL_OF_ENTITY(entity);
-}
-
-static void DeleteEntity(Entity entity)
-{
-	if (RequestControlEntity(entity))
-	{
-		if (!IS_ENTITY_A_MISSION_ENTITY(entity))
-			SET_ENTITY_AS_MISSION_ENTITY(entity, true, true);
-		DELETE_ENTITY(&entity);
-	}
-}
-
 static void OnStart()
 {
 	for (auto const vehicle : GetAllVehs())
