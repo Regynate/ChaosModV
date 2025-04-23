@@ -85,14 +85,14 @@ namespace Memory
 		return *handle.At(2).Into().Get<CWaveQuad *>();
 	}
 
-	inline bool IsPedWet(const Ped ped)
+	inline float GetPedWetness(const Ped ped)
 	{
 		auto const entityAddress = Memory::GetScriptHandleBaseAddress(ped);
 		if (!entityAddress)
 			return false;
-		auto const wetness = *reinterpret_cast<float *>(entityAddress + 0x31C);
+		auto const wetness = *reinterpret_cast<float *>(entityAddress + static_cast<DWORD64>(IsLegacy() ? 0x31C : 0x2FC));
 
-		return wetness > 0.005;
+		return wetness;
 	}
 
 	inline void SetWaterCollisionForPed(const Ped ped, const bool toggle)

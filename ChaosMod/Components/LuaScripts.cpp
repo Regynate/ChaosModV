@@ -19,6 +19,7 @@
 #include "Memory/Hooks/GetLabelTextHook.h"
 #include "Memory/Hooks/ShaderHook.h"
 #include "Memory/PedModels.h"
+#include "Memory/Rain.h"
 #include "Memory/Snow.h"
 #include "Memory/Vehicle.h"
 #include "Memory/Water.h"
@@ -27,7 +28,6 @@
 #include "Util/EntityIterator.h"
 #include "Util/File.h"
 #include "Util/HelpText.h"
-#include "Util/LuaAPI.h"
 #include "Util/Peds.h"
 #include "Util/Player.h"
 #include "Util/PoolSpawner.h"
@@ -724,6 +724,18 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		      const auto res = Memory::GetClosestWaterQuadCenter(Vector3(coords.X, coords.Y, coords.Z), minDepth);
 		      return LuaVector3(res.x, res.y, res.z);
 		  }),
+		E("GetRainColor", []() {
+			const auto res = Memory::GetRainColor();
+			return LuaVector3(res.x, res.y, res.z);
+		} ),
+		E("GetRainLight", Memory::GetRainLight),
+		E("GetRainGravity", Memory::GetRainGravity),
+		E("SetRainColor", [](const float &r, const float &g, const float &b) {
+			Memory::SetRainColor(r, g, b);
+		}),
+		E("SetRainLight", Memory::SetRainLight),
+		E("SetRainGravity", Memory::SetRainGravity),
+		E("GetPedWetness", Memory::GetPedWetness),
 	};
 #undef E
 

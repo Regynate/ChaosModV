@@ -2,7 +2,6 @@
 #include "Effects/Register/RegisterEffect.h"
 #include "Memory/Water.h"
 #include "Memory/WeaponPool.h"
-#include "Util/LuaAPI.h"
 #include <ranges>
 #include <stdafx.h>
 
