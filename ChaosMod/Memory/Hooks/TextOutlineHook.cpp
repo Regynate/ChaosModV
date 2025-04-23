@@ -15,6 +15,8 @@ typedef unsigned char BYTE;
 
 static float *strengthPtr;
 static float *newRadiusPtr;
+static std::uint32_t oldJmpValue;
+static std::uint32_t *jmpPtr;
 
 static bool OnHook()
 {
@@ -26,19 +28,21 @@ static bool OnHook()
 	if (!handle.IsValid())
 		return false;
 
-	strengthPtr                   = handle.At(12).Get<float>();
+	strengthPtr  = handle.At(12).Get<float>();
 
 	// some fuckery that's probably really not needed, but ah well
-	newRadiusPtr                  = reinterpret_cast<float *>(AllocateBuffer(handle.Get<void>()));
+	newRadiusPtr = reinterpret_cast<float *>(AllocateBuffer(handle.Get<void>()));
 
 	if (!newRadiusPtr)
 		return false;
 
-	Handle handle1                = handle.At(20);
+	Handle handle1            = handle.At(20);
 
-	std::uint32_t newJmpValue     = reinterpret_cast<std::uintptr_t>(newRadiusPtr) - handle1.Addr() - 4;
+	std::uint32_t newJmpValue = reinterpret_cast<std::uintptr_t>(newRadiusPtr) - handle1.Addr() - 4;
 
-	*handle1.Get<std::uint32_t>() = newJmpValue;
+	jmpPtr                    = handle1.Get<std::uint32_t>();
+	oldJmpValue               = *jmpPtr;
+	*jmpPtr                   = newJmpValue;
 
 	return true;
 }
@@ -47,6 +51,8 @@ static void OnCleanup()
 {
 	FreeBuffer(newRadiusPtr);
 	strengthPtr = newRadiusPtr = nullptr;
+	*jmpPtr                    = oldJmpValue;
+	*strengthPtr               = 2000.f;
 }
 
 namespace Hooks
