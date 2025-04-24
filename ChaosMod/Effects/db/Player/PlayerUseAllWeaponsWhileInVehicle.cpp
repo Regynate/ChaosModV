@@ -11,12 +11,10 @@ CHAOS_VAR const int pistolGroupHash   = 0x18D5FA97;
 
 static int *GetWeaponGroup(DWORD64 weapon)
 {
-	auto const weaponGroup = weapon + weaponGroupOffset;
-
-	return reinterpret_cast<int *>(weaponGroup);
+	return reinterpret_cast<int *>(weapon + weaponGroupOffset);
 }
 
-static void BackupWeaponProperties()
+static void OnStart()
 {
 	const auto weapons = Memory::GetAllWeaponPointers();
 
@@ -26,40 +24,19 @@ static void BackupWeaponProperties()
 	{
 		const auto weapon = weapons->elements[i];
 		OriginalWeaponGroups.push_back(*GetWeaponGroup(weapon));
-	}
-}
-
-static void ModifyWeaponProperties()
-{
-	const auto weapons = Memory::GetAllWeaponPointers();
-
-	for (size_t i = 0; i < weapons->count; i++)
-	{
-		const auto weapon = weapons->elements[i];
 		*GetWeaponGroup(weapon) = pistolGroupHash;
 	}
 }
 
-static void RestoreWeaponProperties()
+static void OnStop()
 {
 	const auto weapons = Memory::GetAllWeaponPointers();
 
 	for (size_t i = 0; i < weapons->count; i++)
 	{
-		const auto weapon = weapons->elements[i];
+		const auto weapon       = weapons->elements[i];
 		*GetWeaponGroup(weapon) = OriginalWeaponGroups[i];
 	}
-}
-
-static void OnStart()
-{
-	BackupWeaponProperties();
-	ModifyWeaponProperties();
-}
-
-static void OnStop()
-{
-	RestoreWeaponProperties();
 }
 
 // clang-format off
