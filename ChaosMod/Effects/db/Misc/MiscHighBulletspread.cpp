@@ -2,51 +2,38 @@
 
 #include <stdafx.h>
 
+#include "Memory/Weapon.h"
 #include "Memory/WeaponPool.h"
 
 struct OriginalSpread
 {
-    float accuracySpread;
-    float batchSpread;
+	float accuracySpread;
+	float batchSpread;
 };
 
-CHAOS_VAR std::vector<OriginalSpread> originalValues;
-
-static float *GetWeaponAccuracySpread(DWORD64 weapon)
-{
-	return reinterpret_cast<float *>(weapon + 0x74);
-}
-
-static float *GetWeaponBatchSpread(DWORD64 weapon)
-{
-    return reinterpret_cast<float *>(weapon + 0x124);
-}
+CHAOS_VAR std::map<Hash, OriginalSpread> originalValues;
 
 static void OnStart()
 {
-	const auto weapons = Memory::GetAllWeaponPointers();
-
 	originalValues.clear();
 
-	for (size_t i = 0; i < weapons->count; i++)
+	for (const auto &weapon : Memory::GetAllWeapons())
 	{
-		const auto weapon = weapons->elements[i];
-		originalValues.emplace_back(*GetWeaponAccuracySpread(weapon), *GetWeaponBatchSpread(weapon));
-		*GetWeaponAccuracySpread(weapon) = 250.0f;
-		*GetWeaponBatchSpread(weapon) = 250.0f;
+		originalValues.emplace(weapon, OriginalSpread { Memory::GetWeaponAccuracySpread(weapon), Memory::GetWeaponBatchSpread(weapon) });
+		Memory::SetWeaponAccuracySpread(weapon, 250.f);
+		Memory::SetWeaponBatchSpread(weapon, 250.f);
 	}
 }
 
 static void OnStop()
 {
-	const auto weapons = Memory::GetAllWeaponPointers();
-
-	for (size_t i = 0; i < weapons->count; i++)
+	for (const auto &weapon : Memory::GetAllWeapons())
 	{
-		const auto weapon       = weapons->elements[i];
-        const auto info = originalValues[i];
-		*GetWeaponAccuracySpread(weapon) = info.accuracySpread;
-		*GetWeaponBatchSpread(weapon) = info.batchSpread;
+		if (originalValues.contains(weapon))
+		{
+			Memory::SetWeaponAccuracySpread(weapon, originalValues[weapon].accuracySpread);
+			Memory::SetWeaponBatchSpread(weapon, originalValues[weapon].batchSpread);
+		}
 	}
 }
 

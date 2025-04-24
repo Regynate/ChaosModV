@@ -4,6 +4,8 @@
 
 #include "Memory.h"
 
+#include "Weapon.h"
+
 #include "../Util/Natives.h"
 
 #include <vector>
@@ -14,6 +16,8 @@ using WORD    = unsigned short;
 
 namespace Memory
 {
+	inline Hash GetWeaponHash(uintptr_t weaponPtr);
+
 	inline const rage::array<DWORD64> *GetAllWeaponPointers()
 	{
 		static Handle handle =
@@ -46,24 +50,20 @@ namespace Memory
 
 			auto CWeaponInfo_vftable = handle.At(2).Into().Addr();
 
-			int v3;
-			DWORD64 v4;
-			DWORD64 vftableAddrPtr;
+			DWORD64 weaponPtr;
 
-			for (v3 = weaponPtrArray->count - 1; v3 >= 0; v3 = v4 - 1)
+			for (int i = weaponPtrArray->count - 1; i >= 0; i--)
 			{
-				v4             = static_cast<DWORD>(v3);
-
-				vftableAddrPtr = weaponPtrArray->elements[v4];
+				weaponPtr = weaponPtrArray->elements[i];
 
 				// Only include actual ped weapons by checking if vftable pointed to is CWeaponInfo's
-				if (*reinterpret_cast<DWORD64 *>(vftableAddrPtr) != CWeaponInfo_vftable)
+				if (*reinterpret_cast<DWORD64 *>(weaponPtr) != CWeaponInfo_vftable)
 					continue;
 
 				// Check if weapon has valid model & slot
-				if (*reinterpret_cast<DWORD *>(vftableAddrPtr + 20) && *reinterpret_cast<DWORD *>(vftableAddrPtr + 28))
+				if (*reinterpret_cast<DWORD *>(weaponPtr + 20) && *reinterpret_cast<DWORD *>(weaponPtr + 28))
 				{
-					Hash weaponHash = *reinterpret_cast<Hash *>(vftableAddrPtr + 16);
+					Hash weaponHash = GetWeaponHash(weaponPtr);
 
 					// Blacklist the remaining invalid weapons I found
 					switch (weaponHash)
