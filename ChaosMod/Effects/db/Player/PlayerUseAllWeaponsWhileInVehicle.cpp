@@ -4,27 +4,27 @@
 
 #include "Memory/WeaponPool.h"
 
-CHAOS_VAR std::vector<std::uint32_t> OriginalWeaponGroups;
+CHAOS_VAR std::vector<std::uint32_t> originalValues;
 
-CHAOS_VAR const int weaponGroupOffset = 0x5C;
+CHAOS_VAR const int bulletspreadOffset = 0x5C;
 CHAOS_VAR const int pistolGroupHash   = 0x18D5FA97;
 
-static int *GetWeaponGroup(DWORD64 weapon)
+static int *GetWeaponBulletspread(DWORD64 weapon)
 {
-	return reinterpret_cast<int *>(weapon + weaponGroupOffset);
+	return reinterpret_cast<int *>(weapon + bulletspreadOffset);
 }
 
 static void OnStart()
 {
 	const auto weapons = Memory::GetAllWeaponPointers();
 
-	OriginalWeaponGroups.clear();
+	originalValues.clear();
 
 	for (size_t i = 0; i < weapons->count; i++)
 	{
 		const auto weapon = weapons->elements[i];
-		OriginalWeaponGroups.push_back(*GetWeaponGroup(weapon));
-		*GetWeaponGroup(weapon) = pistolGroupHash;
+		originalValues.push_back(*GetWeaponBulletspread(weapon));
+		*GetWeaponBulletspread(weapon) = pistolGroupHash;
 	}
 }
 
@@ -35,7 +35,7 @@ static void OnStop()
 	for (size_t i = 0; i < weapons->count; i++)
 	{
 		const auto weapon       = weapons->elements[i];
-		*GetWeaponGroup(weapon) = OriginalWeaponGroups[i];
+		*GetWeaponBulletspread(weapon) = originalValues[i];
 	}
 }
 
