@@ -4,7 +4,7 @@
 #include "Handle.h"
 #include "Memory.h"
 
-#include "../Util/Natives.h"
+#include "WeaponPool.h"
 
 #include "Util/Peds.h"
 
@@ -12,18 +12,27 @@
 
 namespace Memory
 {
+	inline const rage::array<DWORD64> *GetAllWeaponPointers();
+
+	inline Hash GetWeaponHash(uintptr_t weaponPtr)
+	{
+		return *reinterpret_cast<Hash *>(weaponPtr + 0x10);
+	}
+
 	inline uintptr_t GetWeaponInfo(Hash ulHash)
 	{
-		REQUEST_WEAPON_ASSET(ulHash, 31, 26);
-		static const Hash model = 0x705E61F2;
-		LoadModel(model);
-		Ped temp = CREATE_PED(4, model, 0, 0, -100, 0, true, false);
-		FREEZE_ENTITY_POSITION(temp, true);
-		GIVE_WEAPON_TO_PED(temp, ulHash, 9999, false, true);
-		SET_CURRENT_PED_WEAPON(temp, ulHash, true);
-		auto baseAddr = GetScriptHandleBaseAddress(temp);
-		SET_PED_AS_NO_LONGER_NEEDED(&temp);
-		return *reinterpret_cast<uintptr_t *>(*reinterpret_cast<uintptr_t *>(baseAddr + 0x10B8) + 0x20);
+		const auto weaponPtrArray = GetAllWeaponPointers();
+		if (!weaponPtrArray)
+			return 0;
+
+		for (size_t i = 0; i < weaponPtrArray->count; i++)
+		{
+			const auto weaponPtr = weaponPtrArray->elements[i];
+			if (GetWeaponHash(weaponPtr) == ulHash)
+				return weaponPtr;
+		}
+
+		return 0;
 	}
 
 	inline bool IsWeaponRangable(Hash ulWepHash)
@@ -74,16 +83,28 @@ namespace Memory
 		return *reinterpret_cast<uint32_t *>(infoAddr + 0x120);
 	}
 
-	inline void SetWeaponSpread(Hash ulHash, float fSpread)
+	inline void SetWeaponBatchSpread(Hash ulHash, float fSpread)
 	{
 		auto infoAddr                                 = GetWeaponInfo(ulHash);
 		*reinterpret_cast<float *>(infoAddr + 0x0124) = fSpread;
 	}
 
-	inline float GetWeaponSpread(Hash ulHash)
+	inline float GetWeaponBatchSpread(Hash ulHash)
 	{
 		auto infoAddr = GetWeaponInfo(ulHash);
 		return *reinterpret_cast<float *>(infoAddr + 0x0124);
+	}
+
+	inline void SetWeaponAccuracySpread(Hash ulHash, float fSpread)
+	{
+		auto infoAddr                               = GetWeaponInfo(ulHash);
+		*reinterpret_cast<float *>(infoAddr + 0x74) = fSpread;
+	}
+
+	inline float GetWeaponAccuracySpread(Hash ulHash)
+	{
+		auto infoAddr = GetWeaponInfo(ulHash);
+		return *reinterpret_cast<float *>(infoAddr + 0x74);
 	}
 
 	inline void SetWeaponForce(Hash ulHash, float fForce)
@@ -102,5 +123,17 @@ namespace Memory
 	{
 		auto infoAddr = GetWeaponInfo(ulHash);
 		return *reinterpret_cast<int32_t *>(infoAddr + 0x0058) == 5;
+	}
+
+	static int GetWeaponGroup(Hash ulHash)
+	{
+		auto infoAddr = GetWeaponInfo(ulHash);
+		return *reinterpret_cast<int *>(infoAddr + 0x5C);
+	}
+
+	static void SetWeaponGroup(Hash ulHash, Hash value)
+	{
+		auto infoAddr                             = GetWeaponInfo(ulHash);
+		*reinterpret_cast<int *>(infoAddr + 0x5C) = value;
 	}
 }

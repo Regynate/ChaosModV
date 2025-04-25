@@ -30,8 +30,9 @@ body {
 	--bar-font-size: 14pt;
 	--bar-font-weight: 600;
 	--bar-font: var(--text-font-family);
-	--bar-height: 35px;
-	--bar-width: 450px;
+	--bar-height: 32px;
+	--bar-width: 400px;
+	--bar-border: #2d2d2d solid 1px;
 	--bar-progression-disabled: #8d8d8d;
 	--bar-progression: #8a2be2;
 	--bar-text-color-disabled: #f3f3f3;
@@ -39,6 +40,16 @@ body {
 	--bar-text-outline-color: #000000;
 	--bar-text-outline-thickness: 0px;
 	--bar-border-radius: 0px;
+	--bar-text-shadow: 0 0 1.3px black,
+		0 0 1.3px black,
+		0 0 1.3px black,
+		0 0 1.3px black,
+		0 0 1.3px black,
+		0 0 1.3px black,
+		0 0 1.3px black,
+		0 0 1.3px black,
+		0 0 1.3px black,
+		0 0 1.3px black;
 }
 
 #barContainer {
@@ -48,6 +59,13 @@ body {
 	flex-direction: column;
 	gap: 10px;
 	margin: 5px 0;
+}
+
+#textContainer {
+	justify-content: space-between;
+	align-items: end;
+	width: var(--bar-width);
+	display: flex;
 }
 
 #totalVotes,
@@ -64,10 +82,8 @@ body {
 
 #chance {
 	font-size: calc(var(--text-size) * 0.8);
-	text-align: right;
-	width: var(--bar-width);
 	position: relative;
-	right: -8px;
+	left: 7px;
 }
 
 .bar {
@@ -76,6 +92,7 @@ body {
 	position: relative;
 	transition: background-color 100ms ease-in-out;
 	border-radius: var(--bar-border-radius);
+	border: var(--bar-border);
 }
 
 .bar.disabled {
@@ -92,6 +109,7 @@ body {
 	position: absolute;
 	right: 0;
 	top: 0;
+	text-shadow: var(--bar-text-shadow);
 }
 
 .bar>.labelContainer>span {

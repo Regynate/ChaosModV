@@ -45,8 +45,8 @@ void _HK_rage__audSound__CombineBuffers(void *_this, __int64 combineBuffer)
 
 	if (ms_OverrideVolume.doOverride)
 	{
-		int *value = Handle(combineBuffer).At(0).Get<int>();
-		*value     = ms_OverrideVolume.targetValue;
+		float *value = Handle(combineBuffer).At(0).Get<float>();
+		*value += static_cast<float>(ms_OverrideVolume.targetValue);
 	}
 }
 
@@ -113,6 +113,6 @@ namespace Hooks
 	}
 	void ResetAudioVolume()
 	{
-		ms_OverrideVolume.doOverride = false;
+		ms_OverrideVolume.doOverride    = false;
 	}
 }

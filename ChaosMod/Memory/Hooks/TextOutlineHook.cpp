@@ -1,0 +1,73 @@
+#include <stdafx.h>
+
+#include "TextOutlineHook.h"
+
+#include "Memory/Hooks/Hook.h"
+
+#include "Memory.h"
+#include "game.h"
+
+#include "Memory/Allocator/MemoryBuffer.h"
+
+#include "Memory/Rain.h"
+
+static float *strengthPtr;
+static float *newRadiusPtr;
+static std::uint32_t oldJmpValue;
+static std::uint32_t *jmpPtr;
+
+static bool OnHook()
+{
+	if (!IsEnhanced())
+		return false;
+
+	auto handle = Memory::FindPattern("48 89 f9 e8 ? ? ? ? c7 44 24 ? ? ? ? ? f2 0f 10 05");
+
+	if (!handle.IsValid())
+		return false;
+
+	strengthPtr  = handle.At(12).Get<float>();
+
+	// some fuckery that's probably really not needed, but ah well
+	newRadiusPtr = reinterpret_cast<float *>(AllocateBuffer(handle.Get<void>()));
+
+	if (!newRadiusPtr)
+		return false;
+
+	Handle handle1            = handle.At(20);
+
+	std::uint32_t newJmpValue = reinterpret_cast<std::uintptr_t>(newRadiusPtr) - handle1.Addr() - 4;
+
+	jmpPtr                    = handle1.Get<std::uint32_t>();
+	oldJmpValue               = *jmpPtr;
+	*jmpPtr                   = newJmpValue;
+
+	return true;
+}
+
+static void OnCleanup()
+{
+	FreeBuffer(newRadiusPtr);
+	strengthPtr = newRadiusPtr = nullptr;
+	if (jmpPtr)
+		*jmpPtr = oldJmpValue;
+	if (strengthPtr)
+		*strengthPtr = 2000.f;
+}
+
+namespace Hooks
+{
+	void SetTextOutlineParams(float radius, float strength)
+	{
+		if (newRadiusPtr)
+		{
+			newRadiusPtr[0] = radius;
+			newRadiusPtr[1] = radius;
+		}
+
+		if (strengthPtr)
+			*strengthPtr = strength;
+	}
+}
+
+static RegisterHook registerHook(OnHook, OnCleanup, "_TextOutlineModificator");

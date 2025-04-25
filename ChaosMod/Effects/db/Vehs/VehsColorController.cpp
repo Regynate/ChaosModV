@@ -230,12 +230,14 @@ static void OnTickRainbow()
 }
 
 // clang-format off
+/*
 REGISTER_EFFECT(nullptr, OnStopRainbow, OnTickRainbow, 
-	{
-		.Name = "Rainbow Traffic",
-		.Id = "vehs_rainbow",
-		.IsTimed = true,
-		.EffectCategory = EffectCategory::TrafficColor,
-		.EffectGroupType = EffectGroupType::TrafficColor
-	}
+{
+	.Name = "Rainbow Traffic",
+	.Id = "vehs_rainbow",
+	.IsTimed = true,
+	.EffectCategory = EffectCategory::TrafficColor,
+	.EffectGroupType = EffectGroupType::TrafficColor
+}
 );
+*/
