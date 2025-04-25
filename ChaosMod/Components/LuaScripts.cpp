@@ -13,6 +13,7 @@
 #include "Effects/Register/RegisteredEffectsMetadata.h"
 #include "Info.h"
 #include "Memory/EntityFragments.h"
+#include "Memory/Gameconfig.h"
 #include "Memory/Gravity.h"
 #include "Memory/Hooks/AudioSettingsHook.h"
 #include "Memory/Hooks/GameSpeedHook.h"
@@ -736,6 +737,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("SetRainLight", Memory::SetRainLight),
 		E("SetRainGravity", Memory::SetRainGravity),
 		E("GetPedWetness", Memory::GetPedWetness),
+		E("SetCrouching", Memory::SetCrouching)
 	};
 #undef E
 
