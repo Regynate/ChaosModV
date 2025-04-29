@@ -293,6 +293,29 @@ class ObjectPoolEncryptedPointer : public EncryptedPointer<GenericPool>
 	}
 };
 
+class BuildingPoolEncryptedPointer : public EncryptedPointer<GenericPool>
+{
+  public:
+	GenericPool GetPool() override
+	{
+		if (val->m_IsSet)
+		{
+			DWORD64 temp = _rotl64(val->m_Second, 29);
+			return GenericPool(~_rotl64(_rotl64(temp ^ val->m_First, (temp & 0x1F) + 1), 32));
+		}
+
+		return GenericPool();
+	}
+
+	BuildingPoolEncryptedPointer(DWORD64 address) : EncryptedPointer(address)
+	{
+	}
+
+	BuildingPoolEncryptedPointer() : EncryptedPointer()
+	{
+	}
+};
+
 inline auto &GetAllPeds()
 {
 	static GenericPool pedPool = []
@@ -352,6 +375,26 @@ inline auto &GetAllProps()
 	return propPool;
 }
 
+inline auto GetAllBuildings()
+{
+	static GenericPool buildingPool = []
+	{
+		if (IsLegacy())
+		{
+			auto handle = Memory::FindPattern("48 8B 05 ?? ?? ?? ?? 8B 70 10");
+			return GenericPool(handle.At(2).Into().Value<UINT64>());
+		}
+		else
+		{
+			auto handle       = Memory::FindPattern("0F B6 05 ?? ?? ?? ?? 31 FF A8 01 48 0F 45 FA");
+			auto encryptedPtr = BuildingPoolEncryptedPointer(handle.At(2).Into().Addr());
+			return encryptedPtr.GetPool();
+		}
+	}();
+
+	return buildingPool;
+}
+
 inline auto GetAllPedsArray()
 {
 	return GetAllPeds().ToArray();
@@ -365,4 +408,9 @@ inline auto GetAllVehsArray()
 inline auto GetAllPropsArray()
 {
 	return GetAllProps().ToArray();
+}
+
+inline auto GetAllBuildingsArray()
+{
+	return GetAllBuildings().ToArray();
 }

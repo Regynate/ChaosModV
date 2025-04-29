@@ -25,6 +25,7 @@
 #include "Memory/Vehicle.h"
 #include "Memory/Water.h"
 #include "Memory/WeaponPool.h"
+#include "Util/Building.h"
 #include "Util/Camera.h"
 #include "Util/EntityIterator.h"
 #include "Util/File.h"
@@ -597,6 +598,9 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("GetAllPedModels", Memory::GetAllPedModels),
 		E("GetAllVehicleModels", Memory::GetAllVehModels),
 
+		E("GetAllBuildings", GetAllBuildingsArray),
+		E("GetAllTrees", GetAllTrees),
+
 		E("OverrideShader", Hooks::OverrideShader),
 		E("ResetShader", Hooks::ResetShader),
 
@@ -725,15 +729,15 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		      const auto res = Memory::GetClosestWaterQuadCenter(Vector3(coords.X, coords.Y, coords.Z), minDepth);
 		      return LuaVector3(res.x, res.y, res.z);
 		  }),
-		E("GetRainColor", []() {
-			const auto res = Memory::GetRainColor();
-			return LuaVector3(res.x, res.y, res.z);
-		} ),
+		E("GetRainColor",
+		  []()
+		  {
+		      const auto res = Memory::GetRainColor();
+		      return LuaVector3(res.x, res.y, res.z);
+		  }),
 		E("GetRainLight", Memory::GetRainLight),
 		E("GetRainGravity", Memory::GetRainGravity),
-		E("SetRainColor", [](const float &r, const float &g, const float &b) {
-			Memory::SetRainColor(r, g, b);
-		}),
+		E("SetRainColor", [](const float &r, const float &g, const float &b) { Memory::SetRainColor(r, g, b); }),
 		E("SetRainLight", Memory::SetRainLight),
 		E("SetRainGravity", Memory::SetRainGravity),
 		E("GetPedWetness", Memory::GetPedWetness),
