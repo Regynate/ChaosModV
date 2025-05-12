@@ -4,6 +4,8 @@
 
 #include "../vendor/scripthookv/inc/types.h"
 
+#include "Util/OptionsFile.h"
+
 #include <functional>
 #include <string>
 #include <vector>
@@ -11,13 +13,13 @@
 struct VehicleEntryPoint
 {
 	Vehicle vehicle;
-    Hash vehicleModel;
+	Hash vehicleModel;
 	float vehicleHeading;
 	float playerHeading;
 	Vector3 vehicleCoords;
 	Vector3 playerCoords;
-    bool insideVehicle;
-    bool updateFlag = false;
+	bool insideVehicle;
+	bool updateFlag = false;
 };
 
 class EntityTracking : public Component
@@ -25,7 +27,7 @@ class EntityTracking : public Component
 	struct TrackedEntity
 	{
 		Entity entity;
-		std::function<void(Entity)> foo;
+		std::function<bool(Entity)> foo;
 		std::string id;
 	};
 
@@ -33,14 +35,20 @@ class EntityTracking : public Component
 
 	VehicleEntryPoint m_LastVehicleEntryPoint;
 
-    void UpdateVehicleEntryPoint();
+	OptionsFile m_ConfigFile { "chaosmod/configs/tracking.ini" };
+
+	void UpdateVehicleEntryPoint();
+
   public:
 	EntityTracking();
 
 	virtual void OnRun() override;
 	virtual void OnModPauseCleanup() override;
 
-	void AddTracker(Entity entity, const std::function<void(Entity)>& tracker, std::string id = "");
+	void AddTracker(Entity entity, const std::function<bool(Entity)> &tracker, std::string id = "");
 
 	VehicleEntryPoint GetLastPlayerVehicleEntryPoint();
+
+	void AddPoleSpawnDriveTracker();
+	void AddPoleSpawnFlyTracker();
 };

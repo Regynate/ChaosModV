@@ -171,4 +171,10 @@ namespace CurrentEffect
 		if (sharedData)
 			sharedData->OverrideEffectCompletionPercentage = percentage;
 	}
+
+	std::string GetDispatchContext()
+	{
+		auto sharedData = GetCurrentThreadSharedData();
+		return !sharedData ? "" : sharedData->DispatchContext;
+	}
 }

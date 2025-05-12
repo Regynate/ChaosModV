@@ -1,5 +1,7 @@
 #include "EntityTracking.h"
 
+#include "Components/EffectDispatcher.h"
+
 void EntityTracking::UpdateVehicleEntryPoint()
 {
 	auto const playerPed = PLAYER_PED_ID();
@@ -33,6 +35,89 @@ void EntityTracking::UpdateVehicleEntryPoint()
 
 EntityTracking::EntityTracking()
 {
+	if (m_ConfigFile.ReadValue<bool>("PLD", false))
+		AddPoleSpawnDriveTracker();
+	if (m_ConfigFile.ReadValue<bool>("PLF", false))
+		AddPoleSpawnFlyTracker();
+}
+
+void EntityTracking::AddPoleSpawnDriveTracker()
+{
+	m_ConfigFile.SetValue("PLD", true);
+	m_ConfigFile.WriteFile();
+
+	const auto foo = [this](Entity)
+	{
+		static bool init     = true;
+		const auto playerPed = PLAYER_PED_ID();
+
+		if (IS_PED_IN_ANY_VEHICLE(playerPed, false))
+		{
+			const auto vehicle = GET_VEHICLE_PED_IS_IN(playerPed, false);
+			if (GET_ENTITY_SPEED(vehicle) > 35.f)
+			{
+				if (!init)
+				{
+					if (ComponentExists<EffectDispatcher>())
+					{
+						GetComponent<EffectDispatcher>()->DispatchEffect(EffectIdentifier("misc_pole_drivefast"),
+						                                                 EffectDispatcher::DispatchEffectFlag_None, "",
+						                                                 "spawn");
+						m_ConfigFile.SetValue("PLD", false);
+						m_ConfigFile.WriteFile();
+						return false;
+					}
+				}
+			}
+			else
+				init = false;
+		}
+		else
+			init = false;
+
+		return true;
+	};
+
+	AddTracker(0, foo);
+}
+
+void EntityTracking::AddPoleSpawnFlyTracker()
+{
+	m_ConfigFile.SetValue("PLF", true);
+	m_ConfigFile.WriteFile();
+
+	const auto foo = [this](Entity)
+	{
+		static bool init     = true;
+		const auto playerPed = PLAYER_PED_ID();
+
+		if (IS_PED_IN_ANY_PLANE(playerPed))
+		{
+			const auto vehicle = GET_VEHICLE_PED_IS_IN(playerPed, false);
+			if (GET_ENTITY_SPEED(vehicle) > 30.f && GET_ENTITY_HEIGHT_ABOVE_GROUND(vehicle) > 10.f)
+			{
+				if (!init)
+				{
+					if (ComponentExists<EffectDispatcher>())
+					{
+						GetComponent<EffectDispatcher>()->DispatchEffect(
+						    EffectIdentifier("misc_pole_fly"), EffectDispatcher::DispatchEffectFlag_None, "", "spawn");
+						m_ConfigFile.SetValue("PLF", false);
+						m_ConfigFile.WriteFile();
+						return false;
+					}
+				}
+			}
+			else
+				init = false;
+		}
+		else
+			init = false;
+
+		return true;
+	};
+
+	AddTracker(0, foo);
 }
 
 void EntityTracking::OnRun()
@@ -40,18 +125,17 @@ void EntityTracking::OnRun()
 	UpdateVehicleEntryPoint();
 
 	for (auto it = m_TrackedEntities.begin(); it != m_TrackedEntities.end();)
-    {
-        auto const trackedEntity = *it;
-        if (DOES_ENTITY_EXIST(trackedEntity.entity))
-        {
-            trackedEntity.foo(trackedEntity.entity);
-            ++it;
-        }
-        else
-        {
-            it = m_TrackedEntities.erase(it);
-        }
-    }
+	{
+		auto const trackedEntity = *it;
+		bool keep                = false;
+		if (trackedEntity.entity == 0 || DOES_ENTITY_EXIST(trackedEntity.entity))
+			keep = trackedEntity.foo(trackedEntity.entity);
+
+		if (keep)
+			++it;
+		else
+			it = m_TrackedEntities.erase(it);
+	}
 }
 
 void EntityTracking::OnModPauseCleanup()
@@ -59,7 +143,7 @@ void EntityTracking::OnModPauseCleanup()
 	m_TrackedEntities.clear();
 }
 
-void EntityTracking::AddTracker(Entity entity, const std::function<void(Entity)>& tracker, std::string id)
+void EntityTracking::AddTracker(Entity entity, const std::function<bool(Entity)> &tracker, std::string id)
 {
 	m_TrackedEntities.emplace_back(TrackedEntity { entity, tracker, id });
 }

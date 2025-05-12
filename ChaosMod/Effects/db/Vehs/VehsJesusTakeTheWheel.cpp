@@ -87,6 +87,8 @@ static void OnStart()
 
 				lastCoords = coords;
 			}
+
+			return true;
 		};
 
 		GetComponent<EntityTracking>()->AddTracker(jesus, foo);

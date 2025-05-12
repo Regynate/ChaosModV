@@ -176,6 +176,10 @@ static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 			});
 			auto &activeEffect = effectDispatcher->SharedState.ActiveEffects.back();
 
+			auto effectSharedData = EffectThreads::GetThreadSharedData(activeEffect.ThreadId);
+
+			effectSharedData->DispatchContext = entry.Context;
+
 			playEffectDispatchSound(activeEffect);
 
 			// There might be a reason to include meta effects in the future, for now we will just exclude them
