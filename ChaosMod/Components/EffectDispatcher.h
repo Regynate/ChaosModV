@@ -30,6 +30,7 @@ class EffectDispatcher : public Component
 		EffectIdentifier Id;
 		std::string Suffix;
 		DispatchEffectFlags Flags;
+		std::string Context;
 	};
 	std::queue<EffectDispatchEntry> EffectDispatchQueue;
 
@@ -69,7 +70,7 @@ class EffectDispatcher : public Component
 
   public:
 	ChaosCancellableEvent<const EffectIdentifier &> OnPreDispatchEffect;
-	ChaosEvent<const EffectIdentifier &> OnPostDispatchEffect;
+	ChaosEvent<const EffectIdentifier &, const std::string> OnPostDispatchEffect;
 
 	ChaosEvent<const EffectIdentifier &> OnPreRunEffect;
 	ChaosEvent<const EffectIdentifier &> OnPostRunEffect;
@@ -90,6 +91,8 @@ class EffectDispatcher : public Component
   private:
 	std::array<std::uint8_t, 3> m_TextColor;
 	std::array<std::uint8_t, 3> m_EffectTimerColor;
+
+	std::string m_LastEffect;
 
 	bool m_DisableDrawEffectTexts     = false;
 
@@ -113,9 +116,11 @@ class EffectDispatcher : public Component
 
 	void DispatchEffect(const EffectIdentifier &effectId,
 	                    DispatchEffectFlags dispatchEffectFlags = DispatchEffectFlag_None,
-	                    const std::string &suffix               = {});
+	                    const std::string &suffix = {}, const std::string &context = {});
+
+	std::string GetRandomEffectId() const;
 	void DispatchRandomEffect(DispatchEffectFlags dispatchEffectFlags = DispatchEffectFlag_None,
-	                          const std::string &suffix               = {});
+	                          const std::string &suffix = {}, const std::string &context = {});
 
 	void UpdateEffects(float deltaTime);
 	void UpdateMetaEffects(float deltaTime);
@@ -139,4 +144,6 @@ class EffectDispatcher : public Component
 	void Reset(ClearEffectsFlags clearEffectFlags = ClearEffectsFlag_None);
 
 	bool IsClearingEffects() const;
+
+	EffectIdentifier GetLastEffectId() const;
 };

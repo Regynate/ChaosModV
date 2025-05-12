@@ -15,13 +15,19 @@
 #include "Util/ScriptText.h"
 
 #define EFFECT_TEXT_INNER_SPACING_MIN .030f
-#define EFFECT_TEXT_INNER_SPACING_MAX .075f
+#define EFFECT_TEXT_INNER_SPACING_MAX .065f
 #define EFFECT_TEXT_TOP_SPACING .2f
-#define EFFECT_TEXT_TOP_SPACING_EXTRA .35f
+#define EFFECT_TEXT_TOP_SPACING_EXTRA .40f
 #define EFFECT_NONTIMED_TIMER_SPEEDUP_MIN_EFFECTS 3
 
 static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDispatcher::EffectDispatchEntry &entry)
 {
+	if (!g_EnabledEffects.contains(entry.Id))
+	{
+		DEBUG_LOG("Tried dispatching effect " << entry.Id.Id() << ", which is not enabled!");
+		return;
+	}
+
 	auto &effectData = g_EnabledEffects.at(entry.Id);
 
 	if (effectData.TimedType == EffectTimedType::Permanent)
@@ -170,6 +176,10 @@ static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 			});
 			auto &activeEffect = effectDispatcher->SharedState.ActiveEffects.back();
 
+			auto effectSharedData = EffectThreads::GetThreadSharedData(activeEffect.ThreadId);
+
+			effectSharedData->DispatchContext = entry.Context;
+
 			playEffectDispatchSound(activeEffect);
 
 			// There might be a reason to include meta effects in the future, for now we will just exclude them
@@ -187,7 +197,7 @@ static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 		}
 	}
 
-	effectDispatcher->OnPostDispatchEffect.Fire(entry.Id);
+	effectDispatcher->OnPostDispatchEffect.Fire(entry.Id, entry.Context);
 }
 
 static void _OnRunEffects(LPVOID data)
@@ -563,15 +573,18 @@ void EffectDispatcher::DrawEffectTexts()
 }
 
 void EffectDispatcher::DispatchEffect(const EffectIdentifier &effectId, DispatchEffectFlags dispatchEffectFlags,
-                                      const std::string &suffix)
+                                      const std::string &suffix, const std::string& context)
 {
-	EffectDispatchQueue.push({ .Id = effectId, .Suffix = suffix, .Flags = dispatchEffectFlags });
+	if (effectId == "misc_repeat_last_effect") // hack
+		dispatchEffectFlags = DispatchEffectFlag_NoAddToLog;
+
+	EffectDispatchQueue.push({ .Id = effectId, .Suffix = suffix, .Flags = dispatchEffectFlags, .Context = context });
 }
 
-void EffectDispatcher::DispatchRandomEffect(DispatchEffectFlags dispatchEffectFlags, const std::string &suffix)
+std::string EffectDispatcher::GetRandomEffectId() const
 {
 	if (!m_EnableNormalEffectDispatch)
-		return;
+		return {};
 
 	std::unordered_map<EffectIdentifier, EffectData, EffectsIdentifierHasher> choosableEffects;
 	for (const auto &[effectId, effectData] : g_EnabledEffects)
@@ -582,25 +595,30 @@ void EffectDispatcher::DispatchRandomEffect(DispatchEffectFlags dispatchEffectFl
 	for (const auto &[effectId, effectData] : choosableEffects)
 		totalWeight += effectData.GetEffectWeight();
 
-	float chosen                           = g_Random.GetRandomFloat(0.f, totalWeight);
+	if (totalWeight <= 0.f)
+		return {};
 
-	totalWeight                            = 0.f;
+	float chosen = g_Random.GetRandomFloat(0.f, totalWeight);
+	totalWeight  = 0.f;
 
-	const EffectIdentifier *targetEffectId = nullptr;
 	for (const auto &[effectId, effectData] : choosableEffects)
 	{
 		totalWeight += effectData.GetEffectWeight();
-
 		if (chosen <= totalWeight)
-		{
-			targetEffectId = &effectId;
-
-			break;
-		}
+			return effectId.Id();
 	}
 
-	if (targetEffectId)
-		DispatchEffect(*targetEffectId, dispatchEffectFlags, suffix);
+	return {};
+}
+
+void EffectDispatcher::DispatchRandomEffect(DispatchEffectFlags dispatchEffectFlags, const std::string &suffix, const std::string &context)
+{
+	auto const randomEffect = GetRandomEffectId();
+
+	if (randomEffect.empty())
+		return;
+
+	DispatchEffect(randomEffect, dispatchEffectFlags, suffix, context);
 }
 
 void EffectDispatcher::ClearEffect(const EffectIdentifier &effectId)
@@ -730,4 +748,12 @@ void EffectDispatcher::RegisterPermanentEffects()
 bool EffectDispatcher::IsClearingEffects() const
 {
 	return m_ClearEffectsState != ClearEffectsState::None;
+}
+
+EffectIdentifier EffectDispatcher::GetLastEffectId() const
+{
+	if (SharedState.DispatchedEffectsLog.size() > 0)
+		return SharedState.DispatchedEffectsLog.back()->GetId();
+
+	return EffectIdentifier();
 }

@@ -20,6 +20,7 @@ struct EffectThreadSharedData
 	std::string OverrideEffectName;
 	std::string OverrideEffectId;
 	float OverrideEffectCompletionPercentage = -1.f;
+	std::string DispatchContext;
 };
 
 struct EffectThreadData
@@ -148,4 +149,5 @@ namespace CurrentEffect
 	void OverrideEffectName(const std::string &effectName);
 	void OverrideEffectNameFromId(const std::string &effectId);
 	void OverrideEffectCompletionPercentage(float value);
+	std::string GetDispatchContext();
 }

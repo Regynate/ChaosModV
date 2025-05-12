@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Memory/Hooks/TextOutlineHook.h"
+
 #include "Util/Natives.h"
 
 #include <cstdint>
@@ -53,7 +55,10 @@ inline void DrawScreenText(const std::string &text, const ScreenTextVector &text
 	SET_TEXT_COLOUR(textColor.R, textColor.G, textColor.B, 255);
 
 	if (outline)
+	{
+		Hooks::SetTextOutlineParams(3.f, 50000.f);
 		SET_TEXT_OUTLINE();
+	}
 
 	SET_TEXT_JUSTIFICATION(static_cast<int>(textAdjust));
 	SET_TEXT_WRAP(textWrap.X, textWrap.Y);

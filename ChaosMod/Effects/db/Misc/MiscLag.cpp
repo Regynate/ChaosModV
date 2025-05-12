@@ -2,9 +2,16 @@
 
 #include "Effects/Register/RegisterEffect.h"
 
+struct TpData
+{
+	Vector3 position;
+	Vector3 velocity;
+	Vector3 rotation;
+};
+
 CHAOS_VAR int ms_State;
 CHAOS_VAR std::map<Ped, Vector3> ms_ToTpPeds;
-CHAOS_VAR std::map<Vehicle, Vector3> ms_ToTpVehs;
+CHAOS_VAR std::map<Vehicle, TpData> ms_ToTpVehs;
 
 static void OnStart()
 {
@@ -41,7 +48,8 @@ static void OnTickLag()
 			{
 				Vector3 vehPos = GET_ENTITY_COORDS(veh, false);
 
-				ms_ToTpVehs.emplace(veh, vehPos);
+				ms_ToTpVehs.emplace(veh,
+				                    TpData { vehPos, GET_ENTITY_VELOCITY(veh), GET_ENTITY_ROTATION(veh, 2) });
 			}
 		}
 		else if (ms_State == 3)
@@ -53,20 +61,18 @@ static void OnTickLag()
 			{
 				const Vehicle &veh = pair.first;
 
-				Vector3 vel        = GET_ENTITY_VELOCITY(veh);
-				float heading      = GET_ENTITY_HEADING(veh);
 				float forwardSpeed = GET_ENTITY_SPEED(veh);
 
 				// if the vehicle is reversing use a negative forward speed
 				if (GET_ENTITY_SPEED_VECTOR(veh, true).y < 0)
 					forwardSpeed *= -1;
 
-				const Vector3 &tpPos = pair.second;
+				const auto &tpPos = pair.second;
 
-				SET_ENTITY_COORDS_NO_OFFSET(veh, tpPos.x, tpPos.y, tpPos.z, false, false, false);
+				SET_ENTITY_COORDS_NO_OFFSET(veh, tpPos.position.x, tpPos.position.y, tpPos.position.z, false, false, false);
 
-				SET_ENTITY_HEADING(veh, heading);
-				SET_ENTITY_VELOCITY(veh, vel.x, vel.y, vel.z);
+				SET_ENTITY_ROTATION(veh, tpPos.rotation.x, tpPos.rotation.y, tpPos.rotation.z, 2, true);
+				SET_ENTITY_VELOCITY(veh, tpPos.velocity.x, tpPos.velocity.y, tpPos.velocity.z);
 
 				SET_VEHICLE_FORWARD_SPEED(veh, forwardSpeed);
 			}

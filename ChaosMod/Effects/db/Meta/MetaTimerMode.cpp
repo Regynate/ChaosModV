@@ -6,7 +6,7 @@
 
 #include "Components/MetaModifiers.h"
 #include "Effects/Register/RegisterEffect.h"
-#include <Components/EffectDispatchTimer.h>
+#include "Components/EffectDispatchTimer.h"
 
 static void OnStop()
 {
