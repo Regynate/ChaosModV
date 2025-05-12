@@ -52,38 +52,40 @@ static void OnStart()
 	while (GET_GAME_TIMER() - startTick < waitTimer)
 	{
 		WAIT(0);
-		auto percentage = 1.f -
-		    (float)(GET_GAME_TIMER() - startTick) / 1000
-		    / (ComponentExists<EffectDispatcher>() ? GetComponent<EffectDispatcher>()->SharedState.MetaEffectTimedDur : 90);
+		auto percentage = 1.f
+		                - (float)(GET_GAME_TIMER() - startTick) / 1000
+		                      / (ComponentExists<EffectDispatcher>()
+		                             ? GetComponent<EffectDispatcher>()->SharedState.MetaEffectTimedDur
+		                             : 90);
 		CurrentEffect::OverrideEffectCompletionPercentage(percentage);
 	}
-	
+
 	if (ComponentExists<MetaModifiers>())
-	GetComponent<MetaModifiers>()->DisableChaos = false;
-	
+		GetComponent<MetaModifiers>()->DisableChaos = false;
+
 	if (ComponentExists<EffectDispatcher>())
 	{
 		for (size_t i = 0; i < m_RunningEffects.size(); i++)
-		if (m_RunningEffects[i].IsTimed)
-		GetComponent<EffectDispatcher>()->DispatchEffect(m_RunningEffects[i].Id);
-		
+			if (m_RunningEffects[i].IsTimed)
+				GetComponent<EffectDispatcher>()->DispatchEffect(m_RunningEffects[i].Id);
+
 		WAIT(100); // hack - wait for effect dispatcher to dispatch effects
-		
+
 		for (size_t i = 0; i < m_RunningEffects.size(); i++)
 		{
 			if (m_RunningEffects[i].IsTimed)
 			{
 				GetComponent<EffectDispatcher>()->SetRemainingTimeForEffect(m_RunningEffects[i].Id,
-					m_RunningEffects[i].Timer);
-				}
+				                                                            m_RunningEffects[i].Timer);
 			}
 		}
-		
-		for (const auto &entity : m_SpawnedEntities)
-		{
-			FREEZE_ENTITY_POSITION(entity, false);
-			SET_ENTITY_ALPHA(entity, 255, false);
-			CLEAR_PED_TASKS_IMMEDIATELY(entity);
+	}
+
+	for (const auto &entity : m_SpawnedEntities)
+	{
+		FREEZE_ENTITY_POSITION(entity, false);
+		SET_ENTITY_ALPHA(entity, 255, false);
+		CLEAR_PED_TASKS_IMMEDIATELY(entity);
 		SET_ENTITY_COLLISION(entity, true, false);
 	}
 
