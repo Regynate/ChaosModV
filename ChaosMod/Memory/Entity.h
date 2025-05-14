@@ -9,6 +9,16 @@
 using DWORD64 = unsigned long long;
 using Entity  = int;
 
+enum class EntityType : unsigned char
+{
+	ENTITY_TYPE_NOTHING,
+	ENTITY_TYPE_BUILDING,
+	ENTITY_TYPE_ANIMATED_BUILDING,
+	ENTITY_TYPE_VEHICLE,
+	ENTITY_TYPE_PED,
+	ENTITY_TYPE_OBJECT,
+};
+
 namespace Memory
 {
 	/* FiveM's shv doesn't provide getScriptHandleBaseAddress, so we find it ourselves */
@@ -28,5 +38,19 @@ namespace Memory
 		}();
 
 		return _getScriptHandleBaseAddress(entity);
+	}
+
+	inline EntityType GetEntityType(DWORD64 address)
+	{
+		if (!address) {
+			return EntityType::ENTITY_TYPE_NOTHING;
+		}
+		
+		return *reinterpret_cast<EntityType*>(address + 0x28);
+	}
+
+	inline EntityType GetEntityType(Entity entity)
+	{
+		return GetEntityType(GetScriptHandleBaseAddress(entity));
 	}
 }

@@ -6,12 +6,7 @@
 CHAOS_VAR EffectIdentifier effectId;
 CHAOS_VAR CHAOS_EVENT_LISTENER(EffectDispatcher::OnPostDispatchEffect) onEffectDispatchListener;
 
-static std::set<std::string> blacklistedEffects
-{
-	"meta_broken_record",
-	"meta_re_invoke",
-	"misc_repeat_last_effect"
-};
+static std::set<std::string> blacklistedEffects { "meta_broken_record", "meta_re_invoke", "misc_repeat_last_effect" };
 
 static void OnStart()
 {

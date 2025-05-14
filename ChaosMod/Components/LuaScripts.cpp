@@ -18,6 +18,7 @@
 #include "Memory/Hooks/AudioSettingsHook.h"
 #include "Memory/Hooks/GameSpeedHook.h"
 #include "Memory/Hooks/GetLabelTextHook.h"
+#include "Memory/Hooks/PreRenderHook.h"
 #include "Memory/Hooks/ShaderHook.h"
 #include "Memory/PedModels.h"
 #include "Memory/Rain.h"
@@ -607,6 +608,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("SetSnowState", Memory::SetSnow),
 
 		E("IsVehicleBraking", Memory::IsVehicleBraking),
+		E("IsVehicleAccelerating", Memory::IsVehicleAccelerating),
 
 		E("EnableScriptThreadBlock", Hooks::EnableScriptThreadBlock),
 		E("DisableScriptThreadBlock", Hooks::DisableScriptThreadBlock),
@@ -741,7 +743,19 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("SetRainLight", Memory::SetRainLight),
 		E("SetRainGravity", Memory::SetRainGravity),
 		E("GetPedWetness", Memory::GetPedWetness),
-		E("SetCrouching", Memory::SetCrouching)
+		E("SetCrouching", Memory::SetCrouching),
+		E("AddRotationVector", [](const Entity entity, const LuaVector3 &vector)
+		  {
+		      Hooks::AddRotationVector(entity, Vector3(vector.X, vector.Y, vector.Z));
+		  }),
+		E("AddTranslationVector", [](const Entity entity, const LuaVector3 &vector)
+		  {
+		      Hooks::AddTranslationVector(entity, Vector3(vector.X, vector.Y, vector.Z));
+		  }),
+		E("AddScaleVector", [](const Entity entity, const LuaVector3 &vector)
+		  {
+		      Hooks::AddScaleVector(entity, Vector3(vector.X, vector.Y, vector.Z));
+		  }),
 	};
 #undef E
 
