@@ -6,7 +6,7 @@
 CHAOS_VAR EffectIdentifier effectId;
 CHAOS_VAR CHAOS_EVENT_LISTENER(EffectDispatcher::OnPostDispatchEffect) onEffectDispatchListener;
 
-static std::set<std::string> blacklistedEffects { "meta_broken_record", "meta_re_invoke", "misc_repeat_last_effect" };
+static std::set<std::string> blacklistedEffects { "meta_broken_record", "meta_re_invoke", "misc_repeat_last_effect", "misc_active_timers_refill" };
 
 static void OnStart()
 {
@@ -22,7 +22,7 @@ static void OnStart()
 			                                  return true;
 		                                  });
 
-		effectId = EffectIdentifier("misc_repeat_last_effect"); // GetComponent<EffectDispatcher>()->GetLastEffectId();
+		effectId = GetComponent<EffectDispatcher>()->GetLastEffectId();
 		while (effectId == "" || blacklistedEffects.contains(effectId))
 		{
 			// will crash if none of the effects are enabled, but in what world is that the real scenario
