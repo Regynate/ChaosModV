@@ -150,6 +150,26 @@ namespace Memory
 		return result ? *reinterpret_cast<float *>(result + brakeStateOffset) : false;
 	}
 
+	inline bool IsVehicleAccelerating(Vehicle vehicle)
+	{
+		static auto accelStateOffset = []() -> WORD
+		{
+			auto handle = FindPattern("0F 28 C2 EB 0D 0F 28 C1",
+			                          "F3 41 0F 10 86 ?? ?? 00 00 0F 57 C9 0F 2E C1 0F 82 74 05 00 00");
+			if (!handle.IsValid())
+			{
+				LOG("Vehicle acceleration state offset not found!");
+				return 0;
+			}
+
+			return handle.At(IsLegacy() ? 14 : 5).Value<std::uint16_t>();
+		}();
+
+		auto result = GetScriptHandleBaseAddress(vehicle);
+
+		return result ? *reinterpret_cast<float *>(result + accelStateOffset) : false;
+	}
+
 	inline Vector3 GetVector3(auto offset)
 	{
 		return Vector3(*reinterpret_cast<float *>(offset), *reinterpret_cast<float *>(offset + 0x4),
