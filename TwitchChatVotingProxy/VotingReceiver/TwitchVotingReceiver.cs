@@ -21,8 +21,8 @@ namespace TwitchChatVotingProxy.VotingReceiver
         public event EventHandler<OnUserBanArgs>? OnUserBan = null;
 
         private readonly string? m_ChannelName = null;
-        private readonly string? m_OAuth = null;
-        private readonly string? m_UserName = null;
+        //private readonly string? m_OAuth = null;
+        //private readonly string? m_UserName = null;
 
         private TwitchClient? m_Client = null;
         private readonly ChaosPipeClient m_ChaosPipe;
@@ -33,8 +33,8 @@ namespace TwitchChatVotingProxy.VotingReceiver
         public TwitchVotingReceiver(OptionsFile config, ChaosPipeClient chaosPipe)
         {
             m_ChannelName = config.ReadValue("TwitchChannelName");
-            m_OAuth = config.ReadValue("TwitchChannelOAuth");
-            m_UserName = config.ReadValue("TwitchUserName");
+            //m_OAuth = config.ReadValue("TwitchChannelOAuth");
+            //m_UserName = config.ReadValue("TwitchUserName");
 
             m_ChaosPipe = chaosPipe;
         }
@@ -48,7 +48,7 @@ namespace TwitchChatVotingProxy.VotingReceiver
 
                 return false;
             }
-            if (string.IsNullOrWhiteSpace(m_OAuth))
+            /*if (string.IsNullOrWhiteSpace(m_OAuth))
             {
                 m_Logger.Fatal("Twitch OAuth token is not set!");
                 m_ChaosPipe.SendErrorMessage("Twitch OAuth token is not set. Please set one in the config utility.");
@@ -61,12 +61,12 @@ namespace TwitchChatVotingProxy.VotingReceiver
                 m_ChaosPipe.SendErrorMessage("Twitch username is not set. Please set one in the config utility.");
 
                 return false;
-            }
+            }*/
 
-            m_Logger.Information($"Trying to connect to twitch channel \"{m_ChannelName}\" with user \"{m_UserName}\"");
+            m_Logger.Information($"Trying to connect to twitch channel \"{m_ChannelName}\""/* with user \"{m_UserName}\""*/);
 
             m_Client = new TwitchClient(new WebSocketClient());
-            m_Client.Initialize(new ConnectionCredentials(m_UserName, m_OAuth), m_ChannelName);
+            m_Client.Initialize(new ConnectionCredentials($"justinfan{new Random().Next(1000, 89999)}", ""), m_ChannelName);
 
             m_Client.OnConnected += OnConnected;
             m_Client.OnError += OnError;
@@ -84,8 +84,14 @@ namespace TwitchChatVotingProxy.VotingReceiver
                 return false;
             }
 
+            long startTick = Environment.TickCount64;
+
             while (!m_IsReady)
+            {
                 await Task.Delay(100);
+                if (Environment.TickCount64 - startTick > 10000)
+                    m_ChaosPipe.SendErrorMessage("Timed out while trying to join channel");
+            }
 
             return true;
         }

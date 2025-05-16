@@ -78,7 +78,7 @@ namespace ConfigApp.Tabs.Voting
             {
                 ItemsSource = new string[]
                 {
-                    "Chat Messages",
+                    //"Chat Messages",
                     "In-Game Overlay",
                     "OBS Overlay"
                 }
@@ -136,7 +136,7 @@ namespace ConfigApp.Tabs.Voting
                 SetGridsEnabled(m_EnableVoting.IsChecked.GetValueOrDefault());
             }
             if (m_OverlayMode is not null)
-                m_OverlayMode.SelectedIndex = OptionsManager.TwitchFile.ReadValueInt("VotingOverlayMode", 0, "TwitchVotingOverlayMode");
+                m_OverlayMode.SelectedIndex = OptionsManager.TwitchFile.ReadValueInt("VotingOverlayMode", 1, "TwitchVotingOverlayMode") - 1;
             if (m_EnableRandomEffect is not null)
                 m_EnableRandomEffect.IsChecked = OptionsManager.TwitchFile.ReadValueBool("RandomEffectVoteableEnable", true, "TwitchRandomEffectVoteableEnable");
             if (m_SecsBeforeVoting is not null)
@@ -155,7 +155,7 @@ namespace ConfigApp.Tabs.Voting
         public override void OnSaveValues()
         {
             OptionsManager.TwitchFile.WriteValue("EnableVoting", m_EnableVoting?.IsChecked);
-            OptionsManager.TwitchFile.WriteValue("VotingOverlayMode", m_OverlayMode?.SelectedIndex);
+            OptionsManager.TwitchFile.WriteValue("VotingOverlayMode", m_OverlayMode?.SelectedIndex + 1);
             OptionsManager.TwitchFile.WriteValue("RandomEffectVoteableEnable", m_EnableRandomEffect?.IsChecked);
             OptionsManager.TwitchFile.WriteValue("VotingSecsBeforeVoting", m_SecsBeforeVoting?.Text);
             OptionsManager.TwitchFile.WriteValue("PermittedUsernames", m_PermittedUserNames?.Text);

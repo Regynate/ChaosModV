@@ -7,17 +7,11 @@ namespace ConfigApp.Tabs.Voting
     {
         private CheckBox? m_EnableTwitchVoting = null;
         private TextBox? m_ChannelName = null;
-        private TextBox? m_UserName = null;
-        private PasswordBox? m_Token = null;
 
         private void SetElementsEnabled(bool state)
         {
             if (m_ChannelName is not null)
                 m_ChannelName.IsEnabled = state;
-            if (m_UserName is not null)
-                m_UserName.IsEnabled = state;
-            if (m_Token is not null)
-                m_Token.IsEnabled = state;
         }
 
         protected override void InitContent()
@@ -50,18 +44,6 @@ namespace ConfigApp.Tabs.Voting
                 Width = 120f,
                 Height = 20f
             });
-            PushRowSpacedPair("Username", m_UserName = new TextBox()
-            {
-                Width = 120f,
-                Height = 20f
-            });
-            PopRow();
-
-            PushRowSpacedPair("OAuth Token", m_Token = new PasswordBox()
-            {
-                Width = 120f,
-                Height = 20f
-            });
 
             SetElementsEnabled(false);
         }
@@ -75,18 +57,12 @@ namespace ConfigApp.Tabs.Voting
             }
             if (m_ChannelName is not null)
                 m_ChannelName.Text = OptionsManager.TwitchFile.ReadValue("TwitchChannelName");
-            if (m_UserName is not null)
-                m_UserName.Text = OptionsManager.TwitchFile.ReadValue("TwitchUserName");
-            if (m_Token is not null)
-                m_Token.Password = OptionsManager.TwitchFile.ReadValue("TwitchChannelOAuth");
         }
 
         public override void OnSaveValues()
         {
             OptionsManager.TwitchFile.WriteValue("EnableVotingTwitch", m_EnableTwitchVoting?.IsChecked);
             OptionsManager.TwitchFile.WriteValue("TwitchChannelName", m_ChannelName?.Text);
-            OptionsManager.TwitchFile.WriteValue("TwitchUserName", m_UserName?.Text);
-            OptionsManager.TwitchFile.WriteValue("TwitchChannelOAuth", m_Token?.Password);
         }
     }
 }
