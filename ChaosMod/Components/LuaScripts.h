@@ -30,10 +30,11 @@ class LuaScripts : public Component
 		std::string m_ScriptName;
 		sol::state m_Lua;
 		bool m_IsTemporary;
+		bool m_NativesLoaded;
 
 	  public:
 		LuaScript(const std::string &scriptName, sol::state &lua, bool isTemporary)
-		    : m_ScriptName(scriptName), m_Lua(std::move(lua)), m_IsTemporary(isTemporary)
+		    : m_ScriptName(scriptName), m_Lua(std::move(lua)), m_IsTemporary(isTemporary), m_NativesLoaded(false)
 		{
 		}
 
@@ -44,7 +45,8 @@ class LuaScripts : public Component
 		LuaScript(LuaScript &&script) noexcept
 		    : m_ScriptName(std::move(script.m_ScriptName)),
 		      m_Lua(std::move(script.m_Lua)),
-		      m_IsTemporary(script.m_IsTemporary)
+		      m_IsTemporary(script.m_IsTemporary),
+			  m_NativesLoaded(script.m_NativesLoaded)
 		{
 		}
 
@@ -53,6 +55,7 @@ class LuaScripts : public Component
 			m_ScriptName  = std::move(script.m_ScriptName);
 			m_Lua         = std::move(script.m_Lua);
 			m_IsTemporary = script.m_IsTemporary;
+			m_NativesLoaded = script.m_NativesLoaded;
 
 			return *this;
 		}
@@ -80,6 +83,14 @@ class LuaScripts : public Component
 
 				extern void LuaPrint(const std::string &name, const std::string &text);
 				LuaPrint(m_ScriptName, error.what());
+			}
+		}
+
+		void LoadNatives(sol::bytecode nativesDef) {
+			if (!m_NativesLoaded)
+			{
+				m_NativesLoaded = true;
+				m_Lua.unsafe_script(nativesDef.as_string_view());
 			}
 		}
 	};

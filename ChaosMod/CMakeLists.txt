@@ -37,7 +37,7 @@ target_link_directories(ChaosMod PUBLIC ${PROJECT_SOURCE_DIR}/../vendor/lua)
 target_link_libraries(ChaosMod PUBLIC ${link_libs})
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    target_compile_options(ChaosMod PUBLIC /Zi /GT /W2 /WX -DUNICODE -D_UNICODE -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS)
+    target_compile_options(ChaosMod PUBLIC /bigobj /Zi /GT /W2 /WX -DUNICODE -D_UNICODE -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS)
     target_link_options(ChaosMod PUBLIC /DEBUG /OPT:REF /OPT:ICF)
 else()
     target_compile_options(ChaosMod PUBLIC -municode -flarge-source-files -Werror -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wno-unused-variable -Wno-maybe-uninitialized -Wno-array-bounds -Wno-unused-but-set-variable)

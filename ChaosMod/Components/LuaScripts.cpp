@@ -83,7 +83,7 @@ static std::mutex ms_PrintMutex;
 static const std::vector<const char *> ms_ScriptDirs { "chaosmod\\scripts", "chaosmod\\workshop",
 	                                                   "chaosmod\\custom_scripts" };
 
-static std::string ms_NativesDefCache;
+static sol::bytecode ms_NativesDefCache;
 
 _LUAFUNC void LuaPrint(const std::string &text)
 {
@@ -198,6 +198,13 @@ _LUAFUNC static sol::object LuaInvoke(const std::string &scriptName, const sol::
 		return sol::make_object(lua, sol::lua_nil);
 	}
 
+	if (nativeHash == 0x4EDE34FBADD967A6)
+	{
+		const auto time = args.size() > 0 ? args[0].get<int>() : 0;
+		WAIT(time);
+		return sol::make_object(lua, sol::lua_nil);
+	}
+
 	nativeInit(nativeHash);
 
 	for (const sol::stack_proxy &arg : args)
@@ -283,10 +290,15 @@ LuaScripts::LuaScripts()
 	ms_NativesDefCache.clear();
 	if (DoesFileExist(LUA_NATIVESDEF))
 	{
-		std::ifstream inStream(LUA_NATIVESDEF);
-		std::ostringstream ossBuffer;
-		ossBuffer << inStream.rdbuf();
-		ms_NativesDefCache = ossBuffer.str();
+		sol::state lua;
+		sol::load_result lr = lua.load_file(LUA_NATIVESDEF);
+		if (!lr.valid())
+			LOG("Natives def file is invalid!");
+		else
+		{
+			sol::protected_function target = lr;
+			ms_NativesDefCache             = target.dump();
+		}
 	}
 
 	SYSTEM_INFO systemInfo {};
@@ -499,13 +511,11 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		    "DisableChaos", P(DisableChaos), "FlipChaosUI", P(FlipChaosUI));
 #undef P
 		metaModifiersMetaTable[sol::meta_function::new_index] = [] {
-		};
+	        };
 		metaModifiersMetaTable[sol::meta_function::index] = metaModifiersMetaTable;
 		metaModifiersTable[sol::metatable_key]            = metaModifiersMetaTable;
 	}
 
-	if (!ms_NativesDefCache.empty())
-		lua.unsafe_script(ms_NativesDefCache);
 
 	lua["GetTickCount"] = GetTickCount64;
 	lua["GET_HASH_KEY"] = GET_HASH_KEY;
@@ -591,8 +601,8 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("SetSurroundingPedsInVehicles", SetSurroundingPedsInVehicles),
 		E("ReplaceVehicleNoRandomComponents",
 		  [](Vehicle veh, bool addToPool) { return ReplaceVehicle(veh, addToPool, false); }),
-		E("ReplaceVehicleWithModelNoRandomComponents",
-		  [](Vehicle veh, Hash model, bool addToPool) { return ReplaceVehicleWithModel(veh, model, addToPool, false); }),
+		E("ReplaceVehicleWithModelNoRandomComponents", [](Vehicle veh, Hash model, bool addToPool)
+		  { return ReplaceVehicleWithModel(veh, model, addToPool, false); }),
 		E("ReplaceVehicle", [](Vehicle veh, bool addToPool) { return ReplaceVehicle(veh, addToPool, true); }),
 		E("ReplaceVehicleWithModel",
 		  [](Vehicle veh, Hash model, bool addToPool) { return ReplaceVehicleWithModel(veh, model, addToPool, true); }),
@@ -1133,7 +1143,9 @@ void LuaScripts::Execute(const std::string &effectId, ExecuteFuncType funcType)
 	if (!m_RegisteredEffects.contains(effectId))
 		return;
 
-	const auto &script = m_RegisteredEffects.at(effectId);
+	auto &script = m_RegisteredEffects.at(effectId);
+
+	script.LoadNatives(ms_NativesDefCache);
 
 	switch (funcType)
 	{
