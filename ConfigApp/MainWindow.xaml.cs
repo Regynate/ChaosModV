@@ -86,7 +86,7 @@ namespace ConfigApp
 
             ParseConfigFile();
 
-            ParseZChaosEffectsFile();
+            //ParseZChaosEffectsFile();
 
             ParseEffectsFile();
 
@@ -187,7 +187,7 @@ namespace ConfigApp
                     m_EffectDataMap[key] = effectData;
             }
         }
-
+        /*
         private void ParseZChaosEffectsFile()
         {
             foreach (var key in OptionsManager.ZChaosEffectsFile.GetKeys())
@@ -218,7 +218,7 @@ namespace ConfigApp
 
             OptionsManager.ZChaosEffectsFile.WriteFile();
         }
-
+        */
         private void WriteEffectsFile()
         {
             foreach (var pair in EffectsMap)
@@ -240,7 +240,7 @@ namespace ConfigApp
 
         private Dictionary<string, EffectInfo> GetEffectsMap()
         {
-            return EffectsMap.Concat(ZChaosEffects.EffectsMap).ToDictionary(e => e.Key, e => e.Value);
+            return EffectsMap/*.Concat(ZChaosEffects.EffectsMap)*/.ToDictionary(e => e.Key, e => e.Value);
         }
 
         private void InitEffectsTreeView()
@@ -335,7 +335,7 @@ namespace ConfigApp
             m_TreeMenuItemsAll.Add(timeParentItem);
             m_TreeMenuItemsAll.Add(weatherParentItem);
             m_TreeMenuItemsAll.Add(miscParentItem);
-            m_TreeMenuItemsAll.Add(zchaosParentItem);
+            //m_TreeMenuItemsAll.Add(zchaosParentItem);
 
             m_TreeMenuItemsFiltered = m_TreeMenuItemsAll.ToList();
             effects_user_effects_tree_view.ItemsSource = m_TreeMenuItemsFiltered;
@@ -401,7 +401,7 @@ namespace ConfigApp
 
             WriteConfigFile();
             WriteEffectsFile();
-            WriteZChaosEffectsFile();
+            //WriteZChaosEffectsFile();
 
             foreach (var tab in m_Tabs)
                 tab.Value.OnSaveValues();
