@@ -26,7 +26,7 @@ static bool OnHook()
         ms_ogPoolSizePtr = handle.At(1).Get<int>();
         ms_ogPoolSize   = *ms_ogPoolSizePtr;
 
-        *ms_ogPoolSizePtr = 100000;
+        *ms_ogPoolSizePtr = 70000;
 
 		ms_jzAddr = handle.At(7).Addr();
 

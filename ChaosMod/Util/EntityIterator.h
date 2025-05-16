@@ -59,6 +59,16 @@ template <typename T> class PoolIterator
 template <typename T> class PoolUtils
 {
   public:
+	inline auto ToAddressArray()
+	{
+		std::vector<DWORD64> arr;
+		for (int i = 0; i < GetSize(); i++)
+			if (IsValid(i))
+				arr.push_back(GetAddress(i));
+
+		return arr;
+	}
+
 	inline auto ToArray()
 	{
 		std::vector<Entity> arr;
@@ -413,4 +423,9 @@ inline auto GetAllPropsArray()
 inline auto GetAllBuildingsArray()
 {
 	return GetAllBuildings().ToArray();
+}
+
+inline auto GetAllBuildingsAddressArray()
+{
+	return GetAllBuildings().ToAddressArray();
 }

@@ -6,6 +6,8 @@
 
 #include "EntityIterator.h"
 
+#include "Memory/WorldToScreen.h"
+
 static inline auto treeModels = {
 	"prop_bush_lrg_04b"_hash,
 	"prop_bush_lrg_04c"_hash,
@@ -97,18 +99,53 @@ static inline auto treeModels = {
 	"test_tree_forest_trunk_fall_01"_hash,
 };
 
+inline Hash GetBuildingModel(Entity building)
+{
+	Handle addr = Memory::GetScriptHandleBaseAddress(building);
+
+	if (addr.At(0x20).Value<long long>())
+		return GET_ENTITY_MODEL(building);
+	return 0;
+}
+
 inline auto GetAllTrees()
 {
 	std::vector<Entity> arr;
 
 	for (const auto building : GetAllBuildings())
 	{
-		Handle addr = Memory::GetScriptHandleBaseAddress(building);
+		auto model = GetBuildingModel(building);
 
-		if (addr.At(0x20).Value<long long>())
+		if (model)
 		{
-			auto model = GET_ENTITY_MODEL(building);
 			if (std::find(treeModels.begin(), treeModels.end(), model) != treeModels.end())
+				arr.push_back(building);
+		}
+	}
+
+	return arr;
+}
+
+inline auto GetAllVisibleBuildings()
+{
+	std::vector<Entity> arr;
+
+	const auto playerPos = GET_ENTITY_COORDS(PLAYER_PED_ID(), false);
+
+	for (const auto building : GetAllBuildings())
+	{
+		auto model = GetBuildingModel(building);
+
+		if (model)
+		{
+			auto coords = GET_ENTITY_COORDS(building, false);
+			Vector3 min, max;
+			GET_MODEL_DIMENSIONS(model, &min, &max);
+
+			const auto radius =
+			    std::max(std::abs(max.x - min.x), std::max(std::abs(max.y - min.y), std::abs(max.z - min.z)));
+
+			if (radius / coords.DistanceTo(playerPos) > 0.02f && IS_SPHERE_VISIBLE(coords.x, coords.y, coords.z, radius))
 				arr.push_back(building);
 		}
 	}

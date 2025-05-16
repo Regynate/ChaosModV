@@ -19,8 +19,9 @@ struct Transform
 	}
 };
 
-static Transform ms_AllBuildingsTransform;
 static std::map<DWORD64, Transform> ms_EntityMap;
+static Vector3 ms_PlayerPos;
+static float ms_GroundZ;
 
 static DWORD64 GetMatrixAddr(DWORD64 entityAddr, bool physMatrix)
 {
@@ -39,13 +40,11 @@ static DWORD64 GetMatrixAddr(DWORD64 entityAddr, bool physMatrix)
 static DWORD64 AddEntityToMap(DWORD64 entityAddr)
 {
 	if (!entityAddr)
-	{
 		return 0;
-	}
 
 	auto &entityMap = ms_EntityMap;
 
-	if (entityMap.find(entityAddr) == entityMap.end())
+	if (!entityMap.contains(entityAddr))
 		entityMap.emplace(entityAddr, Transform());
 	return entityAddr;
 }
@@ -64,20 +63,16 @@ static void ApplyTransform(DWORD64 entityAddr, Transform &transform, bool physic
 	{
 		auto matrix4x4 = reinterpret_cast<ChaosMatrix4x4 *>(matrixAddr);
 		if (physical)
-		{
 			transform.m_ogPhysMatrix = *matrix4x4;
-		}
 		else
-		{
 			transform.m_ogMatrix = *matrix4x4;
-		}
 
 		for (const auto &vector : transform.m_Scale)
 			*matrix4x4 = ChaosMatrix4x4::ScaleMatrix(vector) * *matrix4x4;
 		for (const auto &vector : transform.m_Rotation)
 			*matrix4x4 = ChaosMatrix4x4::RotationMatrix(vector) * *matrix4x4;
 		for (const auto &vector : transform.m_Translation)
-			*matrix4x4 = ChaosMatrix4x4::TranslationMatrix(vector) * *matrix4x4;
+			matrix4x4->translation = matrix4x4->translation + vector;
 	}
 }
 
@@ -118,6 +113,8 @@ static void HK_CGame__Render(void)
 		PostRender(ped, transform);
 
 	ms_EntityMap.clear();
+	ms_PlayerPos = GET_ENTITY_COORDS(PLAYER_PED_ID(), false);
+	_GET_GROUND_Z_FOR_3D_COORD_2(ms_PlayerPos.x, ms_PlayerPos.y, ms_PlayerPos.z, &ms_GroundZ, false, false);
 }
 
 static bool OnHook()
@@ -160,6 +157,17 @@ void Hooks::AddScaleVector(const Entity entity, const Vector3 &scale)
 {
 	if (auto addr = AddEntityToMap(entity))
 		ms_EntityMap[addr].m_Scale.push_back(ChaosVector3(scale));
+}
+
+void Hooks::AddPositionAdjustVector(const Entity entity, const Vector3 &scale)
+{
+	if (auto addr = AddEntityToMap(entity))
+	{
+		const auto coords = GET_ENTITY_COORDS(entity, false);
+		ms_EntityMap[addr].m_Translation.push_back(ChaosVector3((coords - ms_PlayerPos).x * (scale.x - 1),
+		                                                        (coords - ms_PlayerPos).y * (scale.y - 1),
+		                                                        (coords.z - ms_GroundZ) * (scale.z - 1)));
+	}
 }
 
 static RegisterHook registerHook(OnHook, OnCleanup, "EntityRender", true);

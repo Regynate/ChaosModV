@@ -589,8 +589,13 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("CreateTempVehicle", CreateTempVehicle),
 		E("CreateTempVehicleOnPlayerPos", CreateTempVehicleOnPlayerPos),
 		E("SetSurroundingPedsInVehicles", SetSurroundingPedsInVehicles),
-		E("ReplaceVehicle", ReplaceVehicle),
-		E("ReplaceVehicleWithModel", ReplaceVehicleWithModel),
+		E("ReplaceVehicleNoRandomComponents",
+		  [](Vehicle veh, bool addToPool) { return ReplaceVehicle(veh, addToPool, false); }),
+		E("ReplaceVehicleWithModelNoRandomComponents",
+		  [](Vehicle veh, Hash model, bool addToPool) { return ReplaceVehicleWithModel(veh, model, addToPool, false); }),
+		E("ReplaceVehicle", [](Vehicle veh, bool addToPool) { return ReplaceVehicle(veh, addToPool, true); }),
+		E("ReplaceVehicleWithModel",
+		  [](Vehicle veh, Hash model, bool addToPool) { return ReplaceVehicleWithModel(veh, model, addToPool, true); }),
 
 		E("GetAllProps", GetAllPropsArray),
 		E("CreatePoolProp", CreatePoolProp),
@@ -600,6 +605,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("GetAllVehicleModels", Memory::GetAllVehModels),
 
 		E("GetAllBuildings", GetAllBuildingsArray),
+		E("GetAllVisibleBuildings", GetAllVisibleBuildings),
 		E("GetAllTrees", GetAllTrees),
 
 		E("OverrideShader", Hooks::OverrideShader),
@@ -745,17 +751,13 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("GetPedWetness", Memory::GetPedWetness),
 		E("SetCrouching", Memory::SetCrouching),
 		E("AddRotationVector", [](const Entity entity, const LuaVector3 &vector)
-		  {
-		      Hooks::AddRotationVector(entity, Vector3(vector.X, vector.Y, vector.Z));
-		  }),
+		  { Hooks::AddRotationVector(entity, Vector3(vector.X, vector.Y, vector.Z)); }),
 		E("AddTranslationVector", [](const Entity entity, const LuaVector3 &vector)
-		  {
-		      Hooks::AddTranslationVector(entity, Vector3(vector.X, vector.Y, vector.Z));
-		  }),
+		  { Hooks::AddTranslationVector(entity, Vector3(vector.X, vector.Y, vector.Z)); }),
 		E("AddScaleVector", [](const Entity entity, const LuaVector3 &vector)
-		  {
-		      Hooks::AddScaleVector(entity, Vector3(vector.X, vector.Y, vector.Z));
-		  }),
+		  { Hooks::AddScaleVector(entity, Vector3(vector.X, vector.Y, vector.Z)); }),
+		E("AddPositionAdjustVector", [](const Entity entity, const LuaVector3 &vector)
+		  { Hooks::AddPositionAdjustVector(entity, Vector3(vector.X, vector.Y, vector.Z)); })
 	};
 #undef E
 
