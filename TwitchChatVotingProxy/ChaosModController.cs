@@ -240,7 +240,7 @@ namespace TwitchChatVotingProxy
         /// </summary>
         private void OnVoteReceiverMessage(object? sender, OnMessageArgs e)
         {
-            m_ChaosPipe.SendMessageToPipe("message", e);
+            m_ChaosPipe.QueueMessage("message", e);
 
             if (!m_VoteRunning || e.UserId is null || e.Message is null)
                 return;
@@ -295,12 +295,12 @@ namespace TwitchChatVotingProxy
 
         private void OnMessageDeleted(object? sender, OnMessageDeletedArgs e)
         {
-            m_ChaosPipe.SendMessageToPipe("deletion", e);
+            m_ChaosPipe.QueueMessage("deletion", e);
         }
 
         private void OnUserBanned(object? sender, OnUserBanArgs e)
         {
-            m_ChaosPipe.SendMessageToPipe("userban", e);
+            m_ChaosPipe.QueueMessage("userban", e);
         }
     }
 }

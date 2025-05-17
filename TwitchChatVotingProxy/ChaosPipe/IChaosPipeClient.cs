@@ -17,6 +17,6 @@
         /// </summary>
         event EventHandler OnNoVotingRound;
 
-        public void SendMessageToPipe(string identifier, object value);
+        public void QueueMessage(string identifier, object value);
     }
 }

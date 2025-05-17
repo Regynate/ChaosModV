@@ -123,7 +123,10 @@ void Voting::HandleMsg(std::string_view message)
 	}
 	else
 	{
+		DEBUG_LOG("Received message from pipe: " << message);
+
 		auto receivedJSON = nlohmann::json::parse(message);
+
 		if (!receivedJSON.empty())
 		{
 			std::string identifier = receivedJSON["Identifier"];
@@ -332,7 +335,7 @@ void Voting::OnRun()
 		}
 	}
 
-	if (GetComponent<EffectDispatchTimer>()->GetRemainingTimerTime() <= 1 && !m_HasReceivedResult)
+	if (GetComponent<EffectDispatchTimer>()->GetRemainingTimerTime() <= 1 && !m_HasReceivedResult && !GetComponent<EffectDispatchTimer>()->ShouldDispatchEffectNow())
 	{
 		// Get vote result 1 second before effect is supposed to dispatch
 

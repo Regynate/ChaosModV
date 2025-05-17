@@ -32,6 +32,9 @@ namespace TwitchChatVotingProxy.ChaosPipe
         private readonly StreamWriter? m_PipeWriter = null;
         private Task<string?>? m_ReadPipeTask = null;
 
+        private readonly Queue<object> m_MessageQueue = new();
+        private readonly Timer m_QueueTimer = new();
+
         private class PipeMessage
         {
             public string? Identifier { get; set; } = null;
@@ -77,6 +80,9 @@ namespace TwitchChatVotingProxy.ChaosPipe
             m_PipeTick.Interval = PIPE_TICKRATE;
             m_PipeTick.Elapsed += PipeTick;
 
+            m_QueueTimer.Interval = PIPE_TICKRATE;
+            m_QueueTimer.Elapsed += QueueTick;
+
             // Connect to the chaos mod pipe
             try
             {
@@ -90,6 +96,7 @@ namespace TwitchChatVotingProxy.ChaosPipe
                 m_Logger.Information("Successfully connected to chaos mod pipe");
 
                 m_PipeTick.Start();
+                m_QueueTimer.Start();
             }
             catch (Exception exception)
             {
@@ -175,6 +182,24 @@ namespace TwitchChatVotingProxy.ChaosPipe
                 DisconnectFromPipe();
             }
         }
+
+        private void QueueTick(object? sender, ElapsedEventArgs e)
+        {
+            try
+            {
+                while(m_MessageQueue.Count > 0)
+                {
+                    var message = m_MessageQueue.Dequeue();
+                    SendMessageToPipeJson(message);
+                }
+            }
+            catch (Exception exception)
+            {
+                m_Logger.Information("Pipe disconnected: " + exception.Message);
+                DisconnectFromPipe();
+            }
+        }
+
         /// <summary>
         /// Reads the contents of the chaos mod pipe and evaluates its message
         /// </summary>
@@ -232,7 +257,7 @@ namespace TwitchChatVotingProxy.ChaosPipe
             m_Pipe.WaitForPipeDrain();
         }
 
-        public void SendMessageToPipeJson(object value)
+        private void SendMessageToPipeJson(object value)
         {
             SendMessageToPipe(JsonConvert.SerializeObject(value));
         }
@@ -291,9 +316,14 @@ namespace TwitchChatVotingProxy.ChaosPipe
             DisconnectFromPipe();
         }
 
-        public void SendMessageToPipe(string identifier, object value)
+        private void QueueMessage(object value)
         {
-            SendMessageToPipeJson(new { Identifier = identifier, Value = value });
+            m_MessageQueue.Enqueue(value);
+        }
+
+        public void QueueMessage(string identifier, object value)
+        {
+            QueueMessage(new { Identifier = identifier, Value = value });
         }
     }
 }
