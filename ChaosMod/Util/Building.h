@@ -8,7 +8,7 @@
 
 #include "Memory/WorldToScreen.h"
 
-static inline auto treeModels = {
+const inline std::vector<Hash> treeModels = {
 	"prop_bush_lrg_04b"_hash,
 	"prop_bush_lrg_04c"_hash,
 	"prop_bush_lrg_04d"_hash,

@@ -164,9 +164,12 @@ void Hooks::AddPositionAdjustVector(const Entity entity, const Vector3 &scale)
 	if (auto addr = AddEntityToMap(entity))
 	{
 		const auto coords = GET_ENTITY_COORDS(entity, false);
+		float height      = coords.z;
+		if (Memory::GetEntityType(entity) != EntityType::ENTITY_TYPE_BUILDING && IS_ENTITY_ON_SCREEN(entity))
+			height = coords.z - GET_ENTITY_HEIGHT_ABOVE_GROUND(entity);
 		ms_EntityMap[addr].m_Translation.push_back(ChaosVector3((coords - ms_PlayerPos).x * (scale.x - 1),
 		                                                        (coords - ms_PlayerPos).y * (scale.y - 1),
-		                                                        (coords.z - ms_GroundZ) * (scale.z - 1)));
+		                                                        (height - ms_GroundZ) * (scale.z - 1)));
 	}
 }
 
