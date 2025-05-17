@@ -16,7 +16,10 @@ static void OnTick()
 		// Exclude helis since the "braking" flag seems to be always set for those
 		// Also manually exclude blimps since those don't seem to be categorized as either of those
 		if (vehClass != 15 && vehModel != blimpHash && Memory::IsVehicleBraking(veh))
-			Memory::ApplyForceToEntity(veh, 0, .0f, 50.f, .0f, .0f, .0f, .0f, 0, true, true, true, false, true);
+		{
+			const auto speed = GET_ENTITY_SPEED_VECTOR(veh, true).y;
+			SET_VEHICLE_FORWARD_SPEED(veh, speed + 50.f * GET_FRAME_TIME());
+		}
 	}
 }
 
