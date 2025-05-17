@@ -28,6 +28,11 @@ static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 		return;
 	}
 
+	if (IsEffectFilteredOut(entry.Id))
+	{
+		LOG("Tried dispatching effect "<< entry.Id.Id() << ", but its condition failed!");
+	}
+
 	auto &effectData = g_EnabledEffects.at(entry.Id);
 
 	if (effectData.TimedType == EffectTimedType::Permanent)
@@ -587,9 +592,9 @@ std::string EffectDispatcher::GetRandomEffectId() const
 		return {};
 
 	std::unordered_map<EffectIdentifier, EffectData, EffectsIdentifierHasher> choosableEffects;
-	for (const auto &[effectId, effectData] : g_EnabledEffects)
-		if (!effectData.IsMeta() && !effectData.IsUtility() && !effectData.IsHidden())
-			choosableEffects.emplace(effectId, effectData);
+	for (const auto &effectData : GetFilteredEnabledEffects())
+		if (!effectData->IsMeta() && !effectData->IsUtility() && !effectData->IsHidden())
+			choosableEffects.emplace(effectData->Id, *effectData);
 
 	float totalWeight = 0.f;
 	for (const auto &[effectId, effectData] : choosableEffects)
