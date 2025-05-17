@@ -516,7 +516,6 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		metaModifiersTable[sol::metatable_key]            = metaModifiersMetaTable;
 	}
 
-
 	lua["GetTickCount"] = GetTickCount64;
 	lua["GET_HASH_KEY"] = GET_HASH_KEY;
 
@@ -1056,7 +1055,11 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		const auto &effectCategoryStr = *effectCategoryOpt;
 		auto effectCategoryIt         = g_NameToEffectCategory.find(effectCategoryStr);
 		if (effectCategoryIt != g_NameToEffectCategory.end())
+		{
 			effectData.Category = effectCategoryIt->second;
+			if (effectData.Category == EffectCategory::Shader)
+				effectData.ConditionType = EffectConditionType::EnhancedShader;
+		}
 	}
 
 	const sol::optional<std::string> &effectGroupOpt = effectInfo["EffectGroup"];

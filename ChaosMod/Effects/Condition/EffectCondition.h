@@ -13,6 +13,7 @@ enum class EffectConditionType
 	ProportionalVotingEnabled,
 	UsingDistanceTimer,
 	UsingTimeTimer,
+	EnhancedShader,
 };
 
 #define REGISTER_EFFECT_CONDITION(conditionType, condition, failReason)                                \
