@@ -187,7 +187,7 @@ namespace TwitchChatVotingProxy.ChaosPipe
             else if (m_ReadPipeTask.IsCompleted)
             {
                 // Get the message from the pipe read
-                var message = m_ReadPipeTask.Result;
+                var message = m_ReadPipeTask?.Result;
                 if (message is not null)
                 {
                     // Null the reading task so the next read is dispatched
