@@ -188,7 +188,8 @@ static void Init()
 
 	INIT_COMPONENT("Workshop", "workshop", Workshop);
 
-	if (g_OptionsManager.GetConfigValue({ "EffectSoundUseMCI" }, OPTION_DEFAULT_EFFECT_SOUND_USE_MCI) || FORCE_LEGACY_SOUND_MANAGER)
+	if (g_OptionsManager.GetConfigValue({ "EffectSoundUseMCI" }, OPTION_DEFAULT_EFFECT_SOUND_USE_MCI)
+	    || FORCE_LEGACY_SOUND_MANAGER)
 	{
 		INIT_COMPONENT_BASE("EffectSoundManager", "effect sound system (legacy MCI)", EffectSoundManager,
 		                    EffectSoundMCI);
@@ -223,6 +224,13 @@ static void Init()
 	INIT_COMPONENT("CrossingChallenge", "Crossing Challenge", CrossingChallenge);
 
 	INIT_COMPONENT("EntityTracking", "Entity Tracking", EntityTracking);
+
+	for (auto &&[effectId, effectMetadata] : g_RegisteredEffectsMetadata)
+	{
+		LOG("{ \"" << effectId << "\", new EffectInfo(\"" << effectMetadata.Name << "\", EffectCategory."
+		           << (effectMetadata.IsTimed ? ", true" : "") << (effectMetadata.IsShortDuration ? ", true" : "")
+		           << ") },");
+	}
 
 #ifdef WITH_DEBUG_PANEL_SUPPORT
 	if (DoesFeatureFlagExist("enabledebugsocket"))

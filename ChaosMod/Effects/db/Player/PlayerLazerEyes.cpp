@@ -100,7 +100,7 @@ static void OnStart()
 // clang-format off
 REGISTER_EFFECT(OnStart, nullptr, OnTick, 
     {
-        .Name = "Lazer Eyes", 
+        .Name = "Laser Eyes", 
         .Id = "player_laser_eyes", 
         .IsTimed = true
     }
