@@ -54,6 +54,8 @@ class EffectDispatcher : public Component
 		bool IsZombie       = false;
 
 		DWORD64 SoundId     = 0;
+
+		void Stop();
 	};
 	struct
 	{

@@ -29,9 +29,7 @@ static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 	}
 
 	if (IsEffectFilteredOut(entry.Id))
-	{
-		LOG("Tried dispatching effect "<< entry.Id.Id() << ", but its condition failed!");
-	}
+		LOG("Tried dispatching effect " << entry.Id.Id() << ", but its condition failed!");
 
 	auto &effectData = g_EnabledEffects.at(entry.Id);
 
@@ -124,8 +122,7 @@ static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 		if (isIncompatible)
 		{
 			// No immediate effect thread stopping required here, do it gracefully
-			EffectThreads::StopThread(activeEffect.ThreadId);
-			activeEffect.IsStopping = true;
+			activeEffect.Stop();
 		}
 	}
 
@@ -179,9 +176,9 @@ static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 			    .IsMeta         = effectData.IsMeta(),
 			    .HideEffectName = effectData.ShouldHideRealNameOnStart(),
 			});
-			auto &activeEffect = effectDispatcher->SharedState.ActiveEffects.back();
+			auto &activeEffect                = effectDispatcher->SharedState.ActiveEffects.back();
 
-			auto effectSharedData = EffectThreads::GetThreadSharedData(activeEffect.ThreadId);
+			auto effectSharedData             = EffectThreads::GetThreadSharedData(activeEffect.ThreadId);
 
 			effectSharedData->DispatchContext = entry.Context;
 
@@ -399,8 +396,7 @@ void EffectDispatcher::UpdateEffects(float deltaTime)
 			if (!activeEffect.IsStopping)
 			{
 				DEBUG_LOG("Stopping effect " << activeEffect.Id.Id());
-				EffectThreads::StopThread(activeEffect.ThreadId);
-				activeEffect.IsStopping = true;
+				activeEffect.Stop();
 			}
 			else if (activeEffect.Timer < -60.f)
 			{
@@ -478,14 +474,18 @@ void EffectDispatcher::DrawEffectTexts()
 	if (m_DisableDrawEffectTexts)
 		return;
 
-	float y             = GetEffectTopSpace();
-	float effectSpacing = EFFECT_TEXT_INNER_SPACING_MAX;
+	float y               = GetEffectTopSpace();
+	float effectSpacing   = EFFECT_TEXT_INNER_SPACING_MAX;
 
-	if (SharedState.ActiveEffects.size() > 0)
+	int activeEffectCount = 0;
+	for (const ActiveEffect &effect : SharedState.ActiveEffects)
+		if (!effect.IsStopping)
+			activeEffectCount++;
+
+	if (activeEffectCount > 0)
 	{
-		effectSpacing =
-		    std::min(EFFECT_TEXT_INNER_SPACING_MAX,
-		             std::max(EFFECT_TEXT_INNER_SPACING_MIN, (1.0f - y) / SharedState.ActiveEffects.size()));
+		effectSpacing = std::min(EFFECT_TEXT_INNER_SPACING_MAX,
+		                         std::max(EFFECT_TEXT_INNER_SPACING_MIN, (1.0f - y) / activeEffectCount));
 	}
 
 	for (const ActiveEffect &effect : SharedState.ActiveEffects)
@@ -578,7 +578,7 @@ void EffectDispatcher::DrawEffectTexts()
 }
 
 void EffectDispatcher::DispatchEffect(const EffectIdentifier &effectId, DispatchEffectFlags dispatchEffectFlags,
-                                      const std::string &suffix, const std::string& context)
+                                      const std::string &suffix, const std::string &context)
 {
 	if (effectId == "misc_repeat_last_effect") // hack
 		dispatchEffectFlags = DispatchEffectFlag_NoAddToLog;
@@ -616,7 +616,8 @@ std::string EffectDispatcher::GetRandomEffectId() const
 	return {};
 }
 
-void EffectDispatcher::DispatchRandomEffect(DispatchEffectFlags dispatchEffectFlags, const std::string &suffix, const std::string &context)
+void EffectDispatcher::DispatchRandomEffect(DispatchEffectFlags dispatchEffectFlags, const std::string &suffix,
+                                            const std::string &context)
 {
 	auto const randomEffect = GetRandomEffectId();
 
@@ -626,6 +627,13 @@ void EffectDispatcher::DispatchRandomEffect(DispatchEffectFlags dispatchEffectFl
 	DispatchEffect(randomEffect, dispatchEffectFlags, suffix, context);
 }
 
+void EffectDispatcher::ActiveEffect::Stop()
+{
+	EffectThreads::StopThread(ThreadId);
+	IsStopping = true;
+	Timer      = -1;
+}
+
 void EffectDispatcher::ClearEffect(const EffectIdentifier &effectId)
 {
 	auto result = std::find_if(SharedState.ActiveEffects.begin(), SharedState.ActiveEffects.end(),
@@ -633,8 +641,7 @@ void EffectDispatcher::ClearEffect(const EffectIdentifier &effectId)
 	if (result == SharedState.ActiveEffects.end())
 		return;
 
-	EffectThreads::StopThread(result->ThreadId);
-	result->IsStopping = true;
+	result->Stop();
 }
 
 void EffectDispatcher::ClearEffects(ClearEffectsFlags clearEffectFlags)
@@ -653,8 +660,7 @@ void EffectDispatcher::ClearActiveEffects(const std::string &ignoreEffect)
 		if (effect.IsMeta || effect.Timer <= 0.f || effect.Id == ignoreEffect)
 			continue;
 
-		EffectThreads::StopThread(effect.ThreadId);
-		effect.IsStopping = true;
+		effect.Stop();
 	}
 }
 
@@ -667,8 +673,7 @@ void EffectDispatcher::ClearMostRecentEffect()
 		if (effect.IsMeta || effect.Timer <= 0.f)
 			continue;
 
-		EffectThreads::StopThread(effect.ThreadId);
-		effect.IsStopping = true;
+		effect.Stop();
 
 		break;
 	}
