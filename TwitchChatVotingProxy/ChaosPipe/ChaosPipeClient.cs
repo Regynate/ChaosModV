@@ -95,8 +95,26 @@ namespace TwitchChatVotingProxy.ChaosPipe
 
                 m_Logger.Information("Successfully connected to chaos mod pipe");
 
-                m_PipeTick.Start();
-                m_QueueTimer.Start();
+                //m_PipeTick.Start();
+                //m_QueueTimer.Start();
+
+                new Task(async () =>
+                {
+                    while (true)
+                    {
+                        PipeTick(null, null);
+                        await Task.Delay(PIPE_TICKRATE);
+                    }
+                }).Start();
+
+                new Task(async () =>
+                {
+                    while (true)
+                    {
+                        QueueTick(null, null);
+                        await Task.Delay(PIPE_TICKRATE);
+                    }
+                }).Start();
             }
             catch (Exception exception)
             {
@@ -169,7 +187,7 @@ namespace TwitchChatVotingProxy.ChaosPipe
         /// <summary>
         /// Gets called every pipe tick
         /// </summary>
-        private void PipeTick(object? sender, ElapsedEventArgs e)
+        private void PipeTick(object? sender, ElapsedEventArgs? e)
         {
             try
             {
@@ -183,7 +201,7 @@ namespace TwitchChatVotingProxy.ChaosPipe
             }
         }
 
-        private void QueueTick(object? sender, ElapsedEventArgs e)
+        private void QueueTick(object? sender, ElapsedEventArgs? e)
         {
             try
             {
