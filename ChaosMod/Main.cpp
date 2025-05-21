@@ -225,13 +225,6 @@ static void Init()
 
 	INIT_COMPONENT("EntityTracking", "Entity Tracking", EntityTracking);
 
-	for (auto &&[effectId, effectMetadata] : g_RegisteredEffectsMetadata)
-	{
-		LOG("{ \"" << effectId << "\", new EffectInfo(\"" << effectMetadata.Name << "\", EffectCategory."
-		           << (effectMetadata.IsTimed ? ", true" : "") << (effectMetadata.IsShortDuration ? ", true" : "")
-		           << ") },");
-	}
-
 #ifdef WITH_DEBUG_PANEL_SUPPORT
 	if (DoesFeatureFlagExist("enabledebugsocket"))
 		INIT_COMPONENT("DebugSocket", "Debug Websocket", DebugSocket);
