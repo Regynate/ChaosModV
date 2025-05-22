@@ -26,12 +26,15 @@ class EntityTracking : public Component
 {
 	struct TrackedEntity
 	{
-		Entity entity;
-		std::function<bool(Entity)> foo;
-		std::string id;
+		std::vector<std::function<bool(Entity)>> tick;
+		std::vector<std::function<void()>> cleanup;
+
+		TrackedEntity() : tick(), cleanup()
+		{
+		}
 	};
 
-	std::vector<TrackedEntity> m_TrackedEntities;
+	std::map<Entity, TrackedEntity> m_TrackedEntities;
 
 	VehicleEntryPoint m_LastVehicleEntryPoint;
 
@@ -45,7 +48,11 @@ class EntityTracking : public Component
 	virtual void OnRun() override;
 	virtual void OnModPauseCleanup() override;
 
-	void AddTracker(Entity entity, const std::function<bool(Entity)> &tracker, std::string id = "");
+	// gets called every tick; given entity is passed as an argument to tracker
+	void AddTracker(Entity entity, const std::function<bool(Entity)> &tracker);
+
+	// gets called once the entity is removed from the world
+	void AddCleanupTracker(Entity entity, const std::function<void()> &tracker);
 
 	VehicleEntryPoint GetLastPlayerVehicleEntryPoint();
 

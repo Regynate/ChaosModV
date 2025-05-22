@@ -126,10 +126,17 @@ void EntityTracking::OnRun()
 
 	for (auto it = m_TrackedEntities.begin(); it != m_TrackedEntities.end();)
 	{
-		auto const trackedEntity = *it;
-		bool keep                = false;
-		if (trackedEntity.entity == 0 || DOES_ENTITY_EXIST(trackedEntity.entity))
-			keep = trackedEntity.foo(trackedEntity.entity);
+		auto const &[entity, trackedEntity] = *it;
+		bool keep                           = true;
+		if (entity != 0 && !DOES_ENTITY_EXIST(entity))
+			keep = false;
+		else
+			for (auto const &tick : trackedEntity.tick)
+				keep = keep && tick(entity);
+
+		if (!keep)
+			for (auto const &cleanup : trackedEntity.cleanup)
+				cleanup();
 
 		if (keep)
 			++it;
@@ -140,12 +147,20 @@ void EntityTracking::OnRun()
 
 void EntityTracking::OnModPauseCleanup()
 {
+	for (const auto &[_, trackedEntity] : m_TrackedEntities)
+		for (auto const &cleanup : trackedEntity.cleanup)
+				cleanup();
 	m_TrackedEntities.clear();
 }
 
-void EntityTracking::AddTracker(Entity entity, const std::function<bool(Entity)> &tracker, std::string id)
+void EntityTracking::AddTracker(Entity entity, const std::function<bool(Entity)> &tracker)
 {
-	m_TrackedEntities.emplace_back(TrackedEntity { entity, tracker, id });
+	m_TrackedEntities[entity].tick.push_back(tracker);
+}
+
+void EntityTracking::AddCleanupTracker(Entity entity, const std::function<void()> &tracker)
+{
+	m_TrackedEntities[entity].cleanup.push_back(tracker);
 }
 
 VehicleEntryPoint EntityTracking::GetLastPlayerVehicleEntryPoint()

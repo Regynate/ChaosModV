@@ -4,6 +4,7 @@
 
 #include "Components/DebugSocket.h"
 #include "Components/EffectDispatcher.h"
+#include "Components/EntityTracking.h"
 #include "Components/KeyStates.h"
 #include "Components/MetaModifiers.h"
 #include "Components/Workshop.h"
@@ -567,18 +568,18 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("IsKeyPressed",
 		  [](unsigned char key)
 		  {
-		      if (ComponentExists<KeyStates>())
-			      return GetComponent<KeyStates>()->IsKeyPressed(key);
+		        if (ComponentExists<KeyStates>())
+			        return GetComponent<KeyStates>()->IsKeyPressed(key);
 
-		      return false;
+		        return false;
 		  }),
 		E("IsKeyJustPressed",
 		  [](unsigned char key)
 		  {
-		      if (ComponentExists<KeyStates>())
-			      return GetComponent<KeyStates>()->IsKeyJustPressed(key);
+		        if (ComponentExists<KeyStates>())
+			        return GetComponent<KeyStates>()->IsKeyJustPressed(key);
 
-		      return false;
+		        return false;
 		  }),
 
 		E("APPLY_FORCE_TO_ENTITY", APPLY_FORCE_TO_ENTITY),
@@ -644,21 +645,22 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("GetGameplayCamOffsetInWorldCoords",
 		  [](LuaVector3 offset)
 		  {
-		      const auto &result = Util::GetGameplayCamOffsetInWorldCoords(Vector3::Init(offset.X, offset.Y, offset.Z));
-		      return LuaVector3(result.x, result.y, result.z);
+		        const auto &result =
+		            Util::GetGameplayCamOffsetInWorldCoords(Vector3::Init(offset.X, offset.Y, offset.Z));
+		        return LuaVector3(result.x, result.y, result.z);
 		  }),
 		E("GetCoordsFromGameplayCam",
 		  [](float distance)
 		  {
-		      const auto &result = Util::GetCoordsFromGameplayCam(distance);
-		      return LuaVector3(result.x, result.y, result.z);
+		        const auto &result = Util::GetCoordsFromGameplayCam(distance);
+		        return LuaVector3(result.x, result.y, result.z);
 		  }),
 
 		E("GetCoordAround",
 		  [](Entity entity, float angle, float radius, float zOffset, bool relative)
 		  {
-		      const auto &result = GetCoordAround(entity, angle, radius, zOffset, relative);
-		      return LuaVector3(result.x, result.y, result.z);
+		        const auto &result = GetCoordAround(entity, angle, radius, zOffset, relative);
+		        return LuaVector3(result.x, result.y, result.z);
 		  }),
 
 		E("IsWeaponShotgun", Util::IsWeaponShotgun),
@@ -672,21 +674,21 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("GetRandomInt",
 		  [](int lower, int upper) -> int
 		  {
-		      if (lower > upper)
-			      return 0;
-		      else if (lower == upper)
-			      return lower;
-		      return g_Random.GetRandomInt(lower, upper);
+		        if (lower > upper)
+			        return 0;
+		        else if (lower == upper)
+			        return lower;
+		        return g_Random.GetRandomInt(lower, upper);
 		  }),
 
 		E("GetRandomFloat",
 		  [](float lower, float upper) -> float
 		  {
-		      if (lower > upper)
-			      return 0.f;
-		      else if (lower == upper)
-			      return lower;
-		      return g_Random.GetRandomFloat(lower, upper);
+		        if (lower > upper)
+			        return 0.f;
+		        else if (lower == upper)
+			        return lower;
+		        return g_Random.GetRandomFloat(lower, upper);
 		  }),
 		E("GetEffectCompletionPercentage", CurrentEffect::GetEffectCompletionPercentage),
 		E("OverrideEffectName", [](const std::string &name) { CurrentEffect::OverrideEffectName(name); }),
@@ -695,44 +697,45 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("SetEffectSoundFollowPlayer",
 		  []()
 		  {
-		      auto sharedData = EffectThreads::GetThreadSharedData(GetCurrentFiber());
-		      if (sharedData)
-			      sharedData->EffectSoundPlayOptions.PlayType = EffectSoundPlayType::FollowPlayer;
+		        auto sharedData = EffectThreads::GetThreadSharedData(GetCurrentFiber());
+		        if (sharedData)
+			        sharedData->EffectSoundPlayOptions.PlayType = EffectSoundPlayType::FollowPlayer;
 		  }),
 		E("SetEffectSoundFollowEntity",
 		  [](Entity entity)
 		  {
-		      auto sharedData = EffectThreads::GetThreadSharedData(GetCurrentFiber());
-		      if (!sharedData)
-			      return;
-		      sharedData->EffectSoundPlayOptions.PlayType = EffectSoundPlayType::FollowEntity;
-		      sharedData->EffectSoundPlayOptions.Entity   = entity;
+		        auto sharedData = EffectThreads::GetThreadSharedData(GetCurrentFiber());
+		        if (!sharedData)
+			        return;
+		        sharedData->EffectSoundPlayOptions.PlayType = EffectSoundPlayType::FollowEntity;
+		        sharedData->EffectSoundPlayOptions.Entity   = entity;
           }),
 		E("SetEffectSoundAtCoords",
 		  [](const LuaVector3 &coords)
 		  {
-		      auto sharedData = EffectThreads::GetThreadSharedData(GetCurrentFiber());
-		      if (!sharedData)
-			      return;
-		      sharedData->EffectSoundPlayOptions.PlayType = EffectSoundPlayType::AtCoords;
-		      sharedData->EffectSoundPlayOptions.Coords   = Vector3(coords.X, coords.Y, coords.Z);
+		        auto sharedData                             = EffectThreads::GetThreadSharedData(GetCurrentFiber());
+		        if (!sharedData)
+			        return;
+		        sharedData->EffectSoundPlayOptions.PlayType = EffectSoundPlayType::AtCoords;
+		        sharedData->EffectSoundPlayOptions.Coords   = Vector3(coords.X, coords.Y, coords.Z);
           }),
 		E("SetEffectSoundLooping",
 		  [](bool state)
 		  {
-		      auto sharedData = EffectThreads::GetThreadSharedData(GetCurrentFiber());
-		      if (sharedData)
-			      sharedData->EffectSoundPlayOptions.PlayFlags =
-			          state ? sharedData->EffectSoundPlayOptions.PlayFlags | EffectSoundPlayFlags_Looping
-			                : sharedData->EffectSoundPlayOptions.PlayFlags & ~EffectSoundPlayFlags_Looping;
+		        auto sharedData                             = EffectThreads::GetThreadSharedData(GetCurrentFiber());
+		        if (sharedData)
+			        sharedData->EffectSoundPlayOptions.PlayFlags =
+			            state ? sharedData->EffectSoundPlayOptions.PlayFlags | EffectSoundPlayFlags_Looping
+			                  : sharedData->EffectSoundPlayOptions.PlayFlags & ~EffectSoundPlayFlags_Looping;
 		  }),
 		E("SetEffectSoundStopOnEntityDeath",
 		  [](bool state)
 		  {
-		      auto sharedData = EffectThreads::GetThreadSharedData(GetCurrentFiber());
-		      if (sharedData)
-			      sharedData->EffectSoundPlayOptions.PlayFlags =
-			          state ? sharedData->EffectSoundPlayOptions.PlayFlags & ~EffectSoundPlayFlags_DontStopOnEntityDeath
+		        auto sharedData = EffectThreads::GetThreadSharedData(GetCurrentFiber());
+		        if (sharedData)
+			        sharedData->EffectSoundPlayOptions.PlayFlags =
+			            state
+			                ? sharedData->EffectSoundPlayOptions.PlayFlags & ~EffectSoundPlayFlags_DontStopOnEntityDeath
 			                : sharedData->EffectSoundPlayOptions.PlayFlags | EffectSoundPlayFlags_DontStopOnEntityDeath;
 		  }),
 		E("ClearEntityPool", ClearEntityPool),
@@ -743,14 +746,14 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("GetClosestWaterQuadCenter",
 		  [](const LuaVector3 &coords, float minDepth)
 		  {
-		      const auto res = Memory::GetClosestWaterQuadCenter(Vector3(coords.X, coords.Y, coords.Z), minDepth);
-		      return LuaVector3(res.x, res.y, res.z);
+		        const auto res = Memory::GetClosestWaterQuadCenter(Vector3(coords.X, coords.Y, coords.Z), minDepth);
+		        return LuaVector3(res.x, res.y, res.z);
 		  }),
 		E("GetRainColor",
 		  []()
 		  {
-		      const auto res = Memory::GetRainColor();
-		      return LuaVector3(res.x, res.y, res.z);
+		        const auto res = Memory::GetRainColor();
+		        return LuaVector3(res.x, res.y, res.z);
 		  }),
 		E("GetRainLight", Memory::GetRainLight),
 		E("GetRainGravity", Memory::GetRainGravity),
@@ -766,7 +769,38 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("AddScaleVector", [](const Entity entity, const LuaVector3 &vector)
 		  { Hooks::AddScaleVector(entity, Vector3(vector.X, vector.Y, vector.Z)); }),
 		E("AddPositionAdjustVector", [](const Entity entity, const LuaVector3 &vector)
-		  { Hooks::AddPositionAdjustVector(entity, Vector3(vector.X, vector.Y, vector.Z)); })
+		  { Hooks::AddPositionAdjustVector(entity, Vector3(vector.X, vector.Y, vector.Z)); }),
+		E("AddEntityTracker", [](Entity entity, const std::function<bool(Entity)> tracker) {
+		        const auto wrapper = [tracker](Entity entity) -> bool
+		        {
+			        try
+			        {
+				        return tracker(entity);
+			        }
+			        catch (std::exception &e)
+			        {
+				        LOG("Error while executing tracker function! " << e.what());
+				        return false;
+			        }
+		        };
+		        if (ComponentExists<EntityTracking>())
+			        GetComponent<EntityTracking>()->AddTracker(entity, wrapper);
+		}),
+		E("AddEntityCleanupTracker", [](Entity entity, const std::function<void()> tracker) {
+		        const auto wrapper = [tracker]()
+		        {
+			        try
+			        {
+				        tracker();
+			        }
+			        catch (std::exception &e)
+			        {
+				        LOG("Error while executing tracker cleanup function! " << e.what());
+			        }
+		        };
+		        if (ComponentExists<EntityTracking>())
+			        GetComponent<EntityTracking>()->AddCleanupTracker(entity, wrapper);
+		})
 	};
 #undef E
 
