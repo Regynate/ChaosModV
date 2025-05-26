@@ -203,8 +203,6 @@ static void Init()
 
 	INIT_COMPONENT("LuaScripts", "Lua scripts", LuaScripts);
 
-	INIT_COMPONENT_BY_CONFIGVALUE("EnableZChaosIntegration", "ZChaosManager", "ZChaos Integration", ZChaosManager);
-
 	INIT_COMPONENT("EffectDispatcher", "effects dispatcher", EffectDispatcher, textColor, effectTimerColor);
 
 	INIT_COMPONENT("EffectDispatchTimer", "effects dispatch timer", EffectDispatchTimer, timerColor);
