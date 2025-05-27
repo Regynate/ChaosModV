@@ -89,8 +89,7 @@ namespace Memory
 		std::thread(
 		    []()
 		    {
-			    for (auto registeredHook = g_pRegisteredHooks; registeredHook;
-			         registeredHook      = registeredHook->GetNext())
+			    for (const auto &registeredHook : Memory::GetRegisteredHooks())
 			    {
 				    if (registeredHook->IsLateHook())
 					    continue;
@@ -117,7 +116,7 @@ namespace Memory
 	void Uninit()
 	{
 		LOG("Running hook cleanups");
-		for (auto registeredHook = g_pRegisteredHooks; registeredHook; registeredHook = registeredHook->GetNext())
+		for (const auto &registeredHook : Memory::GetRegisteredHooks())
 		{
 			const auto &hookName = registeredHook->GetName();
 
@@ -141,8 +140,7 @@ namespace Memory
 		std::thread(
 		    []()
 		    {
-			    for (auto registeredHook = g_pRegisteredHooks; registeredHook;
-			         registeredHook      = registeredHook->GetNext())
+			    for (const auto &registeredHook : Memory::GetRegisteredHooks())
 			    {
 				    if (!registeredHook->IsLateHook())
 					    continue;
