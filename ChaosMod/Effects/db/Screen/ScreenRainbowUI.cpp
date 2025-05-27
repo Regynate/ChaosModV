@@ -18,9 +18,9 @@ static void OnTick()
 
 	if (ComponentExists<MetaModifiers>())
 	{
-		int r = std::lround(std::sin(freq * cnt) * 127 + 128);
-		int g = std::lround(std::sin(freq * cnt + 2) * 127 + 128);
-		int b = std::lround(std::sin(freq * cnt + 4) * 127 + 128);
+		std::uint8_t r = std::lround(std::sin(freq * cnt) * 127 + 128);
+		std::uint8_t g = std::lround(std::sin(freq * cnt + 2) * 127 + 128);
+		std::uint8_t b = std::lround(std::sin(freq * cnt + 4) * 127 + 128);
 		GetComponent<MetaModifiers>()->TimerColorOverride = { r, g, b };
 
 		r = std::lround(std::sin(freq * cnt + 1002) * 127 + 128);
@@ -39,9 +39,9 @@ static void OnStop()
 {
 	if (ComponentExists<MetaModifiers>())
 	{
-		GetComponent<MetaModifiers>()->TimerColorOverride       = { -1, -1, -1 };
-		GetComponent<MetaModifiers>()->EffectTextColorOverride  = { -1, -1, -1 };
-		GetComponent<MetaModifiers>()->EffectTimerColorOverride = { -1, -1, -1 };
+		GetComponent<MetaModifiers>()->TimerColorOverride       = std::nullopt;
+		GetComponent<MetaModifiers>()->EffectTextColorOverride  = std::nullopt;
+		GetComponent<MetaModifiers>()->EffectTimerColorOverride = std::nullopt;
 	}
 }
 

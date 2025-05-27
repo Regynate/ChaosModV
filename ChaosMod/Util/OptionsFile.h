@@ -24,7 +24,7 @@ class OptionsFile
 		Reset();
 	}
 
-	void Reset()
+	inline void Reset()
 	{
 		m_Options.clear();
 

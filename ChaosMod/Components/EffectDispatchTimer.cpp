@@ -6,9 +6,9 @@
 
 #include "Util/OptionsManager.h"
 
-EffectDispatchTimer::EffectDispatchTimer(const std::array<BYTE, 3> &timerColor) : Component()
+EffectDispatchTimer::EffectDispatchTimer() : Component()
 {
-	m_TimerColor      = timerColor;
+	m_TimerColor      = g_OptionsManager.GetConfigValue({ "EffectTimerColor" }, OPTION_DEFAULT_BAR_COLOR);
 
 	m_DrawTimerBar    = !g_OptionsManager.GetConfigValue({ "DisableTimerBarDraw" }, OPTION_DEFAULT_NO_EFFECT_BAR);
 	m_EffectSpawnTime = g_OptionsManager.GetConfigValue({ "NewEffectSpawnTime" }, OPTION_DEFAULT_EFFECT_SPAWN_TIME);
@@ -213,15 +213,14 @@ void EffectDispatchTimer::OnRun()
 		if (ComponentExists<MetaModifiers>())
 		{
 			auto colorOverride = GetComponent<MetaModifiers>()->TimerColorOverride;
-			for (size_t i = 0; i < 3; i++)
-				if (colorOverride[i] > 0 && colorOverride[i] < 256)
-					color[i] = colorOverride[i];
+			if (colorOverride.has_value())
+				color = colorOverride.value();
 		}
 
 		if (ComponentExists<MetaModifiers>() && GetComponent<MetaModifiers>()->FlipChaosUI)
-			DRAW_RECT(1.f - percentage * .5f, .01f, percentage, .02f, color[0], color[1], color[2], 255, false);
+			DRAW_RECT(1.f - percentage * .5f, .01f, percentage, .02f, color.R, color.G, color.B, color.A, false);
 		else
-			DRAW_RECT(percentage * .5f, .01f, percentage, .02f, color[0], color[1], color[2], 255, false);
+			DRAW_RECT(percentage * .5f, .01f, percentage, .02f, color.R, color.G, color.B, color.A, false);
 	}
 
 	int deltaTime = curTime - m_Timer;

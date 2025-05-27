@@ -239,11 +239,10 @@ static void _OnRunEffects(LPVOID data)
 	}
 }
 
-EffectDispatcher::EffectDispatcher(const std::array<BYTE, 3> &textColor, const std::array<BYTE, 3> &effectTimerColor)
-    : Component()
+EffectDispatcher::EffectDispatcher() : Component()
 {
-	m_TextColor        = textColor;
-	m_EffectTimerColor = effectTimerColor;
+	m_TextColor        = g_OptionsManager.GetConfigValue({ "EffectTextColor" }, OPTION_DEFAULT_TEXT_COLOR);
+	m_EffectTimerColor = g_OptionsManager.GetConfigValue({ "EffectTimedTimerColor" }, OPTION_DEFAULT_TIMED_COLOR);
 
 	m_DisableDrawEffectTexts =
 	    g_OptionsManager.GetConfigValue({ "DisableEffectTextDraw" }, OPTION_DEFAULT_NO_TEXT_DRAW);
@@ -541,21 +540,14 @@ void EffectDispatcher::DrawEffectTexts()
 		if (ComponentExists<MetaModifiers>())
 		{
 			auto colorOverride = GetComponent<MetaModifiers>()->EffectTextColorOverride;
-			for (size_t i = 0; i < 3; i++)
-				if (colorOverride[i] > 0 && colorOverride[i] < 256)
-					color[i] = colorOverride[i];
+			if (colorOverride.has_value())
+				color = colorOverride.value();
 		}
 
 		if (ComponentExists<MetaModifiers>() && GetComponent<MetaModifiers>()->FlipChaosUI)
-		{
-			DrawScreenText(effectName, { .085f, y }, .47f, { color[0], color[1], color[2] }, true,
-			               ScreenTextAdjust::Left, { .0f, .915f });
-		}
+			DrawScreenText(effectName, { .085f, y }, .47f, color, true, ScreenTextAdjust::Left, { .0f, .915f });
 		else
-		{
-			DrawScreenText(effectName, { .915f, y }, .47f, { color[0], color[1], color[2] }, true,
-			               ScreenTextAdjust::Right, { .0f, .915f });
-		}
+			DrawScreenText(effectName, { .915f, y }, .47f, color, true, ScreenTextAdjust::Right, { .0f, .915f });
 
 		if (effect.IsTimed || showTimer)
 		{
@@ -564,21 +556,20 @@ void EffectDispatcher::DrawEffectTexts()
 			if (ComponentExists<MetaModifiers>())
 			{
 				auto colorOverride = GetComponent<MetaModifiers>()->EffectTimerColorOverride;
-				for (size_t i = 0; i < 3; i++)
-					if (colorOverride[i] > 0 && colorOverride[i] < 256)
-						color[i] = colorOverride[i];
+				if (colorOverride.has_value())
+					color = colorOverride.value();
 			}
 
 			if (ComponentExists<MetaModifiers>() && GetComponent<MetaModifiers>()->FlipChaosUI)
 			{
 				DRAW_RECT(.04f, y + .0185f, .05f, .019f, 0, 0, 0, 127, false);
-				DRAW_RECT(.04f, y + .0185f, .048f * (1.f - completionPercentage), .017f, color[0], color[1], color[2],
-				          255, false);
+				DRAW_RECT(.04f, y + .0185f, .048f * (1.f - completionPercentage), .017f, color.R, color.G, color.B,
+				          color.A, false);
 			}
 			else
 			{
 				DRAW_RECT(.96f, y + .0185f, .05f, .019f, 0, 0, 0, 127, false);
-				DRAW_RECT(.96f, y + .0185f, .048f * completionPercentage, .017f, color[0], color[1], color[2], 255,
+				DRAW_RECT(.96f, y + .0185f, .048f * completionPercentage, .017f, color.R, color.G, color.B, color.A,
 				          false);
 			}
 		}

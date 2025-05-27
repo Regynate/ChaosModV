@@ -91,8 +91,8 @@ class EffectDispatcher : public Component
 	} m_ClearEffectsState = ClearEffectsState::None;
 
   private:
-	std::array<std::uint8_t, 3> m_TextColor;
-	std::array<std::uint8_t, 3> m_EffectTimerColor;
+	Color m_TextColor;
+	Color m_EffectTimerColor;
 
 	std::string m_LastEffect;
 
@@ -103,7 +103,7 @@ class EffectDispatcher : public Component
   public:
 	bool EnableEffectTextExtraTopSpace = false;
 
-	EffectDispatcher(const std::array<std::uint8_t, 3> &textColor, const std::array<std::uint8_t, 3> &effectTimerColor);
+	EffectDispatcher();
 
   private:
 	float GetEffectTopSpace();
