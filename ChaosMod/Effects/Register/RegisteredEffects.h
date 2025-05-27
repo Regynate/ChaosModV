@@ -14,13 +14,14 @@ class RegisteredEffect
 	std::function<void()> m_Start;
 	std::function<void()> m_Stop;
 	std::function<void()> m_Tick;
+	std::function<void()> m_Init;
 
 	bool m_IsRunning = false;
 
   public:
 	RegisteredEffect(const std::string &scriptId, std::function<void()> start, std::function<void()> stop,
-	                 std::function<void()> tick)
-	    : m_EffectId(scriptId), m_Start(start), m_Stop(stop), m_Tick(tick)
+	                 std::function<void()> tick, std::function<void()> init)
+	    : m_EffectId(scriptId), m_Start(start), m_Stop(stop), m_Tick(tick), m_Init(init)
 	{
 	}
 
@@ -92,6 +93,12 @@ class RegisteredEffect
 	inline bool IsScript() const
 	{
 		return m_EffectId.IsScript();
+	}
+
+	void Init()
+	{
+		if (m_Init)
+			m_Init();
 	}
 };
 

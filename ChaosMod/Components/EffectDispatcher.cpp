@@ -29,7 +29,10 @@ static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 	}
 
 	if (IsEffectFilteredOut(entry.Id))
+	{
 		LOG("Tried dispatching effect " << entry.Id.Id() << ", but its condition failed!");
+		return;
+	}
 
 	auto &effectData = g_EnabledEffects.at(entry.Id);
 
@@ -269,6 +272,13 @@ EffectDispatcher::EffectDispatcher(const std::array<BYTE, 3> &textColor, const s
 			m_EnableNormalEffectDispatch = true;
 			break;
 		}
+	}
+
+	for (const auto &[effectId, _] : g_EnabledEffects)
+	{
+		auto *registeredEffect = GetRegisteredEffect(effectId);
+		if (registeredEffect)
+			registeredEffect->Init();
 	}
 
 	if (g_EffectDispatcherThread)

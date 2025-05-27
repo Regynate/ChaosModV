@@ -783,8 +783,8 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 				        return false;
 			        }
 		        };
-		        if (ComponentExists<EntityTracking>())
-			        GetComponent<EntityTracking>()->AddTracker(entity, wrapper);
+		        if (ComponentExists<Tracking>())
+			        GetComponent<Tracking>()->AddEntityTracker(entity, wrapper);
 		}),
 		E("AddEntityCleanupTracker", [](Entity entity, const std::function<void()> tracker) {
 		        const auto wrapper = [tracker]()
@@ -798,8 +798,8 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 				        LOG("Error while executing tracker cleanup function! " << e.what());
 			        }
 		        };
-		        if (ComponentExists<EntityTracking>())
-			        GetComponent<EntityTracking>()->AddCleanupTracker(entity, wrapper);
+		        if (ComponentExists<Tracking>())
+			        GetComponent<Tracking>()->AddEntityCleanupTracker(entity, wrapper);
 		})
 	};
 #undef E
@@ -1163,6 +1163,20 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 	}
 
 	return ParseScriptReturnReason::Success;
+}
+
+void LuaScripts::LuaScript::Execute(const char *funcName) const
+{
+	const sol::protected_function &func = m_Lua[funcName];
+	if (!func.valid())
+		return;
+
+	const sol::protected_function_result &result = func();
+	if (!result.valid())
+	{
+		const sol::error &error = result;
+		LuaPrint(m_ScriptName, error.what());
+	}
 }
 
 void LuaScripts::RemoveScriptEntry(const std::string &effectId)

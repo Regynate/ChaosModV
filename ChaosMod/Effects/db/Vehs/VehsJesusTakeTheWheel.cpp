@@ -69,13 +69,13 @@ static void OnStart()
 	SET_PED_KEEP_TASK(jesus, true);
 	SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(jesus, true);
 
-	if (ComponentExists<EntityTracking>())
+	if (ComponentExists<Tracking>())
 	{
-		const auto foo = [veh](Entity jesus)
+		const auto foo = [veh](Entity jesus, std::any& data)
 		{
 			if (IS_WAYPOINT_ACTIVE())
 			{
-				static auto lastCoords = Vector3();
+				auto& lastCoords = *std::any_cast<Vector3>(&data);
 				const auto coords      = GET_BLIP_COORDS(GET_FIRST_BLIP_INFO_ID(8));
 
 				if (lastCoords.x != coords.x || lastCoords.y != coords.y || lastCoords.z != coords.z)
@@ -91,7 +91,7 @@ static void OnStart()
 			return true;
 		};
 
-		GetComponent<EntityTracking>()->AddTracker(jesus, foo);
+		GetComponent<Tracking>()->AddEntityTracker(jesus, foo, Vector3());
 	}
 }
 

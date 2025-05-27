@@ -203,6 +203,8 @@ static void Init()
 
 	INIT_COMPONENT("LuaScripts", "Lua scripts", LuaScripts);
 
+	INIT_COMPONENT("Tracking", "Entity Tracking", Tracking);
+
 	INIT_COMPONENT("EffectDispatcher", "effects dispatcher", EffectDispatcher, textColor, effectTimerColor);
 
 	INIT_COMPONENT("EffectDispatchTimer", "effects dispatch timer", EffectDispatchTimer, timerColor);
@@ -220,8 +222,6 @@ static void Init()
 	INIT_COMPONENT("HelpTextQueue", "script help text queue", HelpTextQueue);
 
 	INIT_COMPONENT("CrossingChallenge", "Crossing Challenge", CrossingChallenge);
-
-	INIT_COMPONENT("EntityTracking", "Entity Tracking", EntityTracking);
 
 #ifdef WITH_DEBUG_PANEL_SUPPORT
 	if (DoesFeatureFlagExist("enabledebugsocket"))

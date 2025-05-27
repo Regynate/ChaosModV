@@ -10,52 +10,73 @@
 #include <string>
 #include <vector>
 
-struct VehicleEntryPoint
+class Tracking : public Component
 {
-	Vehicle vehicle;
-	Hash vehicleModel;
-	float vehicleHeading;
-	float playerHeading;
-	Vector3 vehicleCoords;
-	Vector3 playerCoords;
-	bool insideVehicle;
-	bool updateFlag = false;
-};
-
-class EntityTracking : public Component
-{
-	struct TrackedEntity
+	struct Tracker
 	{
-		std::vector<std::function<bool(Entity)>> tick;
-		std::vector<std::function<void()>> cleanup;
+		std::function<bool(std::any &)> tick;
+		std::any data;
 
-		TrackedEntity() : tick(), cleanup()
+		Tracker(const std::function<bool(std::any &)> &tick, const std::any initData) : tick(tick), data(initData)
 		{
 		}
 	};
 
-	std::map<Entity, TrackedEntity> m_TrackedEntities;
+	struct EntityTracker
+	{
+		Entity entity;
+		std::function<bool(Entity, std::any &)> tick;
+		std::function<void(std::any &)> cleanup;
+		std::any data;
 
-	VehicleEntryPoint m_LastVehicleEntryPoint;
+		EntityTracker(const Entity entity, const std::function<bool(Entity, std::any &)> &tick,
+		              const std::function<void(std::any &)> &cleanup, const std::any initData)
+		    : entity(entity), tick(tick), cleanup(cleanup), data(initData)
+		{
+		}
+	};
+
+	struct PersistentTracker
+	{
+		std::string configKey;
+		std::function<bool(std::any &)> tick;
+		std::any data;
+
+		PersistentTracker(const std::string configKey, const std::function<bool(std::any &)> &tick,
+		                  const std::any initData)
+		    : configKey(configKey), tick(tick), data(initData)
+		{
+		}
+	};
+
+	std::vector<Tracker> m_Trackers;
+	std::vector<EntityTracker> m_EntityTrackers;
+	std::vector<PersistentTracker> m_PersistentTrackers;
 
 	OptionsFile m_ConfigFile { "chaosmod/configs/tracking.ini" };
 
-	void UpdateVehicleEntryPoint();
-
   public:
-	EntityTracking();
+	Tracking();
 
 	virtual void OnRun() override;
 	virtual void OnModPauseCleanup() override;
 
 	// gets called every tick; given entity is passed as an argument to tracker
-	void AddTracker(Entity entity, const std::function<bool(Entity)> &tracker);
+	void AddEntityTracker(Entity entity, const std::function<bool(Entity, std::any &)> &tracker,
+	                      const std::any initData);
+	void AddEntityTracker(Entity entity, const std::function<bool(Entity)> &tracker);
 
 	// gets called once the entity is removed from the world
-	void AddCleanupTracker(Entity entity, const std::function<void()> &tracker);
+	void AddEntityCleanupTracker(Entity entity, const std::function<void(std::any &)> &tracker,
+	                             const std::any initData);
+	void AddEntityCleanupTracker(Entity entity, const std::function<void()> &tracker);
 
-	VehicleEntryPoint GetLastPlayerVehicleEntryPoint();
+	// gets called every tick; sets the config key as well
+	void AddTracker(const std::function<bool(std::any &)> &tracker, const std::any initData,
+	                const std::string &configKey = "");
+	void AddTracker(const std::function<bool()> &tracker, const std::string &configKey = "");
 
-	void AddPoleSpawnDriveTracker();
-	void AddPoleSpawnFlyTracker();
+	void AddTrackerByConfigValue(const std::string configKey, const std::function<bool(std::any &)> &tracker,
+	                             const std::any initData);
+	void AddTrackerByConfigValue(const std::string configKey, const std::function<bool()> &tracker);
 };

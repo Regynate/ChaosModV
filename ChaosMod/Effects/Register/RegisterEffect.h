@@ -21,8 +21,8 @@ class RegisterEffect
 
   public:
 	RegisterEffect(std::function<void()> start, std::function<void()> stop, std::function<void()> tick,
-	               RegisteredEffectMetadata &&effectMetadata)
-	    : m_RegisteredEffect(std::string(effectMetadata.Id), start, stop, tick)
+	               std::function<void()> init, RegisteredEffectMetadata effectMetadata)
+	    : m_RegisteredEffect(std::string(effectMetadata.Id), start, stop, tick, init)
 	{
 		static bool disableEffectRegistration = []()
 		{
@@ -34,6 +34,12 @@ class RegisterEffect
 
 		g_RegisteredEffects.push_back(m_RegisteredEffect);
 		g_RegisteredEffectsMetadata[effectMetadata.Id] = effectMetadata;
+	}
+
+	RegisterEffect(std::function<void()> start, std::function<void()> stop, std::function<void()> tick,
+	               RegisteredEffectMetadata effectMetadata)
+		: RegisterEffect(start, stop, tick, nullptr, effectMetadata)
+	{
 	}
 
 	RegisterEffect(const RegisterEffect &)            = delete;

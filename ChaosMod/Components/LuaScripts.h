@@ -70,21 +70,7 @@ class LuaScripts : public Component
 			return m_IsTemporary;
 		}
 
-		void Execute(const char *funcName) const
-		{
-			const sol::protected_function &func = m_Lua[funcName];
-			if (!func.valid())
-				return;
-
-			const sol::protected_function_result &result = func();
-			if (!result.valid())
-			{
-				const sol::error &error = result;
-
-				extern void LuaPrint(const std::string &name, const std::string &text);
-				LuaPrint(m_ScriptName, error.what());
-			}
-		}
+		void Execute(const char *funcName) const;
 
 		void LoadNatives(sol::bytecode nativesDef) {
 			if (!m_NativesLoaded)

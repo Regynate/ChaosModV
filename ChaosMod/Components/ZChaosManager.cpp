@@ -30,12 +30,12 @@ static __int64 HK_StartEffect(ZChaosManager::ZChaosEffect *effect)
 static std::vector<std::pair<const char *, const char *>> labelOverrides = {
 	{ "~r~AAAAAAAAAAAAA", "~r~AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" },
 	{ "~r~CHAOS WARNING", "~r~There used to be a warning here... right?" },
-	{ "~r~OH NO",         "~r~You are doing bad thing, please only do good thing" },
-	{ "~r~warning",       "~r~not so scary now, huh?" },
-	{ "~r~BOO!",          "~r~The above text is very spooky, be scared" },
-	{ "~b~I'm blue",      "~b~Da ba dee da ba dae" },
-	{ "~r~blalala",       "~r~blelelelelelelele" },
-	{ "~r~hello",         "~r~your computer has virus" },
+	{ "~r~OH NO", "~r~You are doing bad thing, please only do good thing" },
+	{ "~r~warning", "~r~not so scary now, huh?" },
+	{ "~r~BOO!", "~r~The above text is very spooky, be scared" },
+	{ "~b~I'm blue", "~b~Da ba dee da ba dae" },
+	{ "~r~blalala", "~r~blelelelelelelele" },
+	{ "~r~hello", "~r~your computer has virus" },
 };
 
 static void RemoveEffect(std::string effectId)
@@ -78,7 +78,8 @@ void ZChaosManager::RegisterZChaosEffect(ZChaosEffect *effect, std::string effec
 				    auto effect  = &m_ActiveZChaosEffects.at(effectId);
 				    effect->time = (int)(GetComponent<EffectDispatcher>()->GetRemainingTimeForEffect(effectId) * 1000);
 			    }
-		    });
+		    },
+		    nullptr);
 	}
 	else
 	{
@@ -91,7 +92,7 @@ void ZChaosManager::RegisterZChaosEffect(ZChaosEffect *effect, std::string effec
 				    e.m_OnStart(&e);
 			    e.cutoutTime = 0;
 		    },
-		    nullptr, nullptr);
+		    nullptr, nullptr, nullptr);
 	}
 }
 
