@@ -800,7 +800,9 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		        };
 		        if (ComponentExists<Tracking>())
 			        GetComponent<Tracking>()->AddEntityCleanupTracker(entity, wrapper);
-		})
+		}),
+		E("IsEntityAWeapon", Memory::IsEntityAWeapon),
+		E("IsEntityAWeaponComponent", Memory::IsEntityAWeaponComponent),
 	};
 #undef E
 

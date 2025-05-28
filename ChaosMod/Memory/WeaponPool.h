@@ -85,4 +85,34 @@ namespace Memory
 
 		return weapons;
 	}
+
+	inline const std::vector<DWORD64> &GetAllWeaponComponentPointers()
+	{
+		static std::vector<DWORD64> components;
+
+		if (components.empty())
+		{
+			auto handle = Memory::FindPattern("4C 8D 0D ?? ?? ?? ?? 41 D1 FB", "4C 8D 3D ?? ?? ?? ?? EB 09");
+
+			if (!handle.IsValid())
+				return components;
+
+			const auto componentPtrArray = handle.At(2).Into().Get<DWORD64>();
+
+			handle = Memory::FindPattern("44 8B 15 ?? ?? ?? ?? 41 8B DC", "44 8B 1D ?? ?? ?? ?? 45 8D 53 FF");
+
+			if (!handle.IsValid())
+				return components;
+
+			const auto componentCount = handle.At(2).Into().Value<DWORD>();
+
+			LOG(componentPtrArray << " " << componentCount);
+
+			for (int i = 0; i < componentCount; i++)
+				if (componentPtrArray[i])
+					components.push_back(componentPtrArray[i]);
+		}
+
+		return components;
+	}
 }

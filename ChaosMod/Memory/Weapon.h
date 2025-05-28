@@ -13,13 +13,45 @@
 namespace Memory
 {
 	inline const rage::array<DWORD64> *GetAllWeaponPointers();
+	inline const std::vector<DWORD64> &GetAllWeaponComponentPointers();
 
-	inline Hash GetWeaponHash(uintptr_t weaponPtr)
+	inline Hash GetWeaponHash(DWORD64 weaponPtr)
 	{
 		return *reinterpret_cast<Hash *>(weaponPtr + 0x10);
 	}
 
-	inline uintptr_t GetWeaponInfo(Hash ulHash)
+	inline Hash GetWeaponModel(DWORD64 weaponPtr)
+	{
+		return *reinterpret_cast<Hash *>(weaponPtr + 0x14);
+	}
+
+	inline bool IsEntityAWeapon(Entity entity)
+	{
+		const auto model          = GetEntityModel(entity);
+
+		const auto weaponPtrArray = GetAllWeaponPointers();
+
+		for (int i = 0; i < weaponPtrArray->count; i++)
+			if (GetWeaponModel(weaponPtrArray->elements[i]) == model)
+				return true;
+
+		return false;
+	}
+
+	inline bool IsEntityAWeaponComponent(Entity entity)
+	{
+		const auto model             = GetEntityModel(entity);
+
+		const auto componentPtrArray = GetAllWeaponComponentPointers();
+
+		for (int i = 0; i < componentPtrArray.size(); i++)
+			if (GetWeaponModel(componentPtrArray[i]) == model)
+				return true;
+
+		return false;
+	}
+
+	inline DWORD64 GetWeaponInfo(Hash ulHash)
 	{
 		const auto weaponPtrArray = GetAllWeaponPointers();
 		if (!weaponPtrArray)

@@ -99,22 +99,13 @@ const inline std::vector<Hash> treeModels = {
 	"test_tree_forest_trunk_fall_01"_hash,
 };
 
-inline Hash GetBuildingModel(Entity building)
-{
-	Handle addr = Memory::GetScriptHandleBaseAddress(building);
-
-	if (addr.At(0x20).Value<long long>())
-		return GET_ENTITY_MODEL(building);
-	return 0;
-}
-
 inline auto GetAllTrees()
 {
 	std::vector<Entity> arr;
 
 	for (const auto building : GetAllBuildings())
 	{
-		auto model = GetBuildingModel(building);
+		auto model = Memory::GetEntityModel(building);
 
 		if (model)
 		{
@@ -134,7 +125,7 @@ inline auto GetAllVisibleBuildings()
 
 	for (const auto building : GetAllBuildings())
 	{
-		auto model = GetBuildingModel(building);
+		auto model = Memory::GetEntityModel(building);
 
 		if (model)
 		{

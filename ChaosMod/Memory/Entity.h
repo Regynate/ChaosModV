@@ -42,15 +42,25 @@ namespace Memory
 
 	inline EntityType GetEntityType(DWORD64 address)
 	{
-		if (!address) {
+		if (!address)
 			return EntityType::ENTITY_TYPE_NOTHING;
-		}
-		
-		return *reinterpret_cast<EntityType*>(address + 0x28);
+
+		return *reinterpret_cast<EntityType *>(address + 0x28);
 	}
 
 	inline EntityType GetEntityType(Entity entity)
 	{
 		return GetEntityType(GetScriptHandleBaseAddress(entity));
+	}
+
+	inline Hash GetEntityModel(Entity entity)
+	{
+		Handle addr = Memory::GetScriptHandleBaseAddress(entity);
+
+		Handle archetype = addr.At(0x20).Value<long long>();
+
+		if (archetype.IsValid())
+			return archetype.At(0x18).Value<Hash>();
+		return 0;
 	}
 }
