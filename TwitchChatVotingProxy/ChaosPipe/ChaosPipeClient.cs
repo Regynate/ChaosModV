@@ -11,7 +11,7 @@ namespace TwitchChatVotingProxy.ChaosPipe
         /// <summary>
         /// Speed at which the chaos mod pipe gets processed
         /// </summary>
-        public static readonly int PIPE_TICKRATE = 100;
+        private static readonly int PIPE_TICKRATE = 100;
 
         public bool GotHelloBack { get; private set; } = false;
 
@@ -28,12 +28,14 @@ namespace TwitchChatVotingProxy.ChaosPipe
             PipeDirection.InOut,
             PipeOptions.Asynchronous);
         private readonly StreamReader? m_PipeReader = null;
-        private readonly Timer m_PipeTick = new();
+        private readonly Task m_PipeTick;
         private readonly StreamWriter? m_PipeWriter = null;
         private Task<string?>? m_ReadPipeTask = null;
 
         private readonly Queue<object> m_MessageQueue = new();
-        private readonly Timer m_QueueTimer = new();
+        private readonly Task m_QueueTick;
+
+        private readonly CancellationTokenSource m_CancellationTokenSource = new();
 
         private class PipeMessage
         {
@@ -76,13 +78,6 @@ namespace TwitchChatVotingProxy.ChaosPipe
 
         public ChaosPipeClient()
         {
-            // Setup pipe tick
-            m_PipeTick.Interval = PIPE_TICKRATE;
-            m_PipeTick.Elapsed += PipeTick;
-
-            m_QueueTimer.Interval = PIPE_TICKRATE;
-            m_QueueTimer.Elapsed += QueueTick;
-
             // Connect to the chaos mod pipe
             try
             {
@@ -95,26 +90,25 @@ namespace TwitchChatVotingProxy.ChaosPipe
 
                 m_Logger.Information("Successfully connected to chaos mod pipe");
 
-                //m_PipeTick.Start();
-                //m_QueueTimer.Start();
+                var ct = m_CancellationTokenSource.Token;
 
-                new Task(async () =>
+                m_PipeTick = Task.Run(async () =>
                 {
-                    while (true)
+                    while (!ct.IsCancellationRequested)
                     {
                         PipeTick(null, null);
                         await Task.Delay(PIPE_TICKRATE);
                     }
-                }).Start();
+                }, ct);
 
-                new Task(async () =>
+                m_QueueTick = Task.Run(async () =>
                 {
-                    while (true)
+                    while (!ct.IsCancellationRequested)
                     {
                         QueueTick(null, null);
                         await Task.Delay(PIPE_TICKRATE);
                     }
-                }).Start();
+                }, ct);
             }
             catch (Exception exception)
             {
@@ -137,8 +131,7 @@ namespace TwitchChatVotingProxy.ChaosPipe
         /// </summary>
         private void DisconnectFromPipe()
         {
-            m_PipeTick.Stop();
-            m_PipeTick.Close();
+            m_CancellationTokenSource.Cancel();
 
             try
             {
@@ -271,8 +264,11 @@ namespace TwitchChatVotingProxy.ChaosPipe
         /// <param name="message">Message to be sent</param>
         public void SendMessageToPipe(string message)
         {
-            m_PipeWriter?.Write($"{message}\0");
-            m_Pipe.WaitForPipeDrain();
+            if (m_Pipe.IsConnected)
+            {
+                m_PipeWriter?.Write($"{message}\0");
+                m_Pipe.WaitForPipeDrain();
+            }
         }
 
         private void SendMessageToPipeJson(object value)
