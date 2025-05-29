@@ -19,6 +19,7 @@
 #include "Memory/Hooks/AudioSettingsHook.h"
 #include "Memory/Hooks/GameSpeedHook.h"
 #include "Memory/Hooks/GetLabelTextHook.h"
+#include "Memory/Hooks/MinimapHook.h"
 #include "Memory/Hooks/PreRenderHook.h"
 #include "Memory/Hooks/ShaderHook.h"
 #include "Memory/PedModels.h"
@@ -803,6 +804,11 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		}),
 		E("IsEntityAWeapon", Memory::IsEntityAWeapon),
 		E("IsEntityAWeaponComponent", Memory::IsEntityAWeaponComponent),
+		E("SetMinimapRotation", Hooks::SetMinimapRotation),
+		E("ResetMinimapRotation", Hooks::ResetMinimapRotation),
+		E("SetMinimapPosition", [](const LuaVector3 &vector)
+		  { Hooks::SetMinimapPosition(Vector3(vector.X, vector.Y, vector.Z));}),
+		E("ResetMinimapPosition", Hooks::ResetMinimapPosition)
 	};
 #undef E
 

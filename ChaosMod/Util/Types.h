@@ -12,6 +12,11 @@ struct ChaosVector3
 	ChaosVector3(float x, float y, float z) : x(x), y(y), z(z)
 	{
 	}
+
+	ChaosVector3 operator+(const ChaosVector3& other)
+	{
+		return ChaosVector3(x + other.x, y + other.y, z + other.z);
+	}
 };
 
 struct ChaosVector2
