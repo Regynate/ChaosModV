@@ -23,13 +23,10 @@ static float HK_GetMinimapRotation()
 static void (*OG_GetMinimapPosition)(ChaosVector3 *out);
 static void HK_GetMinimapPosition(ChaosVector3 *out)
 {
-    OG_GetMinimapPosition(out);
-	
-    if (desiredPosition.has_value())
-	{
-        LOG(out->x << " " << desiredPosition.value().x << " " << (*out + desiredPosition.value()).x);
+	OG_GetMinimapPosition(out);
+
+	if (desiredPosition.has_value())
 		*out = *out + desiredPosition.value();
-	}
 }
 
 static bool OnHook()
