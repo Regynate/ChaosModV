@@ -234,6 +234,8 @@ namespace TwitchChatVotingProxy
         private void OnNoVotingRound(object? sender, EventArgs e)
         {
             m_OverlayServer?.NoVotingRound();
+            m_ActiveVoteOptions = new();
+            m_VoteRunning = false;
         }
         /// <summary>
         /// Is called when the voting receiver receives a message

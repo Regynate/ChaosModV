@@ -8,6 +8,7 @@ namespace ConfigApp.Tabs.Voting
         private readonly List<Grid> m_Grids = new();
 
         private CheckBox? m_EnableVoting = null;
+        private CheckBox? m_EnableSilentVoting = null;
         private ComboBox? m_OverlayMode = null;
         private CheckBox? m_EnableRandomEffect = null;
         private TextBox? m_SecsBeforeVoting = null;
@@ -34,14 +35,16 @@ namespace ConfigApp.Tabs.Voting
 
         protected override void InitContent()
         {
-            PushNewColumn(new GridLength(1f, GridUnitType.Star));
+            var grid = new ChaosGrid();
 
-            SetRowHeight(new GridLength(120f));
+            grid.PushNewColumn(new GridLength(1f, GridUnitType.Star));
+
+            grid.SetRowHeight(new GridLength(120f));
 
             var headerGrid = new ChaosGrid();
             headerGrid.PushNewColumn(new GridLength(1f, GridUnitType.Star));
 
-            headerGrid.SetRowHeight(new GridLength(80f));
+            headerGrid.SetRowHeight(new GridLength(70f));
             headerGrid.PushRowElement(new TextBlock()
             {
                 Text = "This feature allows viewers to vote for an effect from a collection of random ones each time the timer" +
@@ -63,16 +66,20 @@ namespace ConfigApp.Tabs.Voting
                 SetGridsEnabled(m_EnableVoting.IsChecked.GetValueOrDefault());
             };
             headerGrid.PushRowElement(m_EnableVoting);
+            headerGrid.PopRow();
 
             headerGrid.Grid.HorizontalAlignment = HorizontalAlignment.Stretch;
 
-            PushRowElement(headerGrid.Grid);
-            PopRow();
+            grid.PushRowElement(headerGrid.Grid);
+            grid.PopRow();
 
-            SetRowHeight(new GridLength(120f));
+            grid.SetRowHeight(new GridLength(120f));
 
             var bodyGrid = new ChaosGrid();
             SetupSettingsGrid(bodyGrid);
+
+            bodyGrid.PushRowSpacedPair("Enable Silent Voting", m_EnableSilentVoting = Utils.GenerateCommonCheckBox(), "Do not run voting immediately, but keep it running in the background for certain effects to work");
+            bodyGrid.PopRow();
 
             bodyGrid.PushRowSpacedPair("Voting Overlay Mode", m_OverlayMode = new ComboBox()
             {
@@ -104,15 +111,15 @@ namespace ConfigApp.Tabs.Voting
 
             m_Grids.Add(bodyGrid.Grid);
 
-            PushRowElement(bodyGrid.Grid);
-            PopRow();
+            grid.PushRowElement(bodyGrid.Grid);
+            grid.PopRow();
 
-            PushRowElement(new TextBlock()
+            grid.PushRowElement(new TextBlock()
             {
                 Text = "---------- Proportional Voting Mode ----------",
                 HorizontalAlignment = HorizontalAlignment.Center
             });
-            PopRow();
+            grid.PopRow();
 
             var footerGrid = new ChaosGrid();
             SetupSettingsGrid(footerGrid);
@@ -123,7 +130,14 @@ namespace ConfigApp.Tabs.Voting
 
             m_Grids.Add(footerGrid.Grid);
 
-            PushRowElement(footerGrid.Grid);
+            grid.PushRowElement(footerGrid.Grid);
+
+            PushNewColumn(new GridLength(1f, GridUnitType.Star));
+            SetRowHeight(new GridLength(1f, GridUnitType.Star));
+
+            var scrollViewer = new ScrollViewer();
+            scrollViewer.Content = grid.Grid;
+            PushRowElement(scrollViewer);
 
             SetGridsEnabled(false);
         }
@@ -135,6 +149,8 @@ namespace ConfigApp.Tabs.Voting
                 m_EnableVoting.IsChecked = OptionsManager.TwitchFile.ReadValueBool("EnableVoting", false, "EnableTwitchVoting");
                 SetGridsEnabled(m_EnableVoting.IsChecked.GetValueOrDefault());
             }
+            if (m_EnableSilentVoting is not null)
+                m_EnableSilentVoting.IsChecked = OptionsManager.TwitchFile.ReadValueBool("EnableSilentVoting", false);
             if (m_OverlayMode is not null)
                 m_OverlayMode.SelectedIndex = OptionsManager.TwitchFile.ReadValueInt("VotingOverlayMode", 1, "TwitchVotingOverlayMode") - 1;
             if (m_EnableRandomEffect is not null)
@@ -155,6 +171,7 @@ namespace ConfigApp.Tabs.Voting
         public override void OnSaveValues()
         {
             OptionsManager.TwitchFile.WriteValue("EnableVoting", m_EnableVoting?.IsChecked);
+            OptionsManager.TwitchFile.WriteValue("EnableSilentVoting", m_EnableSilentVoting?.IsChecked);
             OptionsManager.TwitchFile.WriteValue("VotingOverlayMode", m_OverlayMode?.SelectedIndex + 1);
             OptionsManager.TwitchFile.WriteValue("RandomEffectVoteableEnable", m_EnableRandomEffect?.IsChecked);
             OptionsManager.TwitchFile.WriteValue("VotingSecsBeforeVoting", m_SecsBeforeVoting?.Text);

@@ -28,12 +28,12 @@ namespace TwitchChatVotingProxy.ChaosPipe
             PipeDirection.InOut,
             PipeOptions.Asynchronous);
         private readonly StreamReader? m_PipeReader = null;
-        private readonly Task m_PipeTick;
+        private readonly Task? m_PipeTick;
         private readonly StreamWriter? m_PipeWriter = null;
         private Task<string?>? m_ReadPipeTask = null;
 
         private readonly Queue<object> m_MessageQueue = new();
-        private readonly Task m_QueueTick;
+        private readonly Task? m_QueueTick;
 
         private readonly CancellationTokenSource m_CancellationTokenSource = new();
 
@@ -231,6 +231,7 @@ namespace TwitchChatVotingProxy.ChaosPipe
 
                     // Evaluate message
                     var pipe = JsonConvert.DeserializeObject<PipeMessage>(message);
+                    m_Logger.Debug(message);
                     switch (pipe?.Identifier)
                     {
                     case "hello_back":
@@ -256,6 +257,10 @@ namespace TwitchChatVotingProxy.ChaosPipe
                         break;
                     }
                 }
+                else
+                {
+                    m_Logger.Warning("message is null!!");
+                }    
             }
         }
         /// <summary>

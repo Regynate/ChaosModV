@@ -10,6 +10,7 @@ enum class EffectConditionType
 {
 	None,
 	VotingEnabled, // Voting is enabled
+	SilentVotingEnabled, // Voting is enabled
 	ProportionalVotingEnabled,
 	UsingDistanceTimer,
 	UsingTimeTimer,

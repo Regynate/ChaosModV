@@ -62,7 +62,7 @@ namespace TwitchChatVotingProxy
             config.ReadFile();
 
             var mutex = new Mutex(false, "ChaosModVVotingMutex");
-            mutex.WaitOne();
+            mutex.WaitOne(2000);
 
             var votingMode = (EVotingMode)config.ReadValueInt("VotingChanceSystem", 0, "TwitchVotingChanceSystem");
             var overlayMode = (EOverlayMode)config.ReadValueInt("VotingOverlayMode", 0, "TwitchVotingOverlayMode");
@@ -120,6 +120,8 @@ namespace TwitchChatVotingProxy
                 }
                 await Task.Delay(100);
             }
+
+            mutex.Close();
 
             m_Logger.Information("Shutting down");
         }

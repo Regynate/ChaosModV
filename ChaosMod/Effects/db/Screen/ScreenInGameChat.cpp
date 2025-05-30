@@ -221,6 +221,6 @@ REGISTER_EFFECT(OnStart, OnStop, OnTick,
 		.Name = "In-Game Chat",
 		.Id = "screen_ingame_chat",
 		.IsTimed = true,
-		.ConditionType = EffectConditionType::VotingEnabled
+		.ConditionType = EffectConditionType::SilentVotingEnabled
 	}
 );

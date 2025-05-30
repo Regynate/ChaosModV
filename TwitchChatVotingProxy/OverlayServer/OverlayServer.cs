@@ -11,6 +11,7 @@ namespace TwitchChatVotingProxy.OverlayServer
         private readonly OverlayServerConfig config;
         private readonly List<IWebSocketConnection> connections = new();
         private readonly ILogger logger = Log.Logger.ForContext<OverlayServer>();
+        private bool m_VotingRunning = false;
 
         public OverlayServer(OverlayServerConfig config)
         {
@@ -35,16 +36,19 @@ namespace TwitchChatVotingProxy.OverlayServer
         public void EndVoting()
         {
             Request("END", new List<IVoteOption>());
+            m_VotingRunning = false;
         }
 
         public void NewVoting(List<IVoteOption> voteOptions)
         {
             Request("CREATE", voteOptions);
+            m_VotingRunning = true;
         }
 
         public void NoVotingRound()
         {
             Request("NO_VOTING_ROUND", new List<IVoteOption>());
+            m_VotingRunning = false;
         }
 
         public void UpdateVoting(List<IVoteOption> voteOptions)
@@ -93,6 +97,10 @@ namespace TwitchChatVotingProxy.OverlayServer
             {
                 logger.Information($"New websocket client {connection.ConnectionInfo.ClientIpAddress}");
                 connections.Add(connection);
+                if (!m_VotingRunning)
+                {
+                    NoVotingRound();
+                }
             }
             catch (Exception e)
             {

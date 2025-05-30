@@ -84,43 +84,68 @@ export class BarOverlay {
 		this.container = container;
 
 		// Bind listener methods
-		this.onCreateVote = this.onCreateVote.bind(this);
+		/*this.onCreateVote = this.onCreateVote.bind(this);
 		this.onDisconnect = this.onDisconnect.bind(this);
 		this.onEndVote = this.onEndVote.bind(this);
 		this.onUpdateVote = this.onUpdateVote.bind(this);
+		this.onNoVote = this.onNoVote.bind(this);*/
 
 		// Add listener to the overlay client
-		overlayClient.addCreateVoteListener(this.onCreateVote);
-		overlayClient.addDisconnectListener(this.onDisconnect);
-		overlayClient.addConnectListener(this.onConnect);
-		overlayClient.addEndVoteListener(this.onEndVote);
-		overlayClient.addUpdateVoteListener(this.onUpdateVote);
+		overlayClient.addCreateVoteListener(m => this.onCreateVote(m));
+		overlayClient.addDisconnectListener(() => this.onDisconnect());
+		overlayClient.addConnectListener(() => this.onConnect());
+		overlayClient.addEndVoteListener(() => this.onEndVote());
+		overlayClient.addNoVotingRoundListener(() => this.onNoVote());
+		overlayClient.addUpdateVoteListener(m => this.onUpdateVote(m));
 	}
 
 	private onConnect(): void {
-		this.bars.forEach((bar, index) => {
-			const ANIMATION_DELAY = index * ANIMATION_DELAY_DELTA;
-			bar.fadeIn(ANIMATION_LENGTH, ANIMATION_DELAY);
-		});
+
 	}
-	private onCreateVote(): void {
+	private reInitBars(count: number) {
+		const oldCount = this.bars.length;
+		let oldElements: Array<ChildNode> = [];
+		this.container.childNodes.forEach(e => oldElements.push(e));
+
 		this.bars.forEach((bar, index) => {
 			const ANIMATION_DELAY = index * ANIMATION_DELAY_DELTA;
 			bar.fadeOut(ANIMATION_LENGTH, ANIMATION_DELAY);
-			setTimeout(() => {
-				bar.isDisabled = false;
-				bar.fadeIn(ANIMATION_LENGTH), ANIMATION_LENGTH + ANIMATION_DELAY;
-			}, ANIMATION_LENGTH + ANIMATION_DELAY);
 		});
+
+		this.bars = [];
+
+		for (let i = 0; i < count; i++) {
+			const bar = new Bar(this.container);
+			this.bars.push(bar);
+			bar.fadeOut(0);
+		}
+
+		const ANIMATION_DELAY = oldCount * ANIMATION_DELAY_DELTA;
+		setTimeout(() => {
+			oldElements.forEach(e => this.container.removeChild(e));
+			this.bars.forEach((bar, index) => {
+				bar.isDisabled = false;
+				bar.fadeIn(ANIMATION_LENGTH, index * ANIMATION_DELAY_DELTA);
+			});
+		}, oldCount > 0 ? ANIMATION_LENGTH + ANIMATION_DELAY : 0);
+	}
+	private ensureBars(count: number) {
+		if (count !== this.bars.length) {
+			this.reInitBars(count);
+		}
+	}
+	private onCreateVote(message: IChaosOverlayClientMessage): void {
+		const { voteOptions } = message;
+		this.reInitBars(voteOptions.length);
 	}
 	private onDisconnect(): void {
-		this.bars.forEach((bar, index) => {
-			const ANIMATION_DELAY = index * ANIMATION_DELAY_DELTA;
-			bar.fadeOut(ANIMATION_LENGTH, ANIMATION_DELAY);
-		});
+		this.ensureBars(0);
 	}
 	private onEndVote(): void {
 		this.bars.forEach(bar => (bar.isDisabled = true));
+	}
+	private onNoVote(): void {
+		this.ensureBars(0);
 	}
 	private onUpdateVote(message: IChaosOverlayClientMessage): void {
 		const { retainInitialVotes, voteOptions, votingMode } = message;
@@ -131,10 +156,7 @@ export class BarOverlay {
 			voteOptions.forEach(_ => _.value++);
 		}
 
-		if (voteOptions.length !== this.bars.length) {
-			while (this.container.firstChild) this.container.removeChild(this.container.firstChild);
-			this.bars = voteOptions.map(_ => new Bar(this.container));
-		}
+		this.ensureBars(voteOptions.length);
 
 		for (let i = 0; i < voteOptions.length; i++) {
 			const BAR = this.bars[i];

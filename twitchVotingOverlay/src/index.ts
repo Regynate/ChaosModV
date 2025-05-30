@@ -13,8 +13,8 @@ if (CHANCE_ELEMENT === null) throw new Error('could not find chance element in D
 const OVERLAY_CLIENT = new ChaosOverlayClient('ws://localhost:9091');
 
 OVERLAY_CLIENT.addConnectListener(() => {
-	TOTAL_VOTES.style.opacity = '1';
-	CHANCE_ELEMENT.textContent = 'Chance';
+	TOTAL_VOTES.style.opacity = '0';
+	CHANCE_ELEMENT.textContent = 'Connected';
 });
 OVERLAY_CLIENT.addDisconnectListener(() => {
 	TOTAL_VOTES.style.opacity = '0';
@@ -22,6 +22,14 @@ OVERLAY_CLIENT.addDisconnectListener(() => {
 });
 OVERLAY_CLIENT.addUpdateVoteListener(message => {
 	TOTAL_VOTES.innerText = `Votes: ${message.totalVotes}`;
+});
+OVERLAY_CLIENT.addNoVotingRoundListener(() => {
+	TOTAL_VOTES.style.opacity = '0';
+	CHANCE_ELEMENT.textContent = '';
+});
+OVERLAY_CLIENT.addCreateVoteListener(() => {
+	TOTAL_VOTES.style.opacity = '1';
+	CHANCE_ELEMENT.textContent = 'Chance';
 });
 
 new BarOverlay(BAR_CONTAINER, OVERLAY_CLIENT);

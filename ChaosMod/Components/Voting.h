@@ -51,12 +51,13 @@ class Voting : public Component
 	Color m_TextColor;
 
 	bool m_EnableVoting                                = false;
+	bool m_SilentVoting                                = false;
 	bool m_HasInitializedVoting                        = false;
 
 	bool m_ReceivedHello                               = false;
 	bool m_HasReceivedResult                           = false;
 
-	bool m_IsVotingRoundDone                           = true;
+	bool m_ShouldStartNextRound                           = true;
 	bool m_AlternatedVotingRound                       = false;
 
 	VotingMode m_VotingMode                            = VotingMode::Majority;
@@ -71,7 +72,15 @@ class Voting : public Component
 	Voting();
 
 	bool Init();
-	bool IsEnabled() const;
+	inline bool IsEnabled() const
+	{
+		return m_EnableVoting;
+	}
+	inline bool IsSilentEnabled() const
+	{
+		return m_SilentVoting;
+	}
+
 	VotingMode GetVotingMode() const;
 	void HandleMsg(std::string_view message);
 
@@ -82,9 +91,19 @@ class Voting : public Component
   private:
 	std::string GetPipeJson(std::string_view identifier, std::vector<std::string> params);
 
-  public:
+	std::string GetVotingOption(int index);
+	void StartNewVotingRound();
+	void PrintVoteables();
+	void EnsureExtraSpace();
+
 	void SendToPipe(std::string_view identifier, std::vector<std::string> params = {});
 	void ErrorOutWithMsg(std::string_view message);
+
+	void Shutdown();
+
+  public:
+	void Enable();
+	void Disable();
 
 	virtual void OnModPauseCleanup() override;
 	virtual void OnRun() override;

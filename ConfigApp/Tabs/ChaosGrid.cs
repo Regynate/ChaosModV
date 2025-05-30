@@ -130,9 +130,9 @@ namespace ConfigApp.Tabs
             m_CurrentColumn += 3;
         }
 
-        public void PushRowElement(FrameworkElement element)
+        public void PushRowElement(FrameworkElement element, string? tooltip = null)
         {
-            PushRow(null, element);
+            PushRow(null, element, tooltip);
         }
 
         public void PushRowExpandElement(FrameworkElement element)
