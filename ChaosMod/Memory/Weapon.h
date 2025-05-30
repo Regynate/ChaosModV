@@ -44,7 +44,7 @@ namespace Memory
 
 		const auto componentPtrArray = GetAllWeaponComponentPointers();
 
-		for (int i = 0; i < componentPtrArray.size(); i++)
+		for (size_t i = 0; i < componentPtrArray.size(); i++)
 			if (GetWeaponModel(componentPtrArray[i]) == model)
 				return true;
 
@@ -157,13 +157,13 @@ namespace Memory
 		return *reinterpret_cast<int32_t *>(infoAddr + 0x0058) == 5;
 	}
 
-	static int GetWeaponGroup(Hash ulHash)
+	inline int GetWeaponGroup(Hash ulHash)
 	{
 		auto infoAddr = GetWeaponInfo(ulHash);
 		return *reinterpret_cast<int *>(infoAddr + 0x5C);
 	}
 
-	static void SetWeaponGroup(Hash ulHash, Hash value)
+	inline void SetWeaponGroup(Hash ulHash, Hash value)
 	{
 		auto infoAddr                             = GetWeaponInfo(ulHash);
 		*reinterpret_cast<int *>(infoAddr + 0x5C) = value;

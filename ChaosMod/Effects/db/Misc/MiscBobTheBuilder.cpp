@@ -15,9 +15,9 @@ static Vector3 RotationToDirection(Vector3 rot)
 	float x   = DegreeToRadian(rot.x);
 	float z   = DegreeToRadian(rot.z);
 
-	float num = abs(cos(x));
+	float num = abs(std::cos(x));
 
-	return Vector3 { -sin(z) * num, cos(z) * num, sin(x) };
+	return Vector3 { -std::sin(z) * num, std::cos(z) * num, std::sin(x) };
 }
 
 static Vector3 GetCoordsInFront(Vector3 pos, Vector3 rot, float dist)

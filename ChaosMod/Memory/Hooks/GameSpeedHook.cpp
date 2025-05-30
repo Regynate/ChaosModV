@@ -12,7 +12,7 @@ static float prevTargetScale       = 0.f;
 static float prevOgTimeScale       = 1.f;
 static float prevAdjustedTimeScale = 1.f;
 
-static float(*sm_fTimeScale);
+static float *sm_fTimeScale;
 static float (*smTimeScales)[4];
 static float ogTimeScales[4];
 

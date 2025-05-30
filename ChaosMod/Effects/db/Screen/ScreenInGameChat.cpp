@@ -178,8 +178,8 @@ static void OnTick()
 		return;
 
 	// discard old messages if they clog up the queue
-	while (messageQueue.size() > 3 && curTick - messageQueue.front().m_ReceivedTimestamp > 2000
-	       || !messageQueue.empty() && messageQueue.front().m_Banned)
+	while ((messageQueue.size() > 3 && curTick - messageQueue.front().m_ReceivedTimestamp > 2000)
+	       || (!messageQueue.empty() && messageQueue.front().m_Banned))
 		messageQueue.pop_front();
 
 	if (!messageQueue.empty())

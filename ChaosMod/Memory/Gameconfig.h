@@ -7,7 +7,7 @@
 
 namespace Memory
 {
-    inline const uintptr_t GetGameConfig()
+    inline uintptr_t GetGameConfig()
     {
         // same on Legacy and Enhanced
         static auto handle = FindPattern("48 8B 0D ?? ?? ?? ?? BA B8 8E 9C 53");

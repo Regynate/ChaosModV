@@ -2,20 +2,6 @@
 
 #include "Effects/Register/RegisterEffect.h"
 
-static bool RequestControlEntity(Entity entity)
-{
-	if (!DOES_ENTITY_EXIST(entity))
-		return false;
-
-	return NETWORK_HAS_CONTROL_OF_ENTITY(entity);
-}
-
-static void DeleteEntity(Entity entity)
-{
-	DELETE_ENTITY(&entity);
-	
-}
-
 static void OnStart()
 {
 	for (auto const ped : GetAllPeds())

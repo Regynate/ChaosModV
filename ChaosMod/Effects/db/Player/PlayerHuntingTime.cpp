@@ -1,5 +1,7 @@
 #include <stdafx.h>
 
+#include <format>
+
 #include "Effects/Register/RegisterEffect.h"
 #include "Util/HelpText.h"
 
@@ -75,10 +77,10 @@ CHAOS_VAR bool effectCompleted = false;
 static Vector3 GetRandomSpawnLocation(const Ped player)
 {
 	auto const playerCoords   = GET_ENTITY_COORDS(player, true);
-	auto const randomAngle    = static_cast<float>(GET_RANDOM_FLOAT_IN_RANGE(0.0f, 360.0f));
-	auto const randomDistance = static_cast<float>(GET_RANDOM_FLOAT_IN_RANGE(50.0f, 100.0f));
+	auto const randomAngle    = g_Random.GetRandomFloat(0.0f, 360.0f);
+	auto const randomDistance = g_Random.GetRandomFloat(50.0f, 100.0f);
 
-	return { playerCoords.x + (randomDistance * cos(randomAngle)), playerCoords.y + (randomDistance * sin(randomAngle)),
+	return { playerCoords.x + (randomDistance * std::cos(randomAngle)), playerCoords.y + (randomDistance * std::sin(randomAngle)),
 		     playerCoords.z + 1.0f };
 }
 

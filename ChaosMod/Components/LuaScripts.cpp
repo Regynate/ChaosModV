@@ -173,7 +173,10 @@ class LuaHolder
 			return _TryParseVector3(&m_Data, x, y, z) ? LuaVector3(x, y, z) : LuaVector3();
 		}
 
-		return *reinterpret_cast<T *>(&m_Data);
+		T result;
+		memcpy_s(&result, sizeof(result), reinterpret_cast<T *>(&m_Data), sizeof(result));
+
+		return result;
 	}
 
 	__forceinline bool IsValid() const
@@ -1048,7 +1051,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 	{
 		effectData.TimedType = static_cast<EffectTimedType>(settingOverrides["TimedType"]);
 	}
-	catch (nlohmann::json::exception)
+	catch (nlohmann::json::exception const&)
 	{
 	}
 	try
@@ -1057,7 +1060,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		if (effectData.CustomTime > 0)
 			effectData.TimedType = EffectTimedType::Custom;
 	}
-	catch (nlohmann::json::exception)
+	catch (nlohmann::json::exception const&)
 	{
 	}
 
@@ -1071,7 +1074,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 	{
 		effectData.WeightMult = settingOverrides["WeightMult"];
 	}
-	catch (nlohmann::json::exception)
+	catch (nlohmann::json::exception const&)
 	{
 	}
 
@@ -1086,7 +1089,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 	{
 		effectData.SetAttribute(EffectAttributes::ExcludedFromVoting, settingOverrides["ExcludedFromVoting"]);
 	}
-	catch (nlohmann::json::exception)
+	catch (nlohmann::json::exception const&)
 	{
 	}
 
@@ -1151,7 +1154,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 	{
 		effectData.ShortcutKeycode = settingOverrides["ShortcutKeycode"];
 	}
-	catch (nlohmann::json::exception)
+	catch (nlohmann::json::exception const&)
 	{
 	}
 
@@ -1161,7 +1164,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		if (!name.empty())
 			effectData.CustomName = name;
 	}
-	catch (nlohmann::json::exception)
+	catch (nlohmann::json::exception const&)
 	{
 	}
 

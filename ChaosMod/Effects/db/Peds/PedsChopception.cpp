@@ -163,38 +163,6 @@ static void CheckChopDeaths()
 	}
 }
 
-static void CheckPedsDistance()
-{
-	auto const player       = PLAYER_PED_ID();
-	auto const playerCoords = GET_ENTITY_COORDS(player, false);
-
-	for (auto it = affectedPeds.begin(); it != affectedPeds.end();)
-	{
-		auto const ped  = it->originalPed;
-		auto const chop = it->attachedChop;
-
-		if (!DOES_ENTITY_EXIST(ped) || !DOES_ENTITY_EXIST(chop))
-		{
-			it = affectedPeds.erase(it);
-			continue;
-		}
-
-		auto const pedCoords = GET_ENTITY_COORDS(ped, false);
-		auto const distance  = GET_DISTANCE_BETWEEN_COORDS(playerCoords.x, playerCoords.y, playerCoords.z, pedCoords.x,
-		                                                   pedCoords.y, pedCoords.z, false);
-
-		if (distance > 100.0f)
-		{
-			DetachChop(ped, chop);
-			it = affectedPeds.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
-}
-
 static void OnStop()
 {
 	RestorePeds();

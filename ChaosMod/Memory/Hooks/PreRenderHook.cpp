@@ -17,6 +17,14 @@ struct Transform
 	Transform() : m_Translation(), m_Rotation(), m_Scale(), m_ogMatrix(), m_ogPhysMatrix()
 	{
 	}
+
+	Transform(const Transform &other)
+	    : m_Translation(other.m_Translation),
+	      m_Rotation(other.m_Rotation),
+	      m_ogMatrix(other.m_ogMatrix),
+	      m_ogPhysMatrix(other.m_ogPhysMatrix)
+	{
+	}
 };
 
 static std::map<DWORD64, Transform> ms_EntityMap;

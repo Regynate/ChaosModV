@@ -2,7 +2,7 @@
 
 #include "Effects/Register/RegisterEffect.h"
 
-CHAOS_VAR std::uint32_t currentTarget {};
+CHAOS_VAR Ped currentTarget {};
 
 static void OnStart()
 {

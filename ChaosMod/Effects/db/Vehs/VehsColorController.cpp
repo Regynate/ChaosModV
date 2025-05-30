@@ -176,7 +176,7 @@ REGISTER_EFFECT(nullptr, OnStopPink, OnTickPink,
 );
 // clang-format on
 
-static void OnStopRainbow()
+/*static void OnStopRainbow()
 {
 	for (int i = 0; i < 13; i++)
 		Memory::OverrideVehicleHeadlightColor(i, false, 0, 0, 0);
@@ -230,7 +230,6 @@ static void OnTickRainbow()
 }
 
 // clang-format off
-/*
 REGISTER_EFFECT(nullptr, OnStopRainbow, OnTickRainbow, 
 {
 	.Name = "Rainbow Traffic",

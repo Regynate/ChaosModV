@@ -18,9 +18,9 @@ static Vector3 RotationToDirection(Vector3 rot)
 
     return Vector3
     {
-        -sin(z) * num,
-        cos(z) * num,
-        sin(x)
+        -std::sin(z) * num,
+        std::cos(z) * num,
+        std::sin(x)
     };
 }
 

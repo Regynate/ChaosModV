@@ -69,15 +69,6 @@ static void CheckPedDamage()
 		hasBullet = false;
 }
 
-static void RemoveWeapons()
-{
-	auto const playerPed = PLAYER_PED_ID();
-
-	for (const auto &weaponHash : Memory::GetAllWeapons())
-		if (HAS_PED_GOT_WEAPON(playerPed, weaponHash, false) && weaponHash != goldenGunHash)
-			REMOVE_WEAPON_FROM_PED(playerPed, weaponHash);
-}
-
 static void OnStart()
 {
 	hasBullet = true;

@@ -46,13 +46,6 @@ static void SetPlayerModel(const std::uint32_t hash)
 	RestoreWeapons();
 }
 
-static bool RequestControlEntity(Entity entity)
-{
-	if (!DOES_ENTITY_EXIST(entity))
-		return false;
-	return NETWORK_HAS_CONTROL_OF_ENTITY(entity);
-}
-
 CHAOS_VAR Hash previousModel {};
 CHAOS_VAR bool hasSpawned = false;
 

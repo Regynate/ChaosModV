@@ -52,13 +52,6 @@ static void OnStart()
 	SpawnBandMembers();
 }
 
-static void OnTick()
-{
-}
-
-static void OnStop()
-{
-}
 // clang-format off
 REGISTER_EFFECT(OnStart, nullptr, nullptr,
     {

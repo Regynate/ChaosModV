@@ -2,28 +2,6 @@
 
 #include "Effects/Register/RegisterEffect.h"
 
-static float DegreeToRadian(float degrees)
-{
-	auto constexpr PI = 3.1415f;
-	return static_cast<float>((PI / 180) * degrees);
-}
-
-static Vector3 RotationToDirection(Vector3 rotation)
-{
-	auto const x         = DegreeToRadian(rotation.x);
-	auto const z         = DegreeToRadian(rotation.z);
-	auto const magnitude = std::abs(std::cos(x));
-
-	return { -std::sin(z) * magnitude, std::cos(z) * magnitude, std::sin(x) };
-}
-
-static Vector3 GetCoordinatesInFront(Vector3 position, Vector3 rotation, float distance)
-{
-	auto const direction = RotationToDirection(rotation);
-	return { position.x + (direction.x * distance), position.y + (direction.y * distance),
-		     position.z + (direction.z * distance) };
-}
-
 static void OnStart()
 {
 	auto const playerPed  = PLAYER_PED_ID();

@@ -30,10 +30,6 @@ static void OnStop()
 	RestoreHospitals();
 }
 
-static void OnTick()
-{
-}
-
 // clang-format off
 REGISTER_EFFECT(OnStart, OnStop, nullptr, 
     {

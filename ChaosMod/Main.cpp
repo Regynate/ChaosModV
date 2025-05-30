@@ -18,7 +18,6 @@
 #include "Components/SplashTexts.h"
 #include "Components/Voting.h"
 #include "Components/Workshop.h"
-#include "Components/ZChaosManager.h"
 #include "Effects/EffectConfig.h"
 #include "Effects/EnabledEffects.h"
 #include "Memory/Hooks/ScriptThreadRunHook.h"

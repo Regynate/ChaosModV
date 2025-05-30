@@ -1,5 +1,7 @@
 #pragma once
 
+#include <list>
+
 using Ped     = int;
 using Vehicle = int;
 using Hash    = unsigned long;

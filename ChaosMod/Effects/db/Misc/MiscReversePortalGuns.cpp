@@ -9,15 +9,6 @@ static bool RequestControlEntity(Entity entity)
 	return NETWORK_HAS_CONTROL_OF_ENTITY(entity);
 }
 
-static void DeleteEntity(Entity entity)
-{
-	if (!RequestControlEntity(entity))
-		return;
-	if (!IS_ENTITY_A_MISSION_ENTITY(entity))
-		SET_ENTITY_AS_MISSION_ENTITY(entity, true, true);
-	DELETE_ENTITY(&entity);
-}
-
 static void OnTick()
 {
 	auto const player     = PLAYER_PED_ID();

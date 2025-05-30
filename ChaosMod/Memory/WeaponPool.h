@@ -108,7 +108,7 @@ namespace Memory
 
 			LOG(componentPtrArray << " " << componentCount);
 
-			for (int i = 0; i < componentCount; i++)
+			for (size_t i = 0; i < componentCount; i++)
 				if (componentPtrArray[i])
 					components.push_back(componentPtrArray[i]);
 		}

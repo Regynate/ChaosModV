@@ -13,7 +13,7 @@ struct ChaosVector3
 	{
 	}
 
-	ChaosVector3 operator+(const ChaosVector3& other)
+	ChaosVector3 operator+(const ChaosVector3 &other)
 	{
 		return ChaosVector3(x + other.x, y + other.y, z + other.z);
 	}
@@ -28,12 +28,20 @@ struct ChaosVector4
 {
 	float x, y, z, w;
 
-	bool operator==(ChaosVector4 other) const
+	ChaosVector4() : x(0), y(0), z(0), w(0)
+	{
+	}
+
+	ChaosVector4(const ChaosVector4 &other) : x(other.x), y(other.y), z(other.z), w(other.w)
+	{
+	}
+
+	bool operator==(const ChaosVector4 &other) const
 	{
 		return x == other.x && y == other.y && z == other.z && w == other.w;
 	}
 
-	void operator=(ChaosVector4 other)
+	void operator=(const ChaosVector4 &other)
 	{
 		x = other.x;
 		y = other.y;
@@ -59,11 +67,7 @@ struct ChaosVector4
 	{
 	}
 
-	ChaosVector4() : x(0), y(0), z(0), w(0)
-	{
-	}
-
-	bool IsDefault()
+	bool IsDefault() const
 	{
 		return x == 0 && y == 0 && z == 0 && w == 0;
 	}
@@ -81,7 +85,28 @@ struct ChaosMatrix4x4
 	ChaosVector4 up;
 	ChaosVector4 translation;
 
-	void operator=(ChaosMatrix4x4 other)
+	ChaosMatrix4x4() : right(), forward(), up(), translation()
+	{
+	}
+
+	ChaosMatrix4x4(const ChaosVector4 &right, const ChaosVector4 &forward, const ChaosVector4 &up,
+	               const ChaosVector4 &translation)
+	    : right(right), forward(forward), up(up), translation(translation)
+	{
+	}
+
+	ChaosMatrix4x4(float x1, float y1, float z1, float w1, float x2, float y2, float z2, float w2, float x3, float y3,
+	               float z3, float w3, float x4, float y4, float z4, float w4)
+	    : right(x1, y1, z1, w1), forward(x2, y2, z2, w2), up(x3, y3, z3, w3), translation(x4, y4, z4, w4)
+	{
+	}
+
+	ChaosMatrix4x4(const ChaosMatrix4x4 &other)
+	    : right(other.right), forward(other.forward), up(other.up), translation(other.translation)
+	{
+	}
+
+	void operator=(const ChaosMatrix4x4 &other)
 	{
 		right       = other.right;
 		forward     = other.forward;
@@ -89,7 +114,7 @@ struct ChaosMatrix4x4
 		translation = other.translation;
 	}
 
-	ChaosMatrix4x4 operator*(ChaosVector4 vec) const
+	ChaosMatrix4x4 operator*(const ChaosVector4 &vec) const
 	{
 		return {
 			right * vec.x,
@@ -99,50 +124,41 @@ struct ChaosMatrix4x4
 		};
 	}
 
-	ChaosMatrix4x4(ChaosVector4 right, ChaosVector4 forward, ChaosVector4 up, ChaosVector4 translation)
-	    : right(right), forward(forward), up(up), translation(translation)
-	{
-	}
-
-	ChaosMatrix4x4() : right(), forward(), up(), translation()
-	{
-	}
-
 	bool operator==(const ChaosMatrix4x4 other) const
 	{
-		LOG((right == other.right) << " " << (forward == other.forward) << " " << (up == other.up) << " " << (translation
-		    == other.translation));
+		LOG((right == other.right) << " " << (forward == other.forward) << " " << (up == other.up) << " "
+		                           << (translation == other.translation));
 
 		return right == other.right && forward == other.forward && up == other.up && translation == other.translation;
 	}
 
-	bool IsDefault()
+	bool IsDefault() const
 	{
 		return right.IsDefault() && forward.IsDefault() && up.IsDefault() && translation.IsDefault();
 	}
 
-	ChaosVector4 col1()
+	ChaosVector4 col1() const
 	{
 		return { right.x, forward.x, up.x, translation.x };
 	}
 
-	ChaosVector4 col2()
+	ChaosVector4 col2() const
 	{
 		return { right.y, forward.y, up.y, translation.y };
 	}
 
-	ChaosVector4 col3()
+	ChaosVector4 col3() const
 	{
 		return { right.z, forward.z, up.z, translation.z };
 	}
 
-	ChaosVector4 col4()
+	ChaosVector4 col4() const
 	{
 		return { right.w, forward.w, up.w, translation.w };
 	}
 
 	// clang-format off
-	ChaosMatrix4x4 operator*(ChaosMatrix4x4 other) const
+	ChaosMatrix4x4 operator*(const ChaosMatrix4x4& other) const
 	{
 		return {
 			right.scalar(other.col1()), right.scalar(other.col2()), right.scalar(other.col3()), other.right.w,
@@ -151,14 +167,8 @@ struct ChaosMatrix4x4
 			translation.scalar(other.col1()), translation.scalar(other.col2()), translation.scalar(other.col3()), other.translation.w
 		};
 	}
-
-	ChaosMatrix4x4(float x1, float y1, float z1, float w1, float x2, float y2, float z2, float w2, float x3, float y3,
-		float z3, float w3, float x4, float y4, float z4, float w4)
-	    : right(x1, y1, z1, w1), forward(x2, y2, z2, w2), up(x3, y3, z3, w3), translation(x4, y4, z4, w4)
-		{
-		}
 		
-	static ChaosMatrix4x4 TranslationMatrix(ChaosVector3 translation)
+	static ChaosMatrix4x4 TranslationMatrix(const ChaosVector3& translation)
 	{
 		return
 		{
@@ -169,7 +179,7 @@ struct ChaosMatrix4x4
 		};
 	}
 	
-	static ChaosMatrix4x4 ScaleMatrix(ChaosVector3 scale)
+	static ChaosMatrix4x4 ScaleMatrix(const ChaosVector3& scale)
 	{
 		return
 		{
@@ -180,24 +190,24 @@ struct ChaosMatrix4x4
 		};
 	}
 
-	static ChaosMatrix4x4 RotationMatrix(ChaosVector3 rotation)
+	static ChaosMatrix4x4 RotationMatrix(const ChaosVector3& rotation)
 	{
 		return
 		ChaosMatrix4x4 {
 			1, 0, 0, 0,
-			0, cos(rotation.x), -sin(rotation.x), 0,
-			0, sin(rotation.x), cos(rotation.x), 0,
+			0, std::cos(rotation.x), -std::sin(rotation.x), 0,
+			0, std::sin(rotation.x), std::cos(rotation.x), 0,
 			0, 0, 0, 1
 		} *
 		ChaosMatrix4x4 {
-			cos(rotation.y), 0, sin(rotation.y), 0,
+			std::cos(rotation.y), 0, std::sin(rotation.y), 0,
 			0, 1, 0, 0,
-			-sin(rotation.y), 0, cos(rotation.y), 0,
+			-std::sin(rotation.y), 0, std::cos(rotation.y), 0,
 			0, 0, 0, 1
 		} *
 		ChaosMatrix4x4 {
-			cos(rotation.z), sin(rotation.z), 0, 0,
-			-sin(rotation.z), cos(rotation.z), 0, 0,
+			std::cos(rotation.z), std::sin(rotation.z), 0, 0,
+			-std::sin(rotation.z), std::cos(rotation.z), 0, 0,
 			0, 0, 1, 0,
 			0, 0, 0, 1
 		};

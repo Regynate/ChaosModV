@@ -25,10 +25,6 @@ static void ResetInvinciblePedsWithNoRagdoll()
 	}
 }
 
-static void OnStart()
-{
-}
-
 static void OnStop()
 {
 	ResetInvinciblePedsWithNoRagdoll();

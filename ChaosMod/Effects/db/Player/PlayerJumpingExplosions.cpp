@@ -21,16 +21,6 @@ static void OnTick()
 	   
 }
 
-static void OnStop()
-{
-	
-}
-
-static void OnStart()
-{
-	
-}
-
 // clang-format off
 REGISTER_EFFECT(nullptr, nullptr, OnTick, 
 	{

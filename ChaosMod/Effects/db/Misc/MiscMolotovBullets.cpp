@@ -52,10 +52,6 @@ static void OnTick()
 	                                   molotovHash, player, 1, 1, 100.f);
 }
 
-static void OnStop()
-{
-}
-
 // clang-format off
 REGISTER_EFFECT(OnStart, nullptr, OnTick, 
     {

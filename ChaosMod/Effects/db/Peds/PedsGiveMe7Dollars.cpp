@@ -83,14 +83,6 @@ static void OnStart()
 	TriggerDeniseMugging();
 }
 
-static void OnStop()
-{
-}
-
-static void OnTick()
-{
-}
-
 // clang-format off
 REGISTER_EFFECT(OnStart, nullptr, nullptr, 
     {

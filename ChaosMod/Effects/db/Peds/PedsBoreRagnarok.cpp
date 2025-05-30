@@ -2,28 +2,6 @@
 
 #include <stdafx.h>
 
-static bool RequestControlEntity(Entity entity)
-{
-    if (!DOES_ENTITY_EXIST(entity)) {
-        return false;
-    }
-
-    if (NETWORK_HAS_CONTROL_OF_ENTITY(entity)) {
-        return true;
-    }
-
-    return NETWORK_HAS_CONTROL_OF_ENTITY(entity);
-}
-
-static void DeleteEntity(Entity entity)
-{
-    if (RequestControlEntity(entity)) {
-        if (!IS_ENTITY_A_MISSION_ENTITY(entity))
-            SET_ENTITY_AS_MISSION_ENTITY(entity, TRUE, TRUE);
-        DELETE_ENTITY(&entity);
-    }
-}
-
 CHAOS_VAR auto constexpr maxBoars      = 5;
 CHAOS_VAR auto constexpr spawnRadius   = 20.0f;
 CHAOS_VAR auto constexpr maxDistance   = 50.0f;
