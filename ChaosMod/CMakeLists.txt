@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.31)
+set(VENDOR_DIR ${CMAKE_SOURCE_DIR}/../vendor)
+set(CMAKE_TOOLCHAIN_FILE ${VENDOR_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake)
+set(VCPKG_TARGET_TRIPLET x64-windows-static)
+
 project(ChaosMod)
 
 file(GLOB ROOT_SRC ${PROJECT_SOURCE_DIR}/*.cpp)
 file(GLOB_RECURSE SRC ${PROJECT_SOURCE_DIR}/Components/*.cpp ${PROJECT_SOURCE_DIR}/Effects/*.cpp
     ${PROJECT_SOURCE_DIR}/Memory/*.cpp ${PROJECT_SOURCE_DIR}/Util/*.cpp)
-file(GLOB PATTERNS_SRC ${PROJECT_SOURCE_DIR}/../vendor/Patterns/Patterns.cpp)
+file(GLOB PATTERNS_SRC ${VENDOR_DIR}/Patterns/Patterns.cpp)
 add_library(ChaosMod MODULE ${ROOT_SRC} ${SRC} ${PATTERNS_SRC} ChaosMod.rc)
 
 target_precompile_headers(ChaosMod PUBLIC stdafx.cpp)
@@ -17,24 +21,25 @@ target_compile_definitions(ChaosMod PUBLIC $<$<CONFIG:Debug>:CHAOSDEBUG>)
 target_compile_definitions(ChaosMod PUBLIC NDEBUG)
 target_compile_definitions(ChaosMod PUBLIC WIN32_LEAN_AND_MEAN)
 
-set(include_dirs ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/../vendor ${PROJECT_SOURCE_DIR}/../vendor/lua/include)
-set(link_libs shv minhook lua54 winmm d3dcompiler xinput)
+set(USE_TLS ON)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/../vendor/shv shv)
-add_subdirectory(${PROJECT_SOURCE_DIR}/../vendor/minhook minhook)
-if (WITH_DEBUG_PANEL_SUPPORT)
-    set(include_dirs ${include_dirs} ${PROJECT_SOURCE_DIR}/../vendor/IXWebSocket)
-    set(link_libs ${link_libs} wsock32 ws2_32 ixwebsocket)
+find_package(MbedTLS CONFIG REQUIRED)
 
-    target_compile_definitions(ChaosMod PUBLIC WITH_DEBUG_PANEL_SUPPORT)
+set(include_dirs ${PROJECT_SOURCE_DIR} ${VENDOR_DIR} ${VENDOR_DIR}/lua/include)
+set(link_libs shv minhook lua54 winmm d3dcompiler xinput wsock32 ws2_32 MbedTLS::mbedtls MbedTLS::mbedx509 MbedTLS::mbedcrypto ixwebsocket)
 
-    set(USE_ZLIB OFF CACHE BOOL "Enable zlib support")
-    add_subdirectory(${PROJECT_SOURCE_DIR}/../vendor/IXWebSocket ixwebsocket)
-endif ()
+add_subdirectory(${VENDOR_DIR}/shv shv)
+add_subdirectory(${VENDOR_DIR}/minhook minhook)
+
+add_subdirectory(${VENDOR_DIR}/IXWebSocket ixwebsocket)
 
 target_include_directories(ChaosMod PUBLIC ${include_dirs})
-target_link_directories(ChaosMod PUBLIC ${PROJECT_SOURCE_DIR}/../vendor/lua)
+target_link_directories(ChaosMod PUBLIC ${VENDOR_DIR}/lua)
 target_link_libraries(ChaosMod PUBLIC ${link_libs})
+
+if (WITH_DEBUG_PANEL_SUPPORT)
+    target_compile_definitions(ChaosMod PUBLIC WITH_DEBUG_PANEL_SUPPORT)
+endif ()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     target_compile_options(ChaosMod PUBLIC /bigobj /Zi /GT /W2 /WX -DUNICODE -D_UNICODE -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS)

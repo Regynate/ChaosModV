@@ -339,3 +339,4 @@ ChaosMod/.cache/
 ChaosMod/build/
 ChaosMod/out/
 build/
+ChaosMod/CMakePresets.json

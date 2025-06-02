@@ -17,6 +17,14 @@ jobs:
     - name: Setup
       run: git submodule update --init --recursive
 
+    - name: Compile ASI & Dependencies
+      run: |
+        cd ChaosMod
+        mkdir build
+        cd build
+        cmake -GNinja -DCMAKE_BUILD_TYPE="Release" -DWITH_DEBUG_PANEL_SUPPORT=1 ../
+        ninja
+
     - name: Get NuGet Packages
       run: msbuild ChaosMod.sln /t:restore /p:RestorePackagesConfig=true /p:Configuration=Release
 
@@ -25,14 +33,6 @@ jobs:
 
     - name: Compile Voting Proxy
       run: dotnet publish TwitchChatVotingProxy -c Release
-
-    - name: Compile ASI & Dependencies
-      run: |
-        cd ChaosMod
-        mkdir build
-        cd build
-        cmake -GNinja -DCMAKE_BUILD_TYPE="Release" -DWITH_DEBUG_PANEL_SUPPORT=1 ../
-        ninja
 
     - name: Compile Voting Overlay
       run: |

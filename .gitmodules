@@ -11,3 +11,6 @@
 	path = vendor/IXWebSocket
 	url = https://github.com/machinezone/IXWebSocket
 	Ignore = dirty
+[submodule "vendor/vcpkg"]
+	path = vendor/vcpkg
+	url = https://github.com/microsoft/vcpkg

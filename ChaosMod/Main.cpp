@@ -5,6 +5,7 @@
 #include "Components/CrossingChallenge.h"
 #include "Components/DebugMenu.h"
 #include "Components/DebugSocket.h"
+#include "Components/DispatchSocket.h"
 #include "Components/EffectDispatchTimer.h"
 #include "Components/EffectDispatcher.h"
 #include "Components/EffectShortcuts.h"
@@ -202,6 +203,8 @@ static void Init()
 	INIT_COMPONENT("HelpTextQueue", "script help text queue", HelpTextQueue);
 
 	INIT_COMPONENT("CrossingChallenge", "Crossing Challenge", CrossingChallenge);
+
+	INIT_COMPONENT("DispatchSocket", "socket for remote dispatching", DispatchSocket);
 
 #ifdef WITH_DEBUG_PANEL_SUPPORT
 	if (DoesFeatureFlagExist("enabledebugsocket"))
