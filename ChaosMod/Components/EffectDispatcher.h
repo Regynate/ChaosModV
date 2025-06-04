@@ -72,6 +72,7 @@ class EffectDispatcher : public Component
 
   public:
 	ChaosCancellableEvent<const EffectIdentifier &> OnPreDispatchEffect;
+	ChaosEvent<const EffectIdentifier &, const std::string> OnDispatchEffectFailed;
 	ChaosEvent<const EffectIdentifier &, const std::string> OnPostDispatchEffect;
 
 	ChaosEvent<const EffectIdentifier &> OnPreRunEffect;

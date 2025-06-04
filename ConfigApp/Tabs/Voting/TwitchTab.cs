@@ -6,12 +6,21 @@ namespace ConfigApp.Tabs.Voting
     public class TwitchTab : Tab
     {
         private CheckBox? m_EnableTwitchVoting = null;
+        private CheckBox? m_EnableChannelPoints = null;
         private TextBox? m_ChannelName = null;
+        private TextBox? m_ChannelPointsServer = null;
+        private PasswordBox? m_ChannelPointsToken = null;
 
         private void SetElementsEnabled(bool state)
         {
             if (m_ChannelName is not null)
                 m_ChannelName.IsEnabled = state;
+            if (m_EnableChannelPoints is not null)
+                m_EnableChannelPoints.IsEnabled = state;
+            if (m_ChannelPointsServer is not null)
+                m_ChannelPointsServer.IsEnabled = state;
+            if (m_ChannelPointsToken is not null)
+                m_ChannelPointsToken.IsEnabled = state;
         }
 
         protected override void InitContent()
@@ -44,6 +53,28 @@ namespace ConfigApp.Tabs.Voting
                 Width = 120f,
                 Height = 20f
             });
+            PopRow();
+
+            m_EnableChannelPoints = new CheckBox()
+            {
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            PushRowSpacedPair("Enable channel point redemption", m_EnableChannelPoints);
+            PopRow();
+
+            PushRowSpacedPair("Channel Points Server", m_ChannelPointsServer = new TextBox()
+            {
+                Width = 120f,
+                Height = 20f
+            });
+
+            PushRowSpacedPair("Channel Points Token", m_ChannelPointsToken = new PasswordBox()
+            {
+                Width = 120f,
+                Height = 20f
+            });
+            PopRow();
 
             SetElementsEnabled(false);
         }
@@ -55,14 +86,23 @@ namespace ConfigApp.Tabs.Voting
                 m_EnableTwitchVoting.IsChecked = OptionsManager.TwitchFile.ReadValueBool("EnableVotingTwitch", false);
                 SetElementsEnabled(m_EnableTwitchVoting.IsChecked.GetValueOrDefault());
             }
+            if (m_EnableChannelPoints is not null)
+                m_EnableChannelPoints.IsChecked = OptionsManager.TwitchFile.ReadValueBool("EnableChannelPoints", false);
             if (m_ChannelName is not null)
                 m_ChannelName.Text = OptionsManager.TwitchFile.ReadValue("TwitchChannelName");
+            if (m_ChannelPointsServer is not null)
+                m_ChannelPointsServer.Text = OptionsManager.TwitchFile.ReadValue("ChannelPointsServer", "regynate.com");
+            if (m_ChannelPointsToken is not null)
+                m_ChannelPointsToken.Password = OptionsManager.TwitchFile.ReadValue("ChannelPointsToken");
         }
 
         public override void OnSaveValues()
         {
             OptionsManager.TwitchFile.WriteValue("EnableVotingTwitch", m_EnableTwitchVoting?.IsChecked);
+            OptionsManager.TwitchFile.WriteValue("EnableChannelPoints", m_EnableChannelPoints?.IsChecked);
             OptionsManager.TwitchFile.WriteValue("TwitchChannelName", m_ChannelName?.Text);
+            OptionsManager.TwitchFile.WriteValue("ChannelPointsServer", m_ChannelPointsServer?.Text);
+            OptionsManager.TwitchFile.WriteValue("ChannelPointsToken", m_ChannelPointsToken?.Password);
         }
     }
 }

@@ -34,8 +34,12 @@ class OptionsManager
 	template <typename T>
 	inline T GetOptionValue(const OptionsFile &optionsFile, const std::vector<std::string> &keys, T defaultValue = {})
 	{
-		if constexpr (std::is_same<typename std::remove_const<T>::type, std::string>()
-		              || std::is_same<typename std::remove_const<T>::type, char *>())
+		if constexpr (std::is_same<typename std::remove_const<T>::type, char *>()
+		|| std::is_same<typename std::remove_const<T>::type, const char *>())
+		{
+			static_assert(false, "Use std::string");
+		}
+		else if constexpr (std::is_same<typename std::remove_const<T>::type, std::string>())
 		{
 			return optionsFile.ReadValueString(keys, defaultValue);
 		}

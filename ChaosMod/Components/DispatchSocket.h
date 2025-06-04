@@ -4,12 +4,30 @@
 
 #include <IXWebSocket/IXWebSocket.h>
 
+#include <json.hpp>
+
 class DispatchSocket : public Component
 {
-	ix::WebSocket m_Socket;
+	struct EffectEntry
+	{
+		std::string Id;
+		std::string Name;
+		int Index;
+	};
+
+	std::vector<EffectEntry> m_Effects;
+
+	std::unique_ptr<ix::WebSocket> m_Socket;
+
+	bool m_ErrorShown;
+
+	void SendToSocket(const std::string &type, const std::string &nonce, const nlohmann::json &data);
+	void HandleMessage(const std::string &message);
+	void OnEffectDispatched(const EffectIdentifier &effectId, const std::string context);
+	void OnEffectFailed(const EffectIdentifier &effectId, const std::string context);
 
   public:
 	DispatchSocket();
 
-    virtual void OnModPauseCleanup() override;
+	virtual void OnModPauseCleanup() override;
 };

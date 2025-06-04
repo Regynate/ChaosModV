@@ -20,27 +20,27 @@
 #define EFFECT_TEXT_TOP_SPACING_EXTRA .40f
 #define EFFECT_NONTIMED_TIMER_SPEEDUP_MIN_EFFECTS 3
 
-static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDispatcher::EffectDispatchEntry &entry)
+static bool _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDispatcher::EffectDispatchEntry &entry)
 {
 	if (!g_EnabledEffects.contains(entry.Id))
 	{
 		DEBUG_LOG("Tried dispatching effect " << entry.Id.Id() << ", which is not enabled!");
-		return;
+		return false;
 	}
 
 	if (IsEffectFilteredOut(entry.Id))
 	{
 		LOG("Tried dispatching effect " << entry.Id.Id() << ", but its condition failed!");
-		return;
+		return false;
 	}
 
 	auto &effectData = g_EnabledEffects.at(entry.Id);
 
 	if (effectData.TimedType == EffectTimedType::Permanent)
-		return;
+		return false;
 
 	if (!effectDispatcher->OnPreDispatchEffect.Fire(entry.Id))
-		return;
+		return false;
 
 #ifdef CHAOSDEBUG
 	DEBUG_LOG("Dispatching effect \"" << effectData.Name << "\"" << " (" << effectData.Id.Id() << ")");
@@ -92,6 +92,9 @@ static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 				// Just extend timer of existing instance of timed effect
 				alreadyExists      = true;
 				activeEffect.Timer = activeEffect.MaxTime;
+				if (!entry.Suffix.empty())
+					activeEffect.Name =
+					    (effectData.HasCustomName() ? effectData.CustomName : effectData.Name) + " " + entry.Suffix;
 
 				playEffectDispatchSound(activeEffect);
 
@@ -203,6 +206,14 @@ static void _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 	}
 
 	effectDispatcher->OnPostDispatchEffect.Fire(entry.Id, entry.Context);
+
+	return true;
+}
+
+static void _TryDispatchEffect(EffectDispatcher *effectDispatcher, const EffectDispatcher::EffectDispatchEntry &entry)
+{
+	if (!_DispatchEffect(effectDispatcher, entry))
+		effectDispatcher->OnDispatchEffectFailed.Fire(entry.Id, entry.Context);
 }
 
 static void _OnRunEffects(LPVOID data)
@@ -226,7 +237,7 @@ static void _OnRunEffects(LPVOID data)
 
 		while (!effectDispatcher->EffectDispatchQueue.empty())
 		{
-			_DispatchEffect(effectDispatcher, effectDispatcher->EffectDispatchQueue.front());
+			_TryDispatchEffect(effectDispatcher, effectDispatcher->EffectDispatchQueue.front());
 			effectDispatcher->EffectDispatchQueue.pop();
 		}
 
@@ -466,8 +477,8 @@ void EffectDispatcher::UpdateMetaEffects(float deltaTime)
 					if (effectData.IsMeta() && !effectData.IsUtility() && !effectData.IsHidden())
 						effectData.Weight += effectData.WeightMult;
 
-				_DispatchEffect(this,
-				                { .Id = *targetEffectId, .Suffix = "(Meta)", .Flags = DispatchEffectFlag_NoAddToLog });
+				_TryDispatchEffect(
+				    this, { .Id = *targetEffectId, .Suffix = "(Meta)", .Flags = DispatchEffectFlag_NoAddToLog });
 			}
 		}
 		else
