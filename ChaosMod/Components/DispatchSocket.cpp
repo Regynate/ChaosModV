@@ -56,6 +56,12 @@ void ShowErrorMessage(std::string_view message)
 	MessageBox(NULL, wStr.c_str(), L"ChaosModV Error", MB_OK | MB_ICONERROR);
 }
 
+void ShowErrorSplash(std::string_view message)
+{
+	if (ComponentExists<SplashTexts>())
+			GetComponent<SplashTexts>()->ShowSplash(std::string(message), { .83f, .62f }, .6f, { 255, 100, 100 }, 3);
+}
+
 void DispatchSocket::HandleMessage(const std::string &message)
 {
 	json messageJson;
@@ -160,7 +166,7 @@ void DispatchSocket::OnEffectFailed(const EffectIdentifier &effectId, const std:
 
 DispatchSocket::DispatchSocket()
 {
-	m_ErrorShown       = false;
+	m_ErrorSplashShown       = false;
 
 	const auto enabled = g_OptionsManager.GetVotingValue({ "EnableChannelPoints" }, false);
 	const auto server  = g_OptionsManager.GetVotingValue({ "ChannelPointsServer" }, std::string("regynate.com"));
@@ -189,11 +195,11 @@ DispatchSocket::DispatchSocket()
 		    {
 			    // Maybe SSL is not configured properly
 			    LOG("Connection error: " << msg->errorInfo.reason);
-			    if (!m_ErrorShown)
+			    if (!m_ErrorSplashShown)
 			    {
-				    ShowErrorMessage(
-				        "Error when connecting to channel point redemption server! Check chaoslog.txt for details");
-				    m_ErrorShown = true;
+				    ShowErrorSplash(
+				        "Error when connecting to~n~channel point redemption server!~n~Check chaoslog.txt for details");
+				    m_ErrorSplashShown = true;
 			    }
 		    }
 	    });
@@ -227,5 +233,5 @@ void DispatchSocket::OnModPauseCleanup()
 		m_Socket.release();
 	}
 
-	m_ErrorShown = false;
+	m_ErrorSplashShown = false;
 }

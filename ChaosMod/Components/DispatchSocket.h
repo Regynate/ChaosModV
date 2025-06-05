@@ -20,7 +20,7 @@ class DispatchSocket : public Component
 
 	std::unique_ptr<ix::WebSocket> m_Socket;
 
-	bool m_ErrorShown;
+	bool m_ErrorSplashShown;
 
 	void SendToSocket(const std::string &type, const std::string &nonce, const nlohmann::json &data);
 	void HandleMessage(const std::string &message);
