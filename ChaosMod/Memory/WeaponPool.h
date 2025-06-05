@@ -106,8 +106,6 @@ namespace Memory
 
 			const auto componentCount = handle.At(2).Into().Value<DWORD>();
 
-			LOG(componentPtrArray << " " << componentCount);
-
 			for (size_t i = 0; i < componentCount; i++)
 				if (componentPtrArray[i])
 					components.push_back(componentPtrArray[i]);
