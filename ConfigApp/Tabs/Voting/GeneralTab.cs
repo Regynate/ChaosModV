@@ -146,39 +146,31 @@ namespace ConfigApp.Tabs.Voting
         {
             if (m_EnableVoting is not null)
             {
-                m_EnableVoting.IsChecked = OptionsManager.TwitchFile.ReadValueBool("EnableVoting", false, "EnableTwitchVoting");
+                m_EnableVoting.IsChecked = OptionsManager.VotingFile.ReadValue("EnableVoting", false, "EnableTwitchVoting");
                 SetGridsEnabled(m_EnableVoting.IsChecked.GetValueOrDefault());
             }
-            if (m_EnableSilentVoting is not null)
-                m_EnableSilentVoting.IsChecked = OptionsManager.TwitchFile.ReadValueBool("EnableSilentVoting", false);
-            if (m_OverlayMode is not null)
-                m_OverlayMode.SelectedIndex = OptionsManager.TwitchFile.ReadValueInt("VotingOverlayMode", 1, "TwitchVotingOverlayMode") - 1;
-            if (m_EnableRandomEffect is not null)
-                m_EnableRandomEffect.IsChecked = OptionsManager.TwitchFile.ReadValueBool("RandomEffectVoteableEnable", true, "TwitchRandomEffectVoteableEnable");
-            if (m_SecsBeforeVoting is not null)
-                m_SecsBeforeVoting.Text = OptionsManager.TwitchFile.ReadValue("VotingSecsBeforeVoting", "0", "TwitchVotingSecsBeforeVoting");
-            if (m_PermittedUserNames is not null)
-                m_PermittedUserNames.Text = OptionsManager.TwitchFile.ReadValue("PermittedUsernames", null, "TwitchPermittedUsernames");
-            if (m_VoteablePrefix is not null)
-                m_VoteablePrefix.Text = OptionsManager.TwitchFile.ReadValue("VoteablePrefix", "");
-            if (m_EnableProportionalVoting is not null)
-                m_EnableProportionalVoting.IsChecked = OptionsManager.TwitchFile.ReadValueBool("VotingChanceSystem", false, "TwitchVotingChanceSystem");
-            if (m_EnableProportionalVotingRetainInitialChance is not null)
-                m_EnableProportionalVotingRetainInitialChance.IsChecked = OptionsManager.TwitchFile.ReadValueBool("VotingChanceSystemRetainChance", true,
+            m_EnableSilentVoting?.IsChecked = OptionsManager.VotingFile.ReadValue<bool>("EnableSilentVoting", false);
+            m_OverlayMode?.SelectedIndex = OptionsManager.VotingFile.ReadValue("VotingOverlayMode", 1, "TwitchVotingOverlayMode") - 1;
+            m_EnableRandomEffect?.IsChecked = OptionsManager.VotingFile.ReadValue("RandomEffectVoteableEnable", true, "TwitchRandomEffectVoteableEnable");
+            m_SecsBeforeVoting?.Text = $"{OptionsManager.VotingFile.ReadValue("VotingSecsBeforeVoting", 0, "TwitchVotingSecsBeforeVoting")}";
+            m_PermittedUserNames?.Text = OptionsManager.VotingFile.ReadValue<string>("PermittedUsernames", null, "TwitchPermittedUsernames");
+            m_VoteablePrefix?.Text = OptionsManager.VotingFile.ReadValue("VoteablePrefix", "");
+            m_EnableProportionalVoting?.IsChecked = OptionsManager.VotingFile.ReadValue("VotingChanceSystem", false, "TwitchVotingChanceSystem");
+            m_EnableProportionalVotingRetainInitialChance?.IsChecked = OptionsManager.VotingFile.ReadValue("VotingChanceSystemRetainChance", true,
                     "TwitchVotingChanceSystemRetainChance");
         }
 
         public override void OnSaveValues()
         {
-            OptionsManager.TwitchFile.WriteValue("EnableVoting", m_EnableVoting?.IsChecked);
-            OptionsManager.TwitchFile.WriteValue("EnableSilentVoting", m_EnableSilentVoting?.IsChecked);
-            OptionsManager.TwitchFile.WriteValue("VotingOverlayMode", m_OverlayMode?.SelectedIndex + 1);
-            OptionsManager.TwitchFile.WriteValue("RandomEffectVoteableEnable", m_EnableRandomEffect?.IsChecked);
-            OptionsManager.TwitchFile.WriteValue("VotingSecsBeforeVoting", m_SecsBeforeVoting?.Text);
-            OptionsManager.TwitchFile.WriteValue("PermittedUsernames", m_PermittedUserNames?.Text);
-            OptionsManager.TwitchFile.WriteValue("VoteablePrefix", m_VoteablePrefix?.Text);
-            OptionsManager.TwitchFile.WriteValue("VotingChanceSystem", m_EnableProportionalVoting?.IsChecked);
-            OptionsManager.TwitchFile.WriteValue("VotingChanceSystemRetainChance", m_EnableProportionalVotingRetainInitialChance?.IsChecked);
+            OptionsManager.VotingFile.WriteValue("EnableVoting", m_EnableVoting?.IsChecked);
+            OptionsManager.VotingFile.WriteValue("EnableSilentVoting", m_EnableSilentVoting?.IsChecked);
+            OptionsManager.VotingFile.WriteValue("VotingOverlayMode", m_OverlayMode?.SelectedIndex + 1);
+            OptionsManager.VotingFile.WriteValue("RandomEffectVoteableEnable", m_EnableRandomEffect?.IsChecked);
+            OptionsManager.VotingFile.WriteValueAsInt("VotingSecsBeforeVoting", m_SecsBeforeVoting?.Text);
+            OptionsManager.VotingFile.WriteValue("PermittedUsernames", m_PermittedUserNames?.Text);
+            OptionsManager.VotingFile.WriteValue("VoteablePrefix", m_VoteablePrefix?.Text);
+            OptionsManager.VotingFile.WriteValue("VotingChanceSystem", m_EnableProportionalVoting?.IsChecked);
+            OptionsManager.VotingFile.WriteValue("VotingChanceSystemRetainChance", m_EnableProportionalVotingRetainInitialChance?.IsChecked);
         }
     }
 }

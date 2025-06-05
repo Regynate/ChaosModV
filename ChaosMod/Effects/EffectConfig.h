@@ -29,34 +29,34 @@ namespace EffectConfig
 		return -1;
 	}
 
-	inline bool GetConfigFromMetadata(OptionsFile &effectsFile, const std::string_view &effectId,
-	                                  RegisteredEffectMetadata &effectMetadata, EffectData &outData)
+	struct ConfigValues
 	{
-		struct ConfigValues
+		// Declared as named struct outside the union because MSVC doesn't like default initialization in
+		// unnamed structs inside unions
+		struct DetailedValues
 		{
-			// Declared as named struct outside the union because MSVC doesn't like default initialization in
-			// unnamed structs inside unions
-			struct DetailedValues
-			{
-				alignas(int) bool Enabled              = true;
-				alignas(int) EffectTimedType TimedType = EffectTimedType::NotTimed;
-				alignas(int) int CustomTime            = 0; // Used to be set to -1 by default so no uint
-				alignas(int) uint WeightMult           = 0;
-				alignas(int) bool Permanent            = false;
-				alignas(int) bool ExcludedFromVoting   = false;
-				alignas(int) char Placeholder;
-				alignas(int) uint ShortcutKeycode = 0;
-			};
-			union
-			{
-				std::array<int, 8> ValuesRaw;
-				DetailedValues Values {};
-			};
-		} configValues;
-		// HACK: Store EffectCustomName seperately
-		std::string valueEffectName;
+			alignas(int) bool Enabled              = true;
+			alignas(int) EffectTimedType TimedType = EffectTimedType::NotTimed;
+			alignas(int) int CustomTime            = 0; // Used to be set to -1 by default so no uint
+			alignas(int) uint WeightMult           = 0;
+			alignas(int) bool Permanent            = false;
+			alignas(int) bool ExcludedFromVoting   = false;
+			alignas(int) char Placeholder;
+			alignas(int) uint ShortcutKeycode = 0;
+		};
+		union
+		{
+			std::array<int, 8> ValuesRaw;
+			DetailedValues Values {};
+		};
 
-		auto value = effectsFile.ReadValueString({ std::string(effectId) });
+		std::string valueEffectName;
+	};
+
+	inline ConfigValues GetConfigValuesIni(OptionsFile &effectsFile, const std::string_view &effectId)
+	{
+		ConfigValues configValues;
+		auto value = effectsFile.ReadValue<std::string>({ std::string(effectId) });
 		if (!value.empty())
 		{
 			size_t splitIndex = GetNextDelimiterOffset(value);
@@ -71,7 +71,7 @@ namespace EffectConfig
 						split = split.substr(1, split.size() - 2);
 					// Names can't be "0" to support older configs
 					if (!split.empty() && split != "0")
-						valueEffectName = split;
+						configValues.valueEffectName = split;
 				}
 				else
 				{
@@ -92,9 +92,47 @@ namespace EffectConfig
 			LOG("WARNING: Config value for effect " << effectId << " not found!");
 		}
 
+		return configValues;
+	}
+
+	template <typename T>
+	inline T GetIfPresent(const nlohmann::json::object_t &object, const std::string &name, const T &defaultValue)
+	{
+		return object.contains(name) ? object.at(name).get<T>() : defaultValue;
+	}
+
+	inline ConfigValues GetConfigValuesJson(OptionsFile &effectsFile, const std::string_view &effectId)
+	{
+		ConfigValues configValues;
+		auto value = effectsFile.ReadValue<nlohmann::json::object_t>({ std::string(effectId) });
+		if (!value.empty())
+		{
+			configValues.Values.Enabled            = GetIfPresent(value, "enabled", true);
+			configValues.Values.CustomTime         = GetIfPresent(value, "customTime", -1);
+			configValues.Values.ExcludedFromVoting = GetIfPresent(value, "excludedFromVoting", false);
+			configValues.Values.Permanent          = GetIfPresent(value, "permanent", false);
+			configValues.Values.ShortcutKeycode    = GetIfPresent(value, "shortcutKeycode", 0);
+			configValues.Values.TimedType          = static_cast<EffectTimedType>(GetIfPresent(value, "timedType", -1));
+			configValues.Values.WeightMult         = GetIfPresent(value, "weightMult", 0);
+			configValues.valueEffectName           = GetIfPresent(value, "customName", std::string());
+		}
+		else
+		{
+			LOG("WARNING: Config value for effect " << effectId << " not found!");
+		}
+
+		return configValues;
+	}
+
+	inline bool GetConfigFromMetadata(OptionsFile &effectsFile, const std::string_view &effectId,
+	                                  RegisteredEffectMetadata &effectMetadata, EffectData &outData, bool isJson)
+	{
+		ConfigValues configValues =
+		    isJson ? GetConfigValuesJson(effectsFile, effectId) : GetConfigValuesIni(effectsFile, effectId);
+		// HACK: Store EffectCustomName seperately
+
 		if (!configValues.Values.Enabled)
 			return false;
-		;
 
 		EffectData effectData;
 		if (!effectMetadata.IsTimed)
@@ -132,8 +170,8 @@ namespace EffectConfig
 #else
 		effectData.ShortcutKeycode = configValues.Values.ShortcutKeycode;
 #endif
-		if (!valueEffectName.empty())
-			effectData.CustomName = valueEffectName;
+		if (!configValues.valueEffectName.empty())
+			effectData.CustomName = configValues.valueEffectName;
 		effectData.Id            = { std::string(effectMetadata.Id) };
 		effectData.Category      = effectMetadata.EffectCategory;
 		effectData.ConditionType = effectMetadata.ConditionType;
@@ -154,15 +192,20 @@ namespace EffectConfig
 		return true;
 	}
 
-	inline void ReadConfig(const char *configPath, auto &out, std::vector<const char *> compatConfigPaths = {})
+	inline void ReadConfig(const std::vector<std::string_view> &lookupPaths, auto &out)
 	{
-		OptionsFile effectsFile(configPath, compatConfigPaths);
+		DEBUG_LOG("Parsing effect config");
 
+		OptionsFile effectsFile(lookupPaths);
+
+		bool isJson = effectsFile.GetFoundFileName().ends_with(".json");
 		for (auto &[effectId, effectMetadata] : g_RegisteredEffectsMetadata)
 		{
 			EffectData effectData;
-			if (GetConfigFromMetadata(effectsFile, effectId, effectMetadata, effectData))
+			if (GetConfigFromMetadata(effectsFile, effectId, effectMetadata, effectData, isJson))
 				out.emplace(EffectIdentifier(std::string(effectId)), effectData);
 		}
+
+		DEBUG_LOG("Parsed effect config");
 	}
 }

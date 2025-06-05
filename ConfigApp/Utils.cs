@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Newtonsoft.Json.Linq;
 
 namespace ConfigApp
 {
@@ -43,6 +44,25 @@ namespace ConfigApp
 
             if (values.Length >= 8 && int.TryParse(values[7], out int shortcut))
                 effectData.ShortcutKeycode = shortcut;
+
+            return effectData;
+        }
+
+        public static EffectData ValueObjectToEffectData(JObject? value)
+        {
+            var effectData = new EffectData();
+
+            if (value is null)
+                return effectData;
+
+            effectData.Enabled = value["enabled"]?.ToObject<bool?>();
+            effectData.CustomTime = value["customTime"]?.ToObject<int?>();
+            effectData.ExcludedFromVoting = value["excludedFromVoting"]?.ToObject<bool?>();
+            bool permanent = value["permanent"]?.ToObject<bool?>() ?? false;
+            effectData.ShortcutKeycode = value["shortcutKeycode"]?.ToObject<int?>();
+            effectData.TimedType = permanent ? Effects.EffectTimedType.Permanent : (Effects.EffectTimedType?)value["timedType"]?.ToObject<int?>();
+            effectData.WeightMult = value["weightMult"]?.ToObject<int?>();
+            effectData.CustomName = value["customName"]?.ToObject<string?>();
 
             return effectData;
         }

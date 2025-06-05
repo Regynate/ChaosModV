@@ -53,7 +53,7 @@ class Tracking : public Component
 	std::vector<EntityTracker> m_EntityTrackers;
 	std::vector<PersistentTracker> m_PersistentTrackers;
 
-	OptionsFile m_ConfigFile { "chaosmod/configs/tracking.ini" };
+	OptionsFile m_ConfigFile { { "chaosmod/configs/tracking.json" } };
 
   public:
 	Tracking();

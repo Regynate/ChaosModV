@@ -13,14 +13,10 @@ namespace ConfigApp.Tabs.Voting
 
         private void SetElementsEnabled(bool state)
         {
-            if (m_ChannelName is not null)
-                m_ChannelName.IsEnabled = state;
-            if (m_EnableChannelPoints is not null)
-                m_EnableChannelPoints.IsEnabled = state;
-            if (m_ChannelPointsServer is not null)
-                m_ChannelPointsServer.IsEnabled = state;
-            if (m_ChannelPointsToken is not null)
-                m_ChannelPointsToken.IsEnabled = state;
+            m_ChannelName?.IsEnabled = state;
+            m_EnableChannelPoints?.IsEnabled = state;
+            m_ChannelPointsServer?.IsEnabled = state;
+            m_ChannelPointsToken?.IsEnabled = state;
         }
 
         protected override void InitContent()
@@ -83,26 +79,22 @@ namespace ConfigApp.Tabs.Voting
         {
             if (m_EnableTwitchVoting is not null)
             {
-                m_EnableTwitchVoting.IsChecked = OptionsManager.TwitchFile.ReadValueBool("EnableVotingTwitch", false);
+                m_EnableTwitchVoting.IsChecked = OptionsManager.VotingFile.ReadValue("EnableVotingTwitch", false);
                 SetElementsEnabled(m_EnableTwitchVoting.IsChecked.GetValueOrDefault());
             }
-            if (m_EnableChannelPoints is not null)
-                m_EnableChannelPoints.IsChecked = OptionsManager.TwitchFile.ReadValueBool("EnableChannelPoints", false);
-            if (m_ChannelName is not null)
-                m_ChannelName.Text = OptionsManager.TwitchFile.ReadValue("TwitchChannelName");
-            if (m_ChannelPointsServer is not null)
-                m_ChannelPointsServer.Text = OptionsManager.TwitchFile.ReadValue("ChannelPointsServer", "regynate.com");
-            if (m_ChannelPointsToken is not null)
-                m_ChannelPointsToken.Password = OptionsManager.TwitchFile.ReadValue("ChannelPointsToken");
+            m_EnableChannelPoints?.IsChecked = OptionsManager.VotingFile.ReadValue<bool>("EnableChannelPoints", false);
+            m_ChannelName?.Text = OptionsManager.VotingFile.ReadValue<string>("TwitchChannelName");
+            m_ChannelPointsServer?.Text = OptionsManager.VotingFile.ReadValue<string>("ChannelPointsServer", "regynate.com");
+            m_ChannelPointsToken?.Password = OptionsManager.VotingFile.ReadValue<string>("ChannelPointsToken");
         }
 
         public override void OnSaveValues()
         {
-            OptionsManager.TwitchFile.WriteValue("EnableVotingTwitch", m_EnableTwitchVoting?.IsChecked);
-            OptionsManager.TwitchFile.WriteValue("EnableChannelPoints", m_EnableChannelPoints?.IsChecked);
-            OptionsManager.TwitchFile.WriteValue("TwitchChannelName", m_ChannelName?.Text);
-            OptionsManager.TwitchFile.WriteValue("ChannelPointsServer", m_ChannelPointsServer?.Text);
-            OptionsManager.TwitchFile.WriteValue("ChannelPointsToken", m_ChannelPointsToken?.Password);
+            OptionsManager.VotingFile.WriteValue("EnableVotingTwitch", m_EnableTwitchVoting?.IsChecked);
+            OptionsManager.VotingFile.WriteValue("EnableChannelPoints", m_EnableChannelPoints?.IsChecked);
+            OptionsManager.VotingFile.WriteValue("TwitchChannelName", m_ChannelName?.Text);
+            OptionsManager.VotingFile.WriteValue("ChannelPointsServer", m_ChannelPointsServer?.Text);
+            OptionsManager.VotingFile.WriteValue("ChannelPointsToken", m_ChannelPointsToken?.Password);
         }
     }
 }
