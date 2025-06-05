@@ -13,10 +13,14 @@ namespace ConfigApp.Tabs.Voting
 
         private void SetElementsEnabled(bool state)
         {
-            m_ChannelName?.IsEnabled = state;
-            m_EnableChannelPoints?.IsEnabled = state;
-            m_ChannelPointsServer?.IsEnabled = state;
-            m_ChannelPointsToken?.IsEnabled = state;
+            if (m_ChannelName is not null)
+                m_ChannelName.IsEnabled = state;
+            if (m_EnableChannelPoints is not null)
+                m_EnableChannelPoints.IsEnabled = state;
+            if (m_ChannelPointsServer is not null)
+                m_ChannelPointsServer.IsEnabled = state;
+            if (m_ChannelPointsToken is not null)
+                m_ChannelPointsToken.IsEnabled = state;
         }
 
         protected override void InitContent()
@@ -82,10 +86,14 @@ namespace ConfigApp.Tabs.Voting
                 m_EnableTwitchVoting.IsChecked = OptionsManager.VotingFile.ReadValue("EnableVotingTwitch", false);
                 SetElementsEnabled(m_EnableTwitchVoting.IsChecked.GetValueOrDefault());
             }
-            m_EnableChannelPoints?.IsChecked = OptionsManager.VotingFile.ReadValue<bool>("EnableChannelPoints", false);
-            m_ChannelName?.Text = OptionsManager.VotingFile.ReadValue<string>("TwitchChannelName");
-            m_ChannelPointsServer?.Text = OptionsManager.VotingFile.ReadValue<string>("ChannelPointsServer", "regynate.com");
-            m_ChannelPointsToken?.Password = OptionsManager.VotingFile.ReadValue<string>("ChannelPointsToken");
+            if (m_EnableChannelPoints is not null)
+                m_EnableChannelPoints.IsChecked = OptionsManager.VotingFile.ReadValue("EnableChannelPoints", false);
+            if (m_ChannelName is not null)
+                m_ChannelName.Text = OptionsManager.VotingFile.ReadValue<string>("TwitchChannelName");
+            if (m_ChannelPointsServer is not null)
+                m_ChannelPointsServer.Text = OptionsManager.VotingFile.ReadValue<string>("ChannelPointsServer", "regynate.com");
+            if (m_ChannelPointsToken is not null)
+                m_ChannelPointsToken.Password = OptionsManager.VotingFile.ReadValue<string>("ChannelPointsToken");
         }
 
         public override void OnSaveValues()
