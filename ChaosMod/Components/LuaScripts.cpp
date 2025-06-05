@@ -1093,6 +1093,17 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 	{
 	}
 
+	const sol::optional<bool> &excludeFromCheatVotingOpt = effectInfo["ExcludeFromCheatVoting"];
+	if (excludeFromCheatVotingOpt)
+		effectData.SetAttribute(EffectAttributes::ExcludedFromCheatVoting, *excludeFromCheatVotingOpt);
+	try
+	{
+		effectData.SetAttribute(EffectAttributes::ExcludedFromCheatVoting, settingOverrides["ExcludedFromCheatVoting"]);
+	}
+	catch (nlohmann::json::exception const&)
+	{
+	}
+
 	const sol::optional<bool> &isUtilityOpt = effectInfo["IsUtility"];
 	if (isUtilityOpt)
 		effectData.SetAttribute(EffectAttributes::IsUtility, *isUtilityOpt);

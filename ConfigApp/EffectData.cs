@@ -44,6 +44,7 @@ namespace ConfigApp
         public int? WeightMult;
         [JsonConverter(typeof(Converter<bool>))]
         public bool? ExcludedFromVoting;
+        public bool? ExcludedFromCheatVoting;
         public string? CustomName;
         public int? ShortcutKeycode;
     }

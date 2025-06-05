@@ -238,6 +238,8 @@ namespace ConfigApp
                     json["customTime"] = effectData.CustomTime;
                 if (effectData.ExcludedFromVoting is not null)
                     json["excludedFromVoting"] = effectData.ExcludedFromVoting;
+                if (effectData.ExcludedFromCheatVoting is not null)
+                    json["excludedFromCheatVoting"] = effectData.ExcludedFromCheatVoting;
                 if (effectData.TimedType is not null)
                     json["permanent"] = effectData.TimedType == EffectTimedType.Permanent;
                 if (effectData.ShortcutKeycode is not null)

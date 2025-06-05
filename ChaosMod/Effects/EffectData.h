@@ -47,6 +47,12 @@ class EffectData
 		    || IsTemporary();
 	}
 
+	inline bool IsExcludedFromCheatVoting() const
+	{
+		return static_cast<bool>(Attributes & EffectAttributes::ExcludedFromCheatVoting) || IsMeta() || IsUtility()
+		    || IsTemporary();
+	}
+
 	inline bool IsHidden() const
 	{
 		return IsTemporary() || TimedType == EffectTimedType::Permanent;

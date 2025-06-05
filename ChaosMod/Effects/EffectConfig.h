@@ -50,7 +50,10 @@ namespace EffectConfig
 			DetailedValues Values {};
 		};
 
-		std::string valueEffectName;
+		std::string EffectName = {};
+
+		// json-only values; don't need to put them in the clusterfuck that's going on above
+		bool ExcludedFromCheatVoting = false;
 	};
 
 	inline ConfigValues GetConfigValuesIni(OptionsFile &effectsFile, const std::string_view &effectId)
@@ -71,7 +74,7 @@ namespace EffectConfig
 						split = split.substr(1, split.size() - 2);
 					// Names can't be "0" to support older configs
 					if (!split.empty() && split != "0")
-						configValues.valueEffectName = split;
+						configValues.EffectName = split;
 				}
 				else
 				{
@@ -104,8 +107,9 @@ namespace EffectConfig
 	inline ConfigValues GetConfigValuesJson(OptionsFile &effectsFile, const std::string_view &effectId)
 	{
 		ConfigValues configValues;
-		auto value = effectsFile.ReadValue<nlohmann::json::object_t>({ std::string(effectId) });
-		if (!value.empty())
+		bool success;
+		auto value = effectsFile.ReadValue<nlohmann::json::object_t>(std::string(effectId), {}, success);
+		if (success)
 		{
 			configValues.Values.Enabled            = GetIfPresent(value, "enabled", true);
 			configValues.Values.CustomTime         = GetIfPresent(value, "customTime", -1);
@@ -114,7 +118,8 @@ namespace EffectConfig
 			configValues.Values.ShortcutKeycode    = GetIfPresent(value, "shortcutKeycode", 0);
 			configValues.Values.TimedType          = static_cast<EffectTimedType>(GetIfPresent(value, "timedType", -1));
 			configValues.Values.WeightMult         = GetIfPresent(value, "weightMult", 0);
-			configValues.valueEffectName           = GetIfPresent(value, "customName", std::string());
+			configValues.EffectName                = GetIfPresent(value, "customName", std::string());
+			configValues.ExcludedFromCheatVoting   = GetIfPresent(value, "excludedFromCheatVoting", false);
 		}
 		else
 		{
@@ -160,6 +165,7 @@ namespace EffectConfig
 			effectData.WeightMult = static_cast<float>(configValues.Values.WeightMult);
 		effectData.Weight = effectData.WeightMult; // Set initial effect weight to WeightMult
 		effectData.SetAttribute(EffectAttributes::ExcludedFromVoting, configValues.Values.ExcludedFromVoting);
+		effectData.SetAttribute(EffectAttributes::ExcludedFromCheatVoting, configValues.ExcludedFromCheatVoting);
 		effectData.SetAttribute(EffectAttributes::IsMeta, effectMetadata.ExecutionType == EffectExecutionType::Meta);
 		effectData.Name = effectMetadata.Name;
 		effectData.SetAttribute(EffectAttributes::HideRealNameOnStart, effectMetadata.HideRealNameOnStart);
@@ -170,8 +176,8 @@ namespace EffectConfig
 #else
 		effectData.ShortcutKeycode = configValues.Values.ShortcutKeycode;
 #endif
-		if (!configValues.valueEffectName.empty())
-			effectData.CustomName = configValues.valueEffectName;
+		if (!configValues.EffectName.empty())
+			effectData.CustomName = configValues.EffectName;
 		effectData.Id            = { std::string(effectMetadata.Id) };
 		effectData.Category      = effectMetadata.EffectCategory;
 		effectData.ConditionType = effectMetadata.ConditionType;

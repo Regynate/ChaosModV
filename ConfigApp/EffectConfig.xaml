@@ -56,12 +56,16 @@
                HorizontalAlignment="Right" VerticalAlignment="Center" />
         <ComboBox x:Name="effectconf_exclude_voting_state" Height="25" Width="100" Grid.Row="4" Grid.Column="2"
                   HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <Label x:Name="effectconf_exclude_cheat_voting_enable_title" Content="Exclude from Cheat Code Voting &amp; Channel Points" Grid.Row="5" Grid.Column="0"
+       HorizontalAlignment="Right" VerticalAlignment="Center" />
+        <ComboBox x:Name="effectconf_exclude_cheat_voting_state" Height="25" Width="100" Grid.Row="5" Grid.Column="2"
+          HorizontalAlignment="Left" VerticalAlignment="Center" />
         <Label x:Name="effectconf_effect_shortcut_key_title" Content="Shortcut (ESC to reset)"
-                  Grid.Row="5" Grid.Column="0" Margin="0,5.667,0,10.333" HorizontalAlignment="Right" Width="360" HorizontalContentAlignment="Right" />
-        <CheckBox x:Name="effectconf_effect_shortcut_enable" Grid.Row="5" Grid.Column="2"
+                  Grid.Row="6" Grid.Column="0" Margin="0,5.667,0,10.333" HorizontalAlignment="Right" Width="360" HorizontalContentAlignment="Right" />
+        <CheckBox x:Name="effectconf_effect_shortcut_enable" Grid.Row="6" Grid.Column="2"
                   HorizontalAlignment="Left" VerticalAlignment="Center" VerticalContentAlignment="Center"
                   Click="OnClicked" />
-        <TextBox x:Name="effectconf_effect_shortcut_input" Grid.Row="5" Grid.Column="2" Margin="40,10,0,10" AllowDrop="False" Height="20" 
+        <TextBox x:Name="effectconf_effect_shortcut_input" Grid.Row="6" Grid.Column="2" Margin="40,10,0,10" AllowDrop="False" Height="20" 
                  IsUndoEnabled="False" IsReadOnly="True" PreviewKeyDown="EffectShortcutTextFieldPreviewKeyDown" HorizontalContentAlignment="Center" 
                  HorizontalAlignment="Left" Text="None" SelectionBrush="{x:Null}" MinWidth="120" IsEnabled="False" />
         <TextBlock x:Name="effectconf_mp3_label" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="3" FontSize="10"

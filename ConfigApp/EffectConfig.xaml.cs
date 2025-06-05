@@ -42,7 +42,7 @@ namespace ConfigApp
             if (m_IsTimedEffect)
             {
                 effectconf_timer_type_enable.IsChecked = m_EffectData.TimedType.HasValue &&
-                                                         m_EffectData.TimedType != defaultTimedType && 
+                                                         m_EffectData.TimedType != defaultTimedType &&
                                                          m_EffectData.TimedType != EffectTimedType.Custom;
                 effectconf_timer_type.ItemsSource = new string[]
                 {
@@ -77,6 +77,13 @@ namespace ConfigApp
             effectconf_exclude_voting_state.SelectedIndex = m_EffectData.ExcludedFromVoting.HasValue
                 ? (m_EffectData.ExcludedFromVoting.Value ? 2 : 1) : 0;
 
+            effectconf_exclude_cheat_voting_state.ItemsSource = new List<string>()
+            {
+                "Default", "Disabled", "Enabled"
+            };
+            effectconf_exclude_cheat_voting_state.SelectedIndex = m_EffectData.ExcludedFromCheatVoting.HasValue
+                ? (m_EffectData.ExcludedFromCheatVoting.Value ? 2 : 1) : 0;
+
             effectconf_effect_custom_name.Text = m_EffectData.CustomName;
             effectconf_effect_custom_name.TextChanged += OnCustomEffectNameTextFieldTextChanged;
 
@@ -93,6 +100,9 @@ namespace ConfigApp
                 effectconf_exclude_voting_enable_title.Visibility = Visibility.Hidden;
                 effectconf_exclude_voting_state.Visibility = Visibility.Hidden;
                 effectconf_exclude_voting_state.SelectedIndex = 0;
+                effectconf_exclude_cheat_voting_enable_title.Visibility = Visibility.Hidden;
+                effectconf_exclude_cheat_voting_state.Visibility = Visibility.Hidden;
+                effectconf_exclude_cheat_voting_state.SelectedIndex = 0;
             }
 
             /* Shortcut */
@@ -273,7 +283,13 @@ namespace ConfigApp
             m_EffectData.ExcludedFromVoting = (object)effectconf_exclude_voting_state.SelectedIndex switch
             {
                 1 => false,
-                2 => (bool?)true,
+                2 => true,
+                _ => null,
+            };
+            m_EffectData.ExcludedFromCheatVoting = (object)effectconf_exclude_cheat_voting_state.SelectedIndex switch
+            {
+                1 => false,
+                2 => true,
                 _ => null,
             };
             m_EffectData.CustomName = effectconf_effect_custom_name.Text.Trim().Length > 0 ? effectconf_effect_custom_name.Text.Trim() : null;

@@ -13,6 +13,7 @@ class DispatchSocket : public Component
 		std::string Id;
 		std::string Name;
 		int Index;
+		bool Enabled;
 	};
 
 	std::vector<EffectEntry> m_Effects;

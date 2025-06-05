@@ -63,6 +63,7 @@ namespace ConfigApp
             effectData.TimedType = permanent ? Effects.EffectTimedType.Permanent : (Effects.EffectTimedType?)value["timedType"]?.ToObject<int?>();
             effectData.WeightMult = value["weightMult"]?.ToObject<int?>();
             effectData.CustomName = value["customName"]?.ToObject<string?>();
+            effectData.ExcludedFromCheatVoting = value["excludedFromCheatVoting"]?.ToObject<bool?>();
 
             return effectData;
         }

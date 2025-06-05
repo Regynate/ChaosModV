@@ -2,12 +2,13 @@
 
 enum class EffectAttributes
 {
-	ExcludedFromVoting  = (1 << 0),
-	IsMeta              = (1 << 1),
-	IsUtility           = (1 << 2),
-	IsTemporary         = (1 << 3),
-	HideRealNameOnStart = (1 << 4),
-	AlwaysShowName      = (1 << 5)
+	ExcludedFromVoting      = (1 << 0),
+	IsMeta                  = (1 << 1),
+	IsUtility               = (1 << 2),
+	IsTemporary             = (1 << 3),
+	HideRealNameOnStart     = (1 << 4),
+	AlwaysShowName          = (1 << 5),
+	ExcludedFromCheatVoting = (1 << 6)
 };
 
 inline EffectAttributes operator|(EffectAttributes lhs, EffectAttributes rhs)

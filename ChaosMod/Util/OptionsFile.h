@@ -117,8 +117,11 @@ class OptionsFile
 			}
 	}
 
-	template <typename T> inline T ReadValue(const std::vector<std::string> &lookupKeys, T defaultValue = {}) const
+	template <typename T>
+	inline T ReadValue(const std::vector<std::string> &lookupKeys, T defaultValue, bool &outSuccess) const
 	{
+		outSuccess = false;
+
 		for (const auto &key : lookupKeys)
 		{
 			const auto &result = m_Options.find(key);
@@ -134,6 +137,7 @@ class OptionsFile
 						if (!value.is_string())
 							return defaultValue;
 
+						outSuccess = true;
 						return value;
 					}
 					else if constexpr (std::is_same<T, Color>())
@@ -142,22 +146,23 @@ class OptionsFile
 						if (!Util::TryParse<T>(value.get<std::string>().c_str(), parsedResult))
 							return defaultValue;
 
+						outSuccess = true;
 						return parsedResult;
 					}
 					else if constexpr (!std::is_base_of<nlohmann::json::object_t, T>())
 					{
 						if (m_IsJson)
-						{
 							return value.get<T>();
-						}
 						T parsedResult;
 						if (!Util::TryParse<T>(value.get<std::string>().c_str(), parsedResult))
 							return defaultValue;
 
+						outSuccess = true;
 						return parsedResult;
 					}
 					else
 					{
+						outSuccess = true;
 						return value.get<T>();
 					}
 				}
@@ -174,9 +179,21 @@ class OptionsFile
 		return defaultValue;
 	}
 
-	template <typename T> inline T ReadValue(const std::string &key, T defaultValue = {})
+	template <typename T>
+	inline T ReadValue(const std::vector<std::string> &lookupKeys, T defaultValue = {}) const
+	{
+		bool s;
+		return ReadValue(lookupKeys, defaultValue, s);
+	}
+
+	template <typename T> inline T ReadValue(const std::string &key, T defaultValue = {}) const
 	{
 		return ReadValue(std::vector<std::string> { key }, defaultValue);
+	}
+
+	template <typename T> inline T ReadValue(const std::string &key, T defaultValue, bool &outSuccess) const
+	{
+		return ReadValue(std::vector<std::string> { key }, defaultValue, outSuccess);
 	}
 
 	template <typename T> inline void SetValue(const std::string &key, T value)

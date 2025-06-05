@@ -90,8 +90,9 @@ void DispatchSocket::HandleMessage(const std::string &message)
 
 			for (const auto &entry : m_Effects)
 			{
-				if (query == std::to_string(entry.Index) || !StringCompare(query, entry.Id)
-				    || !StringCompare(query, entry.Name))
+				if (entry.Enabled
+				    && (query == std::to_string(entry.Index) || !StringCompare(query, entry.Id)
+				        || !StringCompare(query, entry.Name)))
 				{
 					effectId = entry.Id;
 					break;
@@ -124,9 +125,10 @@ void DispatchSocket::HandleMessage(const std::string &message)
 		for (const auto &entry : m_Effects)
 		{
 			json effect;
-			effect["index"] = entry.Index;
-			effect["id"]    = entry.Id;
-			effect["name"]  = entry.Name;
+			effect["index"]   = entry.Index;
+			effect["id"]      = entry.Id;
+			effect["name"]    = entry.Name;
+			effect["enabled"] = entry.Enabled;
 			effectsArray.push_back(effect);
 		}
 
@@ -207,7 +209,8 @@ DispatchSocket::DispatchSocket()
 	                                      { OnEffectFailed(effectId, context); });
 
 	for (const auto &effect : GetFilteredEnabledEffects())
-		m_Effects.emplace_back(effect->Id, effect->HasCustomName() ? effect->CustomName : effect->Name, 0);
+		m_Effects.emplace_back(effect->Id, effect->HasCustomName() ? effect->CustomName : effect->Name, 0,
+		                       !effect->IsExcludedFromCheatVoting());
 
 	std::sort(m_Effects.begin(), m_Effects.end(),
 	          [](const EffectEntry &a, const EffectEntry &b) { return StringCompare(a.Name, b.Name) > 0; });
@@ -218,7 +221,8 @@ DispatchSocket::DispatchSocket()
 
 void DispatchSocket::OnModPauseCleanup()
 {
-	if (m_Socket) {
+	if (m_Socket)
+	{
 		m_Socket->stop();
 		m_Socket.release();
 	}
