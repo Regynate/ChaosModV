@@ -6,23 +6,12 @@
 #include "Components/SplashTexts.h"
 #include "Effects/EnabledEffects.h"
 #include "Util/OptionsManager.h"
+#include "Util/Text.h"
 
 using namespace nlohmann;
 
 static CHAOS_EVENT_LISTENER(EffectDispatcher::OnPostDispatchEffect) onEffectDispatchListener;
 static CHAOS_EVENT_LISTENER(EffectDispatcher::OnDispatchEffectFailed) onEffectDispatchFailListener;
-
-static std::string trim(std::string s)
-{
-	auto not_space = [](unsigned char c)
-	{
-		return !std::isspace(c);
-	};
-	s.erase(std::ranges::find_if(s | std::views::reverse, not_space).base(), s.end());
-	s.erase(s.begin(), std::ranges::find_if(s, not_space));
-
-	return s;
-}
 
 void DispatchSocket::SendToSocket(const std::string &type, const std::string &nonce, const json &data)
 {
@@ -32,22 +21,6 @@ void DispatchSocket::SendToSocket(const std::string &type, const std::string &no
 	message["data"]  = data;
 
 	m_Socket->send(message.dump());
-}
-
-static int StringCompare(std::string_view a, std::string_view b)
-{
-	for (size_t i = 0;; i++)
-	{
-		if (i == a.size())
-			return i - b.size();
-		else if (i == b.size())
-			return a.size() - i;
-
-		auto ai = std::toupper(a[i]);
-		auto bi = std::toupper(b[i]);
-		if (ai != bi)
-			return bi - ai;
-	}
 }
 
 void ShowErrorMessage(std::string_view message)
@@ -90,15 +63,15 @@ void DispatchSocket::HandleMessage(const std::string &message)
 			const auto &effect = data["effect"];
 			const auto &sender = data.contains("sender") ? data["sender"] : json();
 
-			const auto query   = trim(effect.get<std::string>());
+			const auto query   = StringTrim(effect.get<std::string>());
 
 			std::string effectId;
 
 			for (const auto &entry : m_Effects)
 			{
 				if (entry.Enabled
-				    && (query == std::to_string(entry.Index) || !StringCompare(query, entry.Id)
-				        || !StringCompare(query, entry.Name)))
+				    && (query == std::to_string(entry.Index) || !CompareCaseInsensitive(query, entry.Id)
+				        || !CompareCaseInsensitive(query, entry.Name)))
 				{
 					effectId = entry.Id;
 					break;
@@ -219,7 +192,7 @@ DispatchSocket::DispatchSocket()
 		                       !effect->IsExcludedFromCheatVoting());
 
 	std::sort(m_Effects.begin(), m_Effects.end(),
-	          [](const EffectEntry &a, const EffectEntry &b) { return StringCompare(a.Name, b.Name) > 0; });
+	          [](const EffectEntry &a, const EffectEntry &b) { return CompareCaseInsensitive(a.Name, b.Name) > 0; });
 
 	for (size_t i = 0; i < m_Effects.size(); i++)
 		m_Effects[i].Index = i + 1;

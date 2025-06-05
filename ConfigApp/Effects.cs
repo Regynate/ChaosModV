@@ -499,6 +499,8 @@
             { "misc_pole_drivefast", new EffectInfo("Spawn A Pole Next Time You Drive Fast", EffectCategory.Misc) },
             { "misc_pole_fly", new EffectInfo("Spawn A Pole Next Time You Fly A Plane", EffectCategory.Misc) },
             { "player_jumping_explosions", new EffectInfo("Jumping Explosions", EffectCategory.Player, true) },
+            { "meta_enable_voting", new EffectInfo("Enable Voting", EffectCategory.Meta, true) },
+            { "meta_cheat_code_voting", new EffectInfo("Cheat Code Voting", EffectCategory.Meta, true) },
         };
     }
 }
