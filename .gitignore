@@ -340,3 +340,5 @@ ChaosMod/build/
 ChaosMod/out/
 build/
 ChaosMod/CMakePresets.json
+Installer/src/
+Installer/dst/
