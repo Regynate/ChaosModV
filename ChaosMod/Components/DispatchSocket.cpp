@@ -32,7 +32,7 @@ void ShowErrorMessage(std::string_view message)
 void ShowErrorSplash(std::string_view message)
 {
 	if (ComponentExists<SplashTexts>())
-			GetComponent<SplashTexts>()->ShowSplash(std::string(message), { .83f, .62f }, .6f, { 255, 100, 100 }, 3);
+		GetComponent<SplashTexts>()->ShowSplash(std::string(message), { .83f, .62f }, .6f, { 255, 100, 100 }, 3);
 }
 
 void DispatchSocket::HandleMessage(const std::string &message)
@@ -139,7 +139,7 @@ void DispatchSocket::OnEffectFailed(const EffectIdentifier &effectId, const std:
 
 DispatchSocket::DispatchSocket()
 {
-	m_ErrorSplashShown       = false;
+	m_ErrorSplashShown = false;
 
 	const auto enabled = g_OptionsManager.GetVotingValue({ "EnableChannelPoints" }, false);
 	const auto server  = g_OptionsManager.GetVotingValue({ "ChannelPointsServer" }, std::string("regynate.com"));
