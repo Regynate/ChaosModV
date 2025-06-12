@@ -10,6 +10,9 @@ jobs:
 
       - name: Get submodules
         run: git submodule update --init --recursive
+
+      - name: Restore Timestamps
+        uses: chetan/git-restore-mtime-action@v1
       
       - name: Enable Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1.13.0
@@ -23,13 +26,15 @@ jobs:
           path: ChaosMod/build
           key: build
 
+      - run: dir ChaosMod/build
+
       - name: Compile ASI & Dependencies
         run: |
           cd ChaosMod
           New-Item -ItemType Directory -Force -Path build
           cd build
           cmake -GNinja -DCMAKE_BUILD_TYPE="Release" -DWITH_DEBUG_PANEL_SUPPORT=1 ../
-          ninja
+          ninja -d explain
       
       - uses: actions/upload-artifact@v4
         with:
