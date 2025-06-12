@@ -14,6 +14,15 @@ jobs:
       - name: Enable Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1.13.0
 
+      - name: Cache build files
+        id: cache-npm
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-build-dir
+        with:
+          path: ChaosMod/build
+          key: build
+
       - name: Compile ASI & Dependencies
         run: |
           cd ChaosMod
