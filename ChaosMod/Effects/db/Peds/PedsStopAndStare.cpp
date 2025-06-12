@@ -21,7 +21,7 @@ static void OnStart()
 		if (ped != playerPed)
 		{
 			TASK_TURN_PED_TO_FACE_ENTITY(ped, playerPed, -1);
-			TASK_LOOK_AT_ENTITY(ped, playerPed, -1, 2048, 3);
+			//TASK_LOOK_AT_ENTITY(ped, playerPed, -1, 2048, 3);
 		}
 	}
 }
