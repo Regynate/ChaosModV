@@ -26,7 +26,7 @@ jobs:
       - name: Compile ASI & Dependencies
         run: |
           cd ChaosMod
-          mkdir build
+          New-Item -ItemType Directory -Force -Path build
           cd build
           cmake -GNinja -DCMAKE_BUILD_TYPE="Release" -DWITH_DEBUG_PANEL_SUPPORT=1 ../
           ninja
