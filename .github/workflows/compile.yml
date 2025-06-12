@@ -7,6 +7,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Get submodules
         run: git submodule update --init --recursive
@@ -18,15 +20,13 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1.13.0
 
       - name: Cache build files
-        id: cache-npm
-        uses: actions/cache@v4
+        id: cache-build-restore
+        uses: actions/cache/restore@v4
         env:
           cache-name: cache-build-dir
         with:
           path: ChaosMod/build
           key: build
-
-      - run: dir ChaosMod/build
 
       - name: Compile ASI & Dependencies
         run: |
@@ -35,6 +35,12 @@ jobs:
           cd build
           cmake -GNinja -DCMAKE_BUILD_TYPE="Release" -DWITH_DEBUG_PANEL_SUPPORT=1 ../
           ninja -d explain
+
+      - name: Save build cache
+        uses: actions/cache/save@v4
+        with:
+          path: ChaosMod/build
+          key: ${{ steps.cache-build-restore.outputs.cache-primary-key }}
       
       - uses: actions/upload-artifact@v4
         with:
