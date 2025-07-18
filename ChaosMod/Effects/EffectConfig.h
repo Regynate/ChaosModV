@@ -15,7 +15,7 @@ class EffectData;
 
 namespace EffectConfig
 {
-	inline size_t GetNextDelimiterOffset(const std::string &input)
+	inline size_t GetNextDelimiterOffset(std::string_view input)
 	{
 		bool isInQuotes = false;
 		if (input.length() > 0)
@@ -50,13 +50,13 @@ namespace EffectConfig
 			DetailedValues Values {};
 		};
 
-		std::string EffectName = {};
+		std::string EffectName       = {};
 
 		// json-only values; don't need to put them in the clusterfuck that's going on above
 		bool ExcludedFromCheatVoting = false;
 	};
 
-	inline ConfigValues GetConfigValuesIni(OptionsFile &effectsFile, const std::string_view &effectId)
+	inline ConfigValues GetConfigValuesIni(OptionsFile &effectsFile, std::string_view effectId)
 	{
 		ConfigValues configValues;
 		auto value = effectsFile.ReadValue<std::string>({ std::string(effectId) });
@@ -104,7 +104,7 @@ namespace EffectConfig
 		return object.contains(name) ? object.at(name).get<T>() : defaultValue;
 	}
 
-	inline ConfigValues GetConfigValuesJson(OptionsFile &effectsFile, const std::string_view &effectId)
+	inline ConfigValues GetConfigValuesJson(OptionsFile &effectsFile, std::string_view effectId)
 	{
 		ConfigValues configValues;
 		bool success;
@@ -129,7 +129,7 @@ namespace EffectConfig
 		return configValues;
 	}
 
-	inline bool GetConfigFromMetadata(OptionsFile &effectsFile, const std::string_view &effectId,
+	inline bool GetConfigFromMetadata(OptionsFile &effectsFile, std::string_view effectId,
 	                                  RegisteredEffectMetadata &effectMetadata, EffectData &outData, bool isJson)
 	{
 		ConfigValues configValues =
