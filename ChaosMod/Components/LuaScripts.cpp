@@ -23,6 +23,7 @@
 #include "Memory/Hooks/MinimapHook.h"
 #include "Memory/Hooks/PreRenderHook.h"
 #include "Memory/Hooks/ShaderHook.h"
+#include "Memory/Hooks/ShaderHookEnhanced.h"
 #include "Memory/PedModels.h"
 #include "Memory/Rain.h"
 #include "Memory/Snow.h"
@@ -828,6 +829,8 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 			      GetComponent<Voting>()->Disable();
 		  }),
 		E("IsVotingEnabled", []() { return ComponentExists<Voting>() && GetComponent<Voting>()->IsEnabled(); }),
+		E("AddPixelShader", Hooks::AddPixelShader),
+		E("RemovePixelShader", Hooks::RemovePixelShader),
 	};
 #undef E
 
@@ -1051,7 +1054,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 	{
 		effectData.TimedType = static_cast<EffectTimedType>(settingOverrides["TimedType"]);
 	}
-	catch (nlohmann::json::exception const&)
+	catch (nlohmann::json::exception const &)
 	{
 	}
 	try
@@ -1060,7 +1063,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		if (effectData.CustomTime > 0)
 			effectData.TimedType = EffectTimedType::Custom;
 	}
-	catch (nlohmann::json::exception const&)
+	catch (nlohmann::json::exception const &)
 	{
 	}
 
@@ -1074,7 +1077,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 	{
 		effectData.WeightMult = settingOverrides["WeightMult"];
 	}
-	catch (nlohmann::json::exception const&)
+	catch (nlohmann::json::exception const &)
 	{
 	}
 
@@ -1089,7 +1092,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 	{
 		effectData.SetAttribute(EffectAttributes::ExcludedFromVoting, settingOverrides["ExcludedFromVoting"]);
 	}
-	catch (nlohmann::json::exception const&)
+	catch (nlohmann::json::exception const &)
 	{
 	}
 
@@ -1100,7 +1103,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 	{
 		effectData.SetAttribute(EffectAttributes::ExcludedFromCheatVoting, settingOverrides["ExcludedFromCheatVoting"]);
 	}
-	catch (nlohmann::json::exception const&)
+	catch (nlohmann::json::exception const &)
 	{
 	}
 
@@ -1165,7 +1168,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 	{
 		effectData.ShortcutKeycode = settingOverrides["ShortcutKeycode"];
 	}
-	catch (nlohmann::json::exception const&)
+	catch (nlohmann::json::exception const &)
 	{
 	}
 
@@ -1175,7 +1178,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		if (!name.empty())
 			effectData.CustomName = name;
 	}
-	catch (nlohmann::json::exception const&)
+	catch (nlohmann::json::exception const &)
 	{
 	}
 

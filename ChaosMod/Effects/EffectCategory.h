@@ -7,6 +7,7 @@ enum class EffectCategory
 {
 	None,
 	Shader,
+	EnhancedShader,
 	Timecycle,
 	Gravity,
 	Pitch,
@@ -18,6 +19,7 @@ enum class EffectCategory
 inline const std::unordered_map<std::string_view, EffectCategory> g_NameToEffectCategory {
 	{ "None", EffectCategory::None },
 	{ "Shader", EffectCategory::Shader },
+	{ "EnhancedShader", EffectCategory::EnhancedShader },
 	{ "Screen", EffectCategory::Timecycle },
 	{ "Gravity", EffectCategory::Gravity },
 	{ "Pitch", EffectCategory::Pitch },

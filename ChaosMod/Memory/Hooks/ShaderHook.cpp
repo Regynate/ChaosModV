@@ -41,6 +41,9 @@ void *HK_rage__CreateShader(const char *name, BYTE *data, DWORD size, DWORD type
 
 static bool OnHook()
 {
+	if (!IsLegacy())
+		return false;
+
 	static CHAOS_EVENT_LISTENER(Hooks::OnPresent) onPresentListener;
 
 	onPresentListener.Register(Hooks::OnPresent,
