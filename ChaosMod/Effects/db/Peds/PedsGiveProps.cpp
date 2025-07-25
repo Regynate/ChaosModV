@@ -31,6 +31,7 @@ static void OnStart()
 		Object obj = CreatePoolPropAttachedToPed(selectedModel, ped, GET_PED_BONE_INDEX(ped, 0xDEAD), 0, 0, 0, 0, 0, 0,
 		                                         false, false, true);
 		SET_ENTITY_COMPLETELY_DISABLE_COLLISION(obj, false, true);
+		SET_ENTITY_AS_NO_LONGER_NEEDED(&obj);
 		count++;
 	}
 }
