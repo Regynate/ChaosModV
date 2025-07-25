@@ -354,6 +354,4 @@ void DX12PipelineInjector::InjectShaders(ID3D12GraphicsCommandList *commandList,
 	commandList->DrawInstanced(6, 1, 0, 0);
 
 	AddBarrier(commandList, backBufferResource, D3D12_RESOURCE_STATE_RENDER_TARGET, backBufferState);
-
-	LOG("InjectShaders exit");
 }
