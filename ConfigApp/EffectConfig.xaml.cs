@@ -286,6 +286,12 @@ namespace ConfigApp
                 2 => true,
                 _ => null,
             };
+            m_EffectData.ExcludedFromCheatVoting = (object)effectconf_exclude_cheat_voting_state.SelectedIndex switch
+            {
+                1 => false,
+                2 => true,
+                _ => null,
+            };
             m_EffectData.CustomName = effectconf_effect_custom_name.Text.Trim().Length > 0 ? effectconf_effect_custom_name.Text.Trim() : null;
             m_EffectData.ShortcutKeycode = effectconf_effect_shortcut_enable.IsChecked.GetValueOrDefault(false) ? m_EffectShortcut : null;
 
