@@ -28,6 +28,17 @@ struct EffectEntry
 
 CHAOS_VAR std::list<EffectEntry> availableEffects;
 
+struct EffectWithAuthor
+{
+	EffectIdentifier Id;
+	std::string Author;
+};
+
+CHAOS_VAR std::list<EffectWithAuthor> effectQueue;
+CHAOS_VAR size_t startTick;
+
+CHAOS_VAR const int VOTING_TIME = 15000;
+
 static void RemoveSpaces(std::string &data)
 {
 	std::string buffer;
@@ -65,30 +76,52 @@ static void OnStart()
 		GetComponent<SplashTexts>()->ShowSplash(
 		    "CHEAT CODE VOTING~n~Type an effect name~n~(with or without spaces, I don't care)~n~into chat!",
 		    { 0.5f, 0.3f }, 1.2f, { 255, 255, 255 }, 10);
+
+	startTick = GetTickCount64();
 }
 
 static void OnTick()
 {
-	while (!messageQueue.empty())
+	if (GetTickCount64() - startTick < VOTING_TIME)
 	{
-		auto message = messageQueue.front();
-		messageQueue.pop_front();
-
-		for (const auto &entry : availableEffects)
+		while (!messageQueue.empty())
 		{
-			RemoveSpaces(message.m_Message);
-			if (!CompareCaseInsensitive(message.m_Message, entry.NameNoSpaces))
+			auto message = messageQueue.front();
+			messageQueue.pop_front();
+
+			for (const auto &entry : availableEffects)
 			{
-				auto username    = message.m_Userstate.m_Username;
-				auto displayName = message.m_Userstate.m_DisplayName;
+				RemoveSpaces(message.m_Message);
+				if (!CompareCaseInsensitive(message.m_Message, entry.NameNoSpaces))
+				{
+					auto username    = message.m_Userstate.m_Username;
+					auto displayName = message.m_Userstate.m_DisplayName;
 
-				if (displayName.size() != username.size())
-					displayName = username;
+					if (displayName.size() != username.size())
+						displayName = username;
 
-				if (ComponentExists<EffectDispatcher>())
-					GetComponent<EffectDispatcher>()->DispatchEffect(entry.Id, {}, "(" + displayName + ")");
-				break;
+					effectQueue.push_back({ entry.Id, displayName });
+					break;
+				}
 			}
+		}
+	}
+	else
+	{
+		float percentage = CurrentEffect::GetEffectCompletionPercentage();
+		int waitTime     = effectQueue.empty()
+		                     ? 0
+		                     : (int)std::max((VOTING_TIME / percentage * (1.f - percentage)) / effectQueue.size(), 0.f);
+
+		while (!effectQueue.empty())
+		{
+			auto entry = effectQueue.front();
+			effectQueue.pop_front();
+
+			if (ComponentExists<EffectDispatcher>())
+				GetComponent<EffectDispatcher>()->DispatchEffect(entry.Id, {}, "(" + entry.Author + ")");
+
+			WAIT(waitTime);
 		}
 	}
 }
