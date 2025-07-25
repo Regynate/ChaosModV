@@ -6,10 +6,10 @@
         {
             private string m_Name = "";
 
-            public string Name 
-            { 
+            public string Name
+            {
                 get => IsZChaos ? m_Name + " (ZChaos)" : m_Name;
-                init { m_Name = value; } 
+                init { m_Name = value; }
             }
             public EffectCategory EffectCategory { get; init; } = EffectCategory.Unknown;
             public bool IsTimed { get; init; } = false;
@@ -501,6 +501,8 @@
             { "player_jumping_explosions", new EffectInfo("Jumping Explosions", EffectCategory.Player, true) },
             { "meta_enable_voting", new EffectInfo("Enable Voting", EffectCategory.Meta, true) },
             { "meta_cheat_code_voting", new EffectInfo("Cheat Code Voting", EffectCategory.Meta, true) },
+            { "misc_shuffled_letters", new EffectInfo("Shuffled Letters", EffectCategory.Misc, true) },
+            { "misc_buttsbot", new EffectInfo("Buttsbot", EffectCategory.Misc, true) },
         };
     }
 }

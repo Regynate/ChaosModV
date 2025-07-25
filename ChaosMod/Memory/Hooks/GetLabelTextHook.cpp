@@ -8,15 +8,46 @@
 
 static std::unordered_map<Hash, std::string> ms_CustomLabels;
 static std::queue<Hash> ms_CustomLabelHashes;
+static std::unordered_map<int, std::function<std::string(std::string_view)>> ms_ProcessMethods;
+static int ms_LastMethodID = 1;
+struct LabelInfo
+{
+	std::string m_Label;
+	int m_MethodIDs;
+};
+static std::unordered_map<Hash, LabelInfo> ms_ProcessedLabels;
+static std::mutex ms_GetLabelMutex;
 
 const char *(*OG_GetLabelText)(void *, Hash);
 const char *HK_GetLabelText(void *text, Hash hash)
 {
+	std::lock_guard lock(ms_GetLabelMutex);
+
+	int methodIDs = 0;
+	for (const auto &[id, _] : ms_ProcessMethods)
+		methodIDs += id;
+
+	if (methodIDs > 0 && ms_ProcessedLabels.contains(hash) && ms_ProcessedLabels[hash].m_MethodIDs == methodIDs)
+		return ms_ProcessedLabels[hash].m_Label.data();
+
+	std::string outText;
 	const auto &result = ms_CustomLabels.find(hash);
 	if (result != ms_CustomLabels.end())
-		return result->second.data();
+		outText = result->second;
+	else
+	{
+		const char *ogText = OG_GetLabelText(text, hash);
+		if (!ogText)
+			return ogText;
+		outText = ogText;
+	}
 
-	return OG_GetLabelText(text, hash);
+	for (const auto &[_, process] : ms_ProcessMethods)
+		outText = process(outText);
+
+	ms_ProcessedLabels[hash] = { outText, methodIDs };
+
+	return ms_ProcessedLabels[hash].m_Label.data();
 }
 
 static bool OnHook()
@@ -35,6 +66,21 @@ static RegisterHook registerHook(OnHook, nullptr, "GetLabelText", true);
 
 namespace Hooks
 {
+	int AddTextProcessMethod(std::function<std::string(std::string_view)> foo)
+	{
+		std::lock_guard lock(ms_GetLabelMutex);
+		const auto id = ms_LastMethodID;
+		ms_LastMethodID++;
+		ms_ProcessMethods.emplace(id, foo);
+		return id;
+	}
+
+	void RemoveTextProcessMethod(int id)
+	{
+		std::lock_guard lock(ms_GetLabelMutex);
+		ms_ProcessMethods.erase(id);
+	}
+
 	void AddCustomLabel(std::string_view label, const std::string &text)
 	{
 		auto hash = GET_HASH_KEY(label.data());
