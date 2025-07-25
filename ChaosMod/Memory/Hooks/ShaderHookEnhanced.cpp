@@ -187,7 +187,7 @@ static void HK_ResourceBarrier(ID3D12GraphicsCommandList *_this, UINT NumBarrier
 				if (pBarriers[i].Transition.StateAfter == D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE
 				    && ms_CommandListInfos[_this].renderTargets.size() > 0)
 				{
-					D3D12_CPU_DESCRIPTOR_HANDLE desc        = ms_CommandListInfos[_this].renderTargets.back();
+					D3D12_CPU_DESCRIPTOR_HANDLE desc       = ms_CommandListInfos[_this].renderTargets.back();
 
 					ms_BackBufferInjectInfo.m_Active       = true;
 					ms_BackBufferInjectInfo.m_Resource     = backBuffer;
@@ -330,6 +330,8 @@ static bool OnHook()
 	ms_InjectRecurseCheck = false;
 
 	ms_BackBuffers.clear();
+	ms_CommandListInfos.clear();
+	ms_Shaders.clear();
 
 	Handle handle;
 
