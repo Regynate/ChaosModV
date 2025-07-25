@@ -7,4 +7,4 @@ static bool OnCondition()
 	return !IsEnhanced();
 }
 
-REGISTER_EFFECT_CONDITION(EffectConditionType::EnhancedShader, OnCondition, "Shader effects do not work on Enhanced");
+REGISTER_EFFECT_CONDITION(EffectConditionType::EnhancedShader, OnCondition, "Legacy shader effects do not work on Enhanced");
