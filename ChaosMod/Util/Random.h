@@ -14,12 +14,14 @@ class Random
 		m_Random.seed(seed);
 	}
 
+	// returns random int in range [lower, upper]
 	inline int GetRandomInt(int lower, int upper)
 	{
 		std::uniform_int_distribution<> distr(lower, upper);
 		return distr(m_Random);
 	}
-
+	
+	// returns random float in range [lower, upper]
 	inline float GetRandomFloat(float lower, float upper)
 	{
 		std::uniform_real_distribution<float> distr(lower, upper);
