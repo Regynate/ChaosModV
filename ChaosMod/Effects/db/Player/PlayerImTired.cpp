@@ -113,6 +113,7 @@ REGISTER_EFFECT(OnStart, nullptr, OnTick,
 	{
 		.Name = "I'm So Tired",
 		.Id = "player_tired",
-		.IsTimed = true
+		.IsTimed = true,
+		.IsShortDuration = true
 	}
 );

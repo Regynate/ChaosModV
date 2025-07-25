@@ -271,7 +271,7 @@
             { "player_simeonsays", new EffectInfo("Simeon Says", EffectCategory.Player, true, true) },
             { "player_lockcamera", new EffectInfo("Lock Camera", EffectCategory.Player, true) },
             { "misc_replacevehicle", new EffectInfo("Replace Current Vehicle", EffectCategory.Vehicle) },
-            { "player_tired", new EffectInfo("I'm So Tired", EffectCategory.Player, true) },
+            { "player_tired", new EffectInfo("I'm So Tired", EffectCategory.Player, true, true) },
             { "player_kickflip", new EffectInfo("Kickflip", EffectCategory.Player) },
             { "misc_superstunt", new EffectInfo("Super Stunt", EffectCategory.Misc) },
             { "player_walkonwater", new EffectInfo("Walk On Water", EffectCategory.Player, true) },
