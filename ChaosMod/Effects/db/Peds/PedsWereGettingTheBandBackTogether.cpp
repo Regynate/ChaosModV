@@ -55,7 +55,7 @@ static void OnStart()
 // clang-format off
 REGISTER_EFFECT(OnStart, nullptr, nullptr,
     {
-        .Name = "We're Getting the Band Back Together",
+        .Name = "The Band Is Back Together",
         .Id = "peds_were_getting_the_band_back_together",
         .IsTimed = false
     }

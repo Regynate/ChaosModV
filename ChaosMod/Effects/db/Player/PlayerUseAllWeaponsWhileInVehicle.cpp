@@ -30,7 +30,7 @@ static void OnStop()
 // clang-format off
 REGISTER_EFFECT(OnStart, OnStop, nullptr, 
 	{
-		.Name = "Use Any Weapons While In Vehicles",
+		.Name = "Unlock All Weapons In Vehicles",
 		.Id = "player_use_any_weapons_while_in_vehicle",
 		.IsTimed = true
 	}

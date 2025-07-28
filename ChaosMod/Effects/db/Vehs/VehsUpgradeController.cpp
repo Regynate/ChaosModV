@@ -38,7 +38,7 @@ static void OnStartMaxUpgrades()
 // clang-format off
 REGISTER_EFFECT(OnStartMaxUpgrades, nullptr, nullptr, 
 	{
-		.Name = "Add Max Upgrades To Every Vehicle",
+		.Name = "Max Upgrade Every Vehicle",
 		.Id = "playerveh_maxupgrades"
 	}
 );
@@ -83,7 +83,7 @@ static void OnStartRandomUpgrades()
 // clang-format off
 REGISTER_EFFECT(OnStartRandomUpgrades, nullptr, nullptr, 
 	{
-		.Name = "Add Random Upgrades To Every Vehicle",
+		.Name = "Upgrade Every Vehicle",
 		.Id = "playerveh_randupgrades"
 	}
 );

@@ -54,7 +54,7 @@ static void OnTick()
 // clang-format off
 REGISTER_EFFECT(OnStart, OnStop, OnTick, 
     {
-        .Name = "Randomize Clothes Every 5 Seconds", 
+        .Name = "Clothes Randomizer", 
         .Id = "player_randomize_player_clothes", 
         .IsTimed = true
     }

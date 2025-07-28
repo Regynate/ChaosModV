@@ -35,7 +35,7 @@ static void OnStartMazeTower()
 // clang-format off
 REGISTER_EFFECT(OnStartMazeTower, nullptr, nullptr, 
 	{
-		.Name = "Teleport To Top Of Maze Bank Tower",
+		.Name = "Teleport Onto Maze Bank Tower",
 		.Id = "tp_mazebanktower",
 		.EffectGroupType = EffectGroupType::Teleport
 	}

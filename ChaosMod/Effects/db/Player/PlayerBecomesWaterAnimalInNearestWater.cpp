@@ -132,7 +132,7 @@ static void OnTick()
 // clang-format off
 REGISTER_EFFECT(OnStart, OnStop, OnTick, 
     {
-        .Name = "Player Becomes Water Animal In Nearest Water", 
+        .Name = "Become Sea Animal In Water", 
         .Id = "player_becomes_water_animal", 
         .IsTimed = true,
 		.IsShortDuration = true,

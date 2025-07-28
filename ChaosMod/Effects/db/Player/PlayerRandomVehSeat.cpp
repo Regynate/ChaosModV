@@ -83,7 +83,7 @@ static void OnStart()
 // clang-format off
 REGISTER_EFFECT(OnStart, nullptr, nullptr, 
 	{
-		.Name = "Set Player Into Random Vehicle Seat",
+		.Name = "Set Player Into Random Seat",
 		.Id = "veh_randomseat"
 	}
 );

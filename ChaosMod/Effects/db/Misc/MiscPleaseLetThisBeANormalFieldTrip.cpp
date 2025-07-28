@@ -68,7 +68,7 @@ static void OnTick()
 // clang-format off
 REGISTER_EFFECT(OnStart, nullptr, OnTick, 
     {
-        .Name = "Please Let This Be A Normal Field Trip", 
+        .Name = "The Magic School Bus", 
         .Id = "misc_please_let_this_be_a_normal_field_trip", 
         .IsTimed = true
     }

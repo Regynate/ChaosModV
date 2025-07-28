@@ -134,7 +134,7 @@ static void OnStart() {
 // clang-format off
 REGISTER_EFFECT(OnStart, nullptr, nullptr, 
 	{
-		.Name = "What If I Was The Hitman All Along?",
+		.Name = "What If I'm The Hitman?",
 		.Id = "player_what_if_i_was_the_hitman_all_along"
 	}
 );
