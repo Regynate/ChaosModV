@@ -37,7 +37,7 @@ struct EffectWithAuthor
 CHAOS_VAR std::list<EffectWithAuthor> effectQueue;
 CHAOS_VAR size_t startTick;
 
-CHAOS_VAR const int VOTING_TIME = 15000;
+CHAOS_VAR const int VOTING_TIME = 25000;
 
 static void RemoveSpaces(std::string &data)
 {
@@ -75,7 +75,7 @@ static void OnStart()
 	if (ComponentExists<SplashTexts>())
 		GetComponent<SplashTexts>()->ShowSplash(
 		    "CHEAT CODE VOTING~n~Type an effect name~n~(with or without spaces, I don't care)~n~into chat!",
-		    { 0.5f, 0.3f }, 1.2f, { 255, 255, 255 }, 10);
+		    { 0.5f, 0.3f }, 1.2f, { 255, 255, 255 }, VOTING_TIME / 1000.f);
 
 	startTick = GetTickCount64();
 }

@@ -35,7 +35,7 @@ class SplashTexts : public Component
 	virtual void OnModPauseCleanup() override;
 
 	void ShowSplash(const std::string &text, const ScreenTextVector &textPos, float scale, Color textColor,
-	                std::uint8_t timeSecs = 10);
+	                float timeSecs = 10.f);
 	void ShowVotingSplash();
 	void ShowClearEffectsSplash();
 };

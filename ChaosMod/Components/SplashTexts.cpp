@@ -47,7 +47,7 @@ void SplashTexts::OnRun()
 }
 
 void SplashTexts::ShowSplash(const std::string &text, const ScreenTextVector &textPos, float scale,
-                             Color textColor, std::uint8_t time)
+                             Color textColor, float time)
 {
 	if (!m_EnableSplashTexts)
 		return;
