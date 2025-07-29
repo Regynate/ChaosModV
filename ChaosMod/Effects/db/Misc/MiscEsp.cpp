@@ -13,7 +13,7 @@
 #define BONE_COUNT 19
 
 CHAOS_VAR const float maxDistance = 75.0f;
-CHAOS_VAR const float thickness   = 0.001f;
+CHAOS_VAR const float thickness   = 0.002f;
 
 CHAOS_VAR Color lineColor;
 
