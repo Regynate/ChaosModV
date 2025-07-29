@@ -40,7 +40,7 @@ CHAOS_VAR const std::vector<std::string_view> ms_Titles = {
 	"Look at this occurance",
 	"This is gaming",
 	"New news",
-	"eCola or Sprunk?",
+	"eCola or Sprunk?     ",
 	"\"He won't survive\", Mod Contributors say",
 	"Criticizers claim mods might be at play",
 	"Very bleak yes",
