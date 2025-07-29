@@ -347,7 +347,6 @@ void EffectDispatcher::UpdateEffects(float deltaTime)
 
 	float adjustedDeltaTime = deltaTime / 1000.f;
 
-	int activeEffects       = 0;
 	// Reverse order to ensure the first effects are removed if activeEffects > m_MaxRunningEffects
 	for (auto it = SharedState.ActiveEffects.rbegin(); it != SharedState.ActiveEffects.rend();)
 	{
@@ -359,7 +358,7 @@ void EffectDispatcher::UpdateEffects(float deltaTime)
 		     / (!ComponentExists<MetaModifiers>() ? 1.f : GetComponent<MetaModifiers>()->EffectDurationModifier))
 		    * (activeEffect.IsTimed
 		           ? 1.f
-		           : std::max(1.f, .5f * (activeEffects - EFFECT_NONTIMED_TIMER_SPEEDUP_MIN_EFFECTS + 3)));
+		           : std::max(1.f, .33f * (SharedState.ActiveEffects.size() - EFFECT_NONTIMED_TIMER_SPEEDUP_MIN_EFFECTS + 3)));
 
 		if (!EffectThreads::DoesThreadExist(activeEffect.ThreadId) || activeEffect.IsZombie)
 		{
@@ -376,9 +375,6 @@ void EffectDispatcher::UpdateEffects(float deltaTime)
 			OnPreRunEffect.Fire(activeEffect.Id);
 			EffectThreads::RunThread(activeEffect.ThreadId);
 			OnPostRunEffect.Fire(activeEffect.Id);
-
-			if (!activeEffect.IsMeta)
-				activeEffects++;
 		}
 
 		if (activeEffect.HideEffectName && EffectThreads::HasThreadOnStartExecuted(activeEffect.ThreadId))
@@ -422,7 +418,7 @@ void EffectDispatcher::UpdateEffects(float deltaTime)
 
 		if (!activeEffect.IsZombie // Shouldn't ever occur since the ActiveEffect is removed if timer <= 0 above, but
 		                           // just in case this check is moved in the future
-		    && (activeEffect.Timer <= 0.f || (!activeEffect.IsMeta && activeEffects > m_MaxRunningEffects)))
+		    && (activeEffect.Timer <= 0.f || (!activeEffect.IsMeta && SharedState.ActiveEffects.size() > m_MaxRunningEffects)))
 		{
 			if (!activeEffect.IsStopping)
 			{
