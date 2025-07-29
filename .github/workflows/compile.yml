@@ -13,16 +13,8 @@ jobs:
       - name: Get submodules
         run: git submodule update --init --recursive
 
-      #- name: Restore Timestamps
-      #  uses: chetan/git-restore-mtime-action@v1
-
-      - name: Check reflog
-        run: |
-          git reflog
-
-      - name: Check Timestamps
-        run: |
-          Get-ChildItem ChaosMod * -Recurse | Where-Object {$_.CreationTime -gt $lastBuildDeployedTimestamp} | Select-Object -Property FullName, CreationTime
+      - name: Restore Timestamps
+        uses: chetan/git-restore-mtime-action@v1
       
       - name: Enable Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1.13.0
