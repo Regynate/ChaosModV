@@ -84,6 +84,7 @@ struct SeatPed
 {
 	Ped Ped;
 	int SeatIndex;
+	bool IsMissionEntity;
 };
 
 inline Vehicle CreateVehicleWithPeds(Hash model, Vehicle oldHandle, const std::vector<SeatPed> &seatPeds,
@@ -213,7 +214,7 @@ inline Vehicle ReplaceVehicleWithModel(Vehicle veh, Hash model, bool addToPool, 
 		if (!IS_VEHICLE_SEAT_FREE(veh, i, false))
 		{
 			Ped ped         = GET_PED_IN_VEHICLE_SEAT(veh, i, false);
-			SeatPed seatPed = { ped, i };
+			SeatPed seatPed = { ped, i, (bool)IS_ENTITY_A_MISSION_ENTITY(ped) };
 			vehPeds.push_back(seatPed);
 			auto pedCoords = GET_ENTITY_COORDS(ped, true);
 
@@ -231,8 +232,14 @@ inline Vehicle ReplaceVehicleWithModel(Vehicle veh, Hash model, bool addToPool, 
 	Vector3 velocity   = GET_ENTITY_VELOCITY(veh);
 	float forwardSpeed = GET_ENTITY_SPEED(veh);
 
-	return CreateVehicleWithPeds(model, veh, vehPeds, addToPool, vehCoords, heading, engineRunning, velocity,
-	                             forwardSpeed, randomComponents);
+	const auto res = CreateVehicleWithPeds(model, veh, vehPeds, addToPool, vehCoords, heading, engineRunning, velocity,
+	                                       forwardSpeed, randomComponents);
+
+	for (auto &ped : vehPeds)
+		if (!ped.IsMissionEntity)
+			SET_PED_AS_NO_LONGER_NEEDED(&ped.Ped);
+
+	return res;
 }
 
 inline Vehicle ReplaceVehicle(Vehicle veh, bool addToPool, bool randomComponents = true)
@@ -244,12 +251,15 @@ inline Vehicle ReplaceVehicle(Vehicle veh, bool addToPool, bool randomComponents
 		if (!IS_VEHICLE_SEAT_FREE(veh, i, false))
 		{
 			Ped ped         = GET_PED_IN_VEHICLE_SEAT(veh, i, false);
-			SeatPed seatPed = { ped, i };
+			SeatPed seatPed = { ped, i, (bool)IS_ENTITY_A_MISSION_ENTITY(ped) };
 			vehPeds.push_back(seatPed);
 			auto pedCoords = GET_ENTITY_COORDS(ped, true);
 
 			if (!IS_PED_A_PLAYER(ped))
+			{
 				SET_ENTITY_COORDS(ped, pedCoords.x, pedCoords.y, pedCoords.z + 3, 0, 0, 0, false);
+				SET_ENTITY_AS_MISSION_ENTITY(ped, false, false);
+			}
 		}
 	}
 
@@ -259,8 +269,14 @@ inline Vehicle ReplaceVehicle(Vehicle veh, bool addToPool, bool randomComponents
 	Vector3 velocity   = GET_ENTITY_VELOCITY(veh);
 	float forwardSpeed = GET_ENTITY_SPEED(veh);
 
-	return CreateRandomVehicleWithPeds(veh, vehPeds, addToPool, vehCoords, heading, engineRunning, velocity,
-	                                   forwardSpeed, randomComponents);
+	const auto res = CreateRandomVehicleWithPeds(veh, vehPeds, addToPool, vehCoords, heading, engineRunning, velocity,
+	                                             forwardSpeed, randomComponents);
+
+	for (auto &ped : vehPeds)
+		if (!ped.IsMissionEntity)
+			SET_PED_AS_NO_LONGER_NEEDED(&ped.Ped);
+
+	return res;
 }
 
 inline void DeleteVehicle(Vehicle vehicle)
