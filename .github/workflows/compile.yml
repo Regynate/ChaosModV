@@ -34,7 +34,8 @@ jobs:
           cache-name: cache-build-dir
         with:
           path: ChaosMod/build
-          key: build
+          key: build-${{ hashFiles('ChaosMod/**', 'CMakeLists.txt') }}
+          restore-keys: build-
 
       - name: Compile ASI & Dependencies
         run: |
