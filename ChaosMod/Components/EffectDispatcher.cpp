@@ -150,8 +150,7 @@ static bool _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 			{
 			case EffectTimedType::NotTimed:
 				effectDuration = (effectData.IsMeta() ? effectDispatcher->SharedState.MetaEffectTimedDur
-				                                      : effectDispatcher->SharedState.EffectTimedDur)
-				               * 3.f;
+				                                      : effectDispatcher->SharedState.EffectTimedDur) * 1.33f;
 				break;
 			case EffectTimedType::Normal:
 				effectDuration = effectData.IsMeta() ? effectDispatcher->SharedState.MetaEffectTimedDur
