@@ -57,6 +57,8 @@ namespace EffectThreads
 	bool DoesThreadExist(LPVOID threadId);
 	bool HasThreadOnStartExecuted(LPVOID threadId);
 
+	int GetThreadCount();
+
 	bool IsThreadAnEffectThread();
 
 	EffectThreadSharedData *GetThreadSharedData(LPVOID threadId);
@@ -67,16 +69,16 @@ inline void EffectThreadFunc(LPVOID data)
 	SetUnhandledExceptionFilter(CrashHandler);
 
 	auto &threadData = *reinterpret_cast<EffectThreadData *>(data);
-
+	
 	threadData.Effect->Start();
 	threadData.HasOnStartExecuted = true;
-
+	
 	while (threadData.IsRunning)
 	{
 		SwitchToFiber(threadData.CallerFiber);
 		threadData.Effect->Tick();
 	}
-
+	
 	threadData.Effect->Stop();
 
 	threadData.HasStopped = true;
