@@ -483,7 +483,6 @@
             { "vehs_lost_and_damned", new EffectInfo("Lost And The Damned", EffectCategory.Vehicle) },
             { "veh_try_again", new EffectInfo("Try Again", EffectCategory.Vehicle) },
             { "player_use_any_weapons_while_in_vehicle", new EffectInfo("Unlock All Weapons In Vehicles", EffectCategory.Player, true) },
-            { "player_forced_switch", new EffectInfo("Switch To Different Character", EffectCategory.Player) },
             { "vehs_jump_and_boost", new EffectInfo("Jump And Boost", EffectCategory.Vehicle, true) },
             { "player_kid_friendly", new EffectInfo("Kid Friendly", EffectCategory.Player, true) },
             { "peds_men_in_black", new EffectInfo("Men In Black", EffectCategory.Peds, true, true) },
