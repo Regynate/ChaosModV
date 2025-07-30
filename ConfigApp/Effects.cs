@@ -279,7 +279,6 @@
             { "player_flip_camera", new EffectInfo("Turn Turtle", EffectCategory.Screen, true, true) },
             { "player_quake_fov", new EffectInfo("Quake FOV", EffectCategory.Screen, true) },
             { "player_rapid_fire", new EffectInfo("Rapid Fire", EffectCategory.Player, true) },
-            { "player_on_demand_cartoon", new EffectInfo("On-Demand TV", EffectCategory.Screen, true) },
             { "peds_drive_backwards", new EffectInfo("Peds Drive Backwards", EffectCategory.Peds, true) },
             { "veh_randtraffic", new EffectInfo("Random Traffic", EffectCategory.Vehicle, true) },
             { "misc_rampjam", new EffectInfo("Ramp Jam", EffectCategory.Misc, true) },
