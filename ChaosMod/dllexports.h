@@ -4,8 +4,8 @@
 extern "C" {
 #endif
 
-__declspec(dllexport) int GetActiveEffectIDs(const char** outIDs, int maxCount);
-__declspec(dllexport) EffectCategory GetEffectCategory(const char* effectID);
+__declspec(dllexport) int GetActiveEffectIDs(char **outIDs, int maxLen, int maxCount);
+__declspec(dllexport) int GetEffectCategory(const char *effectID);
 
 #ifdef __cplusplus
 }
