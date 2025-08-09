@@ -201,7 +201,6 @@
             { "world_whalerain", new EffectInfo("Whale Rain", EffectCategory.Misc, true) },
             { "playerveh_maxupgrades", new EffectInfo("Max Upgrade Every Vehicle", EffectCategory.Vehicle) },
             { "playerveh_randupgrades", new EffectInfo("Upgrade Every Vehicle", EffectCategory.Vehicle) },
-            { "player_arenawarstheme", new EffectInfo("Play Arena Wars Theme", EffectCategory.Misc, true) },
             { "peds_driveby", new EffectInfo("Peds Drive-By Player", EffectCategory.Peds, true, true) },
             { "player_randclothes", new EffectInfo("Randomize Player Clothes", EffectCategory.Player) },
             { "peds_rainbowweps", new EffectInfo("Rainbow Weapons", EffectCategory.Misc, true) },
