@@ -44,7 +44,7 @@ static void ApplyBoarDamage(const Ped boar)
         WAIT(damageCooldownMs);
     }
 }
-static void RemoveBoar(const Ped boar)
+static void RemoveBoar(Ped boar)
 {
 	if (boarBlips.count(boar))
 	{
@@ -117,6 +117,9 @@ static void OnStart()
 
 static void OnStop()
 {
+    for (const auto &boar : spawnedBoars)
+        RemoveBoar(boar);
+    
     spawnedBoars.clear();
     boarBlips.clear();
 }
