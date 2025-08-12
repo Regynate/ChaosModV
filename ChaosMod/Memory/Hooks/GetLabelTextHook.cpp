@@ -1,5 +1,6 @@
 #include <stdafx.h>
 
+#include "GetLabelTextHook.h"
 #include "Memory/Hooks/Hook.h"
 
 #include <queue>
@@ -62,7 +63,15 @@ static bool OnHook()
 	return true;
 }
 
-static RegisterHook registerHook(OnHook, nullptr, "GetLabelText", true);
+static void OnCleanup()
+{
+	std::lock_guard lock(ms_GetLabelMutex);
+	Hooks::ClearCustomLabels();
+	ms_ProcessMethods.clear();
+	ms_ProcessedLabels.clear();
+}
+
+static RegisterHook registerHook(OnHook, OnCleanup, "GetLabelText", true);
 
 namespace Hooks
 {
