@@ -456,7 +456,6 @@
             { "peds_bullet_men", new EffectInfo("Bullet Men", EffectCategory.Peds, true) },
             { "peds_chopception", new EffectInfo("Chopception", EffectCategory.Peds, true) },
             { "peds_give_me_7_dollars", new EffectInfo("Give Me $7", EffectCategory.Peds) },
-            { "player_personality_disorder", new EffectInfo("Personality Disorder", EffectCategory.Player, true, true) },
             { "peds_pokemon", new EffectInfo("Pokemon", EffectCategory.Peds, true) },
             { "peds_ragdoll_impact", new EffectInfo("Launch Peds On Death", EffectCategory.Peds, true) },
             { "peds_recruit_anyone", new EffectInfo("Recruit Anyone", EffectCategory.Peds, true) },
