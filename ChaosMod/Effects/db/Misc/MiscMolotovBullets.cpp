@@ -1,5 +1,6 @@
 #include <stdafx.h>
 
+#include "Memory/Weapon.h"
 #include "Effects/Register/RegisterEffect.h"
 
 static constexpr float DEGREES_TO_RADIANS = 0.0174532924f;
@@ -15,7 +16,7 @@ static Vector3 GetAimingCoords()
                                std::cos(cam_rotation.z * DEGREES_TO_RADIANS) * rotation,
                                std::sin(cam_rotation.x * DEGREES_TO_RADIANS) };
 
-	auto start        = GET_GAMEPLAY_CAM_COORD();
+	auto start              = GET_GAMEPLAY_CAM_COORD();
 	auto const end          = start + direction * 200.f;
 
 	auto const raycast =
@@ -28,13 +29,13 @@ static Vector3 GetAimingCoords()
 
 	GET_SHAPE_TEST_RESULT(raycast, &hit, &coords, &surface, &entity);
 
-	return coords;
+	return hit ? coords : Vector3();
 }
 
 static void OnStart()
 {
 	auto const player      = PLAYER_PED_ID();
-	auto const molotovHash = GET_HASH_KEY("weapon_molotov");
+	auto const molotovHash = GET_HASH_KEY("weapon_rpg");
 	GIVE_DELAYED_WEAPON_TO_PED(player, molotovHash, 1, false);
 }
 
@@ -44,19 +45,31 @@ static void OnTick()
 	if (!IS_PED_SHOOTING(player))
 		return;
 
-	auto const molotovHash = GET_HASH_KEY("weapon_molotov");
+	auto const molotovHash = GET_HASH_KEY("weapon_rpg");
 	auto const coords      = GET_ENTITY_COORDS(player, false);
-	auto const endCoords   = GetAimingCoords();
+	auto const cameraRot   = GET_GAMEPLAY_CAM_ROT(2);
+
+	auto endCoords         = GetAimingCoords();
+	if (endCoords.IsDefault())
+	{
+		const float distance = 20.f;
+		Vector3 direction;
+		direction.x = COS(cameraRot.x) * SIN(-cameraRot.z) * distance;
+		direction.y = COS(cameraRot.x) * COS(-cameraRot.z) * distance;
+		direction.z = SIN(cameraRot.x) * distance;
+
+		endCoords   = direction + coords;
+	}
 
 	SHOOT_SINGLE_BULLET_BETWEEN_COORDS(coords.x, coords.y, coords.z, endCoords.x, endCoords.y, endCoords.z, 100, 1,
-	                                   molotovHash, player, 1, 1, 100.f);
+	                                   molotovHash, player, 1, 1, 5000.f);
 }
 
 // clang-format off
 REGISTER_EFFECT(OnStart, nullptr, OnTick, 
     {
-        .Name = "Molotov Bullets", 
-        .Id = "misc_molotov_bullets", 
+        .Name = "RPG Bullets", 
+        .Id = "misc_rpg_bullets", 
         .IsTimed = true
     }
 );

@@ -440,7 +440,7 @@
             { "misc_bouncy_props", new EffectInfo("Bouncy Props", EffectCategory.Misc, true) },
             { "misc_cinematic_killz", new EffectInfo("Cinematic Killz", EffectCategory.Misc, true) },
             { "misc_help_my_s_key_is_stuck", new EffectInfo("Help My S Key Is Stuck", EffectCategory.Misc, true, true) },
-            { "misc_molotov_bullets", new EffectInfo("Molotov Bullets", EffectCategory.Misc, true) },
+            { "misc_rpg_bullets", new EffectInfo("RPG Bullets", EffectCategory.Misc, true) },
             { "misc_no_headshots", new EffectInfo("No Headshots", EffectCategory.Misc, true) },
             { "misc_orbit_camera_v2", new EffectInfo("Orbit Camera V2", EffectCategory.Misc, true, true) },
             { "misc_please_let_this_be_a_normal_field_trip", new EffectInfo("The Magic School Bus", EffectCategory.Misc, true) },
