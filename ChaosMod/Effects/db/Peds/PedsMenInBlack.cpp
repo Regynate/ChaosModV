@@ -1,6 +1,7 @@
 #include <stdafx.h>
 
 #include "Effects/Register/RegisterEffect.h"
+#include "Memory/Hooks/ScriptThreadRunHook.h"
 #include "Memory/WeaponPool.h"
 
 CHAOS_VAR std::vector<std::pair<Hash, int>> storedWeapons;
@@ -68,6 +69,7 @@ static void StorePlayerModel()
 
 static void OnStart()
 {
+	Hooks::EnableScriptThreadBlock();
 	StorePlayerModel();
 
 	auto const alienHash = GET_HASH_KEY("s_m_m_movalien_01");
@@ -122,6 +124,7 @@ static void OnTick()
 
 static void OnStop()
 {
+	Hooks::DisableScriptThreadBlock();
 	SetPlayerModel(previousModel);
 }
 

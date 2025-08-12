@@ -1,6 +1,7 @@
 #include <stdafx.h>
 
 #include "Effects/Register/RegisterEffect.h"
+#include "Memory/Hooks/ScriptThreadRunHook.h"
 #include "Memory/WeaponPool.h"
 
 CHAOS_VAR std::vector<std::pair<Hash, int>> storedWeapons;
@@ -53,6 +54,7 @@ CHAOS_VAR bool hasDiedOrFinished { false };
 
 static void OnStart()
 {
+	Hooks::EnableScriptThreadBlock();
 	StoreWeapons();
 
 	auto const oldModel      = GET_ENTITY_MODEL(PLAYER_PED_ID());
@@ -65,13 +67,14 @@ static void OnStart()
 	else
 		previousModel = oldModel;
 
-	auto const max            = flyingAnimals.size();
+	auto const max                = flyingAnimals.size();
 	auto const randomFlyingAnimal = GET_RANDOM_INT_IN_RANGE(0, max);
 	SetPlayerModel(flyingAnimals[randomFlyingAnimal]);
 }
 
 static void OnStop()
 {
+	Hooks::DisableScriptThreadBlock();
 	SetPlayerModel(previousModel);
 	RestoreWeapons();
 }

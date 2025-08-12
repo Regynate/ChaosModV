@@ -1,9 +1,11 @@
+#include <stdafx.h>
+
 #include "Components/EffectDispatcher.h"
 #include "Effects/Register/RegisterEffect.h"
+#include "Memory/Hooks/ScriptThreadRunHook.h"
 #include "Memory/Water.h"
 #include "Memory/WeaponPool.h"
 #include <ranges>
-#include <stdafx.h>
 
 CHAOS_VAR std::vector<std::pair<Hash, int>> storedWeapons;
 
@@ -61,6 +63,7 @@ static void SpawnSharkOnChance()
 
 static void OnStart()
 {
+	Hooks::EnableScriptThreadBlock();
 	auto const playerPed     = PLAYER_PED_ID();
 
 	auto const oldModel      = GET_ENTITY_MODEL(playerPed);
@@ -108,6 +111,7 @@ static void OnStart()
 
 static void OnStop()
 {
+	Hooks::DisableScriptThreadBlock();
 	if (previousModel == 0)
 		return;
 	SetPlayerModel(previousModel);
