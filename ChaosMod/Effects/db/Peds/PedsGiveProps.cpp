@@ -9,7 +9,7 @@ CHAOS_VAR std::vector<Hash> models;
 
 static void OnStart()
 {
-	static int count          = 0;
+	int count          = 0;
 	static const int maxCount = 25;
 	models.clear();
 
@@ -26,7 +26,7 @@ static void OnStart()
 	for (Ped ped : GetAllPeds())
 	{
 		if (count >= maxCount)
-			break;
+			WAIT(0);
 		Hash selectedModel = models.at(g_Random.GetRandomInt(0, models.size() - 1));
 		Object obj = CreatePoolPropAttachedToPed(selectedModel, ped, GET_PED_BONE_INDEX(ped, 0xDEAD), 0, 0, 0, 0, 0, 0,
 		                                         false, false, true);
