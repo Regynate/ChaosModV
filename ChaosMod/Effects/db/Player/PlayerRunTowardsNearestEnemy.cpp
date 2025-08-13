@@ -12,26 +12,27 @@ static void OnStart()
 static void OnStop()
 {
 	currentTarget = 0;
+	SET_ENTITY_INVINCIBLE(PLAYER_PED_ID(), false);
 }
 
 static void RunTowardsTheNearestEnemy()
 {
+	auto const player            = PLAYER_PED_ID();
+	auto const playerCoordinates = GET_ENTITY_COORDS(player, false);
+
+	Ped nearestEnemy             = 0;
+	float nearestDistance        = 200.0f;
+
 	for (auto const ped : GetAllPeds())
 	{
-		auto const player            = PLAYER_PED_ID();
-		auto const playerCoordinates = GET_ENTITY_COORDS(player, false);
-
-		Ped nearestEnemy             = 0;
-		float nearestDistance        = 200.0f;
-
 		if (ped == player || !DOES_ENTITY_EXIST(ped) || IS_PED_DEAD_OR_DYING(ped, true))
 			continue;
 
 		auto const inCombatWithPlayer = IS_PED_IN_COMBAT(ped, player);
 		auto const relation           = GET_RELATIONSHIP_BETWEEN_PEDS(player, ped);
-		auto const hatesPlayer        = relation == 4 || relation == 5;
-		auto const pedType            = GET_PED_TYPE(ped);
-		auto const isCop              = pedType == 6;
+		auto const relation2          = GET_RELATIONSHIP_BETWEEN_PEDS(ped, player);
+		auto const hatesPlayer        = relation == 4 || relation == 5 || relation2 == 4 || relation2 == 5;
+		auto const isCop              = GET_PED_TYPE(ped) == 6;
 		if (hatesPlayer || inCombatWithPlayer || isCop)
 		{
 			auto const pedCoordinates = GET_ENTITY_COORDS(ped, false);
@@ -45,17 +46,27 @@ static void RunTowardsTheNearestEnemy()
 				nearestDistance = distance;
 			}
 		}
+	}
 
-		if (DOES_ENTITY_EXIST(nearestEnemy) && nearestEnemy != currentTarget)
-		{
-			CLEAR_PED_TASKS(player);
-			currentTarget = nearestEnemy;
-			TASK_GO_TO_ENTITY(player, currentTarget, -1, 0.0f, 5.0f, 0, 0);
-			WAIT(2000);
-		}
+	static bool taskFlag = false;
+
+	if (DOES_ENTITY_EXIST(nearestEnemy) && nearestDistance > 2.f)
+	{
+		LOG(nearestEnemy << " " << nearestDistance);
+		SET_ENTITY_INVINCIBLE(player, true);
+		SET_PED_USING_ACTION_MODE(player, true, -1, 0);
+		currentTarget = nearestEnemy;
+		TASK_GO_TO_ENTITY(player, currentTarget, 300, 2.0f, 3.0f, 0, 1);
+		WAIT(200);
+		taskFlag = true;
+	}
+	else if (taskFlag)
+	{
+		CLEAR_PED_TASKS(player);
+		SET_ENTITY_INVINCIBLE(player, false);
+		taskFlag = false;
 	}
 }
-
 
 static void OnTick()
 {
