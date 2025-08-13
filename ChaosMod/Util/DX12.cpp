@@ -187,17 +187,35 @@ void DX12PipelineInjector::CreatePostProcessPSO(std::string_view pixelShader, st
 	ComPointer<ID3DBlob> VSByteCode;
 	ComPointer<ID3DBlob> PSByteCode;
 
+	ComPointer<ID3DBlob> errorMessages;
+
 	hr = D3DCompile(vertexShader.data(), vertexShader.size(), NULL, NULL, NULL, "main", "vs_5_0", 0, 0, &VSByteCode,
-	                NULL);
+	                &errorMessages);
 
 	if (FAILED(hr))
+	{
+		LOG("Error compiling vertex shader: Error code 0x" << std::hex << std::uppercase << hr << std::dec);
+		if (errorMessages)
+		{
+			auto ptr = reinterpret_cast<char *>(errorMessages->GetBufferPointer());
+			LOG(ptr);
+		}
 		return;
+	}
 
-	hr =
-	    D3DCompile(pixelShader.data(), pixelShader.size(), NULL, NULL, NULL, "main", "ps_5_0", 0, 0, &PSByteCode, NULL);
+	hr = D3DCompile(pixelShader.data(), pixelShader.size(), NULL, NULL, NULL, "main", "ps_5_0", 0, 0, &PSByteCode,
+	                &errorMessages);
 
 	if (FAILED(hr))
+	{
+		LOG("Error compiling pixel shader: Error code 0x" << std::hex << std::uppercase << hr << std::dec);
+		if (errorMessages)
+		{
+			auto ptr = reinterpret_cast<char *>(errorMessages->GetBufferPointer());
+			LOG(ptr);
+		}
 		return;
+	}
 
 	m_InputLayout[0] = D3D12_INPUT_ELEMENT_DESC(
 	    { "Position", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
@@ -330,7 +348,7 @@ void DX12PipelineInjector::InjectShaders(ID3D12GraphicsCommandList *commandList,
 	};
 
 	FloatBits rand;
-	rand.f = g_Random.GetRandomFloat(0.f, 1.f);
+	rand.f            = g_Random.GetRandomFloat(0.f, 1.f);
 
 	ULONG constants[] = { ticks, rand.i };
 
