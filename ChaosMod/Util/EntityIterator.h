@@ -232,7 +232,7 @@ class GenericPool : public PoolUtils<GenericPool>
 	}
 };
 
-template <typename T> class EncryptedPointer
+template <typename T, int Constant1, int Constant2> class EncryptedPointer
 {
   public: // protected
 	struct Encrypted
@@ -245,7 +245,16 @@ template <typename T> class EncryptedPointer
 	Encrypted *val;
 
   public:
-	virtual T GetPool() = 0;
+	T GetPool()
+	{
+		if (val->m_IsSet)
+		{
+			DWORD64 temp = _rotl64(val->m_Second, Constant1);
+			return GenericPool(~_rotl64(_rotl64(temp ^ val->m_First, 32), (temp & 0x1F) + Constant2));
+		}
+
+		return GenericPool();
+	}
 
 	EncryptedPointer(DWORD64 address)
 	{
@@ -257,73 +266,24 @@ template <typename T> class EncryptedPointer
 	}
 };
 
-class PedPoolEncryptedPointer : public EncryptedPointer<GenericPool>
+class PedPoolEncryptedPointer : public EncryptedPointer<GenericPool, 30, 2>
 {
-  public:
-	GenericPool GetPool() override
-	{
-		if (val->m_IsSet)
-		{
-			DWORD64 temp = _rotl64(val->m_Second, 30);
-			return GenericPool(~_rotl64(_rotl64(temp ^ val->m_First, 32), (temp & 0x1F) + 2));
-		}
-
-		return GenericPool();
-	}
-
-	PedPoolEncryptedPointer(DWORD64 address) : EncryptedPointer(address)
-	{
-	}
-
-	PedPoolEncryptedPointer() : EncryptedPointer()
-	{
-	}
 };
 
-class ObjectPoolEncryptedPointer : public EncryptedPointer<GenericPool>
+class ObjectPoolEncryptedPointer : public EncryptedPointer<GenericPool, 30, 3>
 {
-  public:
-	GenericPool GetPool() override
-	{
-		if (val->m_IsSet)
-		{
-			DWORD64 temp = _rotl64(val->m_Second, 30);
-			return GenericPool(~_rotl64(_rotl64(temp ^ val->m_First, (temp & 0x1F) + 3), 32));
-		}
-
-		return GenericPool();
-	}
-
-	ObjectPoolEncryptedPointer(DWORD64 address) : EncryptedPointer(address)
-	{
-	}
-
-	ObjectPoolEncryptedPointer() : EncryptedPointer()
-	{
-	}
 };
 
-class BuildingPoolEncryptedPointer : public EncryptedPointer<GenericPool>
+class BuildingPoolEncryptedPointer : public EncryptedPointer<GenericPool, 29, 1>
 {
-  public:
-	GenericPool GetPool() override
-	{
-		if (val->m_IsSet)
-		{
-			DWORD64 temp = _rotl64(val->m_Second, 29);
-			return GenericPool(~_rotl64(_rotl64(temp ^ val->m_First, (temp & 0x1F) + 1), 32));
-		}
+};
 
-		return GenericPool();
-	}
+class AnimatedBuildingPoolEncryptedPointer : public EncryptedPointer<GenericPool, 29, 5>
+{
+};
 
-	BuildingPoolEncryptedPointer(DWORD64 address) : EncryptedPointer(address)
-	{
-	}
-
-	BuildingPoolEncryptedPointer() : EncryptedPointer()
-	{
-	}
+class GrassPoolEncryptedPointer : public EncryptedPointer<GenericPool, 29, 1>
+{
 };
 
 inline auto &GetAllPeds()
@@ -405,6 +365,47 @@ inline auto GetAllBuildings()
 	return buildingPool;
 }
 
+inline auto GetAllAnimatedBuildings()
+{
+	static GenericPool buildingPool = []
+	{
+		if (IsLegacy())
+		{
+			auto handle = Memory::FindPattern("48 8B 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0 74 30");
+			return GenericPool(handle.At(2).Into().Value<UINT64>());
+		}
+		else
+		{
+			auto handle =
+			    Memory::FindPattern("0F B6 05 ?? ?? ?? ?? A8 01 75 04 31 C0 EB 35 48 8B 0D ?? ?? ?? ?? 48 C1 C1 1D");
+			auto encryptedPtr = AnimatedBuildingPoolEncryptedPointer(handle.At(2).Into().Addr());
+			return encryptedPtr.GetPool();
+		}
+	}();
+
+	return buildingPool;
+}
+
+inline auto GetAllGrass()
+{
+	static GenericPool grassPool = []
+	{
+		if (IsLegacy())
+		{
+			auto handle = Memory::FindPattern("48 89 3D ?? ?? ?? ?? E8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 1D");
+			return GenericPool(handle.At(2).Into().Value<UINT64>());
+		}
+		else
+		{
+			auto handle       = Memory::FindPattern("0F B6 05 ?? ?? ?? ?? 31 C9 A8 01 48 0F 45 CA BA 30 01 00 00");
+			auto encryptedPtr = GrassPoolEncryptedPointer(handle.At(2).Into().Addr());
+			return encryptedPtr.GetPool();
+		}
+	}();
+
+	return grassPool;
+}
+
 inline auto GetAllPedsArray()
 {
 	return GetAllPeds().ToArray();
@@ -425,7 +426,12 @@ inline auto GetAllBuildingsArray()
 	return GetAllBuildings().ToArray();
 }
 
-inline auto GetAllBuildingsAddressArray()
+inline auto GetAllAnimatedBuildingsArray()
 {
-	return GetAllBuildings().ToAddressArray();
+	return GetAllAnimatedBuildings().ToArray();
+}
+
+inline auto GetAllGrassArray()
+{
+	return GetAllGrass().ToArray();
 }

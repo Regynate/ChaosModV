@@ -621,6 +621,8 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("GetAllVehicleModels", Memory::GetAllVehModels),
 
 		E("GetAllBuildings", GetAllBuildingsArray),
+		E("GetAllAnimatedBuildings", GetAllAnimatedBuildingsArray),
+		E("GetAllGrass", GetAllGrassArray),
 		E("GetAllVisibleBuildings", GetAllVisibleBuildings),
 		E("GetAllTrees", GetAllTrees),
 
