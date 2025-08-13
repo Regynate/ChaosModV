@@ -96,12 +96,6 @@ class DX12PipelineInjector
 	{
 		m_Device = nullptr;
 		m_Width = m_Height = 0;
-		m_SRVHeap.Release();
-		m_RtvHeap.Release();
-		m_SceneTexture.Release();
-		m_PostProcessRootSignature.Release();
-		m_VertexBuffer.Release();
-		m_PostProcessPSO.Release();
 		m_PSOMap.clear();
 
 		m_Init = false;

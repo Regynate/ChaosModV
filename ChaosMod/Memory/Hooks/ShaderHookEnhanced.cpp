@@ -375,15 +375,19 @@ static void OnCleanup()
 	if (!IsEnhanced())
 		return;
 
+	SHADER_LOG("Cleanup");
+	
 	{
 		std::lock_guard lock1(ms_BackBufferVectorMutex);
 		std::lock_guard lock2(ms_CommandListMapMutex);
 		std::lock_guard lock3(ms_ShaderVectorMutex);
-
+		
 		ms_BackBuffers.clear();
 		ms_CommandListInfos.clear();
 		ms_Shaders.clear();
 	}
+
+	SHADER_LOG("Cleared command maps");
 
 	// Only reset vftable entries if address still points to our retour
 	if (ms_PresentAddr && *ms_PresentAddr == HK_IDXGISwapChain_Present)
@@ -404,7 +408,11 @@ static void OnCleanup()
 	if (ms_ResetAddr && *ms_ResetAddr == HK_Reset)
 		Memory::Write<void *>(ms_ResetAddr, reinterpret_cast<void *>(OG_Reset));
 
+	SHADER_LOG("Cleaned up hooks");
+	
 	DX12PipelineInjector::Get().UnInit();
+
+	SHADER_LOG("Uninit injector");
 }
 
 static RegisterHook registerHook(OnHook, OnCleanup, "EnhancedShaderHook", true);
