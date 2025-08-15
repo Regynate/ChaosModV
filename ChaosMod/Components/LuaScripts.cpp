@@ -776,6 +776,12 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		  { Hooks::AddScaleVector(entity, Vector3(vector.X, vector.Y, vector.Z)); }),
 		E("AddPositionAdjustVector", [](const Entity entity, const LuaVector3 &vector)
 		  { Hooks::AddPositionAdjustVector(entity, Vector3(vector.X, vector.Y, vector.Z)); }),
+		E("AddBoneRotationVector", [](const Entity entity, unsigned int boneId, const LuaVector3 &vector)
+		  { Hooks::AddRotationVector(entity, boneId, Vector3(vector.X, vector.Y, vector.Z)); }),
+		E("AddBoneTranslationVector", [](const Entity entity, unsigned int boneId, const LuaVector3 &vector)
+		  { Hooks::AddTranslationVector(entity, boneId, Vector3(vector.X, vector.Y, vector.Z)); }),
+		E("AddBoneScaleVector", [](const Entity entity, unsigned int boneId, const LuaVector3 &vector)
+		  { Hooks::AddScaleVector(entity, boneId, Vector3(vector.X, vector.Y, vector.Z)); }),
 		E("AddEntityTracker",
 		  [](Entity entity, const std::function<bool(Entity)> tracker)
 		  {

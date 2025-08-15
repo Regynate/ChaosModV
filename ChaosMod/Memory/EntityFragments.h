@@ -3,6 +3,7 @@
 #include "Entity.h"
 #include "Handle.h"
 #include "Memory.h"
+#include "Util/Types.h"
 
 namespace Memory
 {
@@ -143,7 +144,8 @@ namespace Memory
 		inline bool InitBones()
 		{
 			static const Handle handle =
-			    Memory::FindPattern("0F BE 5E 06 48 8B CF FF 50 ?? 8B D3 48 8B C8 E8 ?? ?? ?? ?? 8B 4E ??", "0F BE 56 06 48 89 C1 E8 ?? ?? ?? ?? 48 89 C3");
+			    Memory::FindPattern("0F BE 5E 06 48 8B CF FF 50 ?? 8B D3 48 8B C8 E8 ?? ?? ?? ?? 8B 4E ??",
+			                        "0F BE 56 06 48 89 C1 E8 ?? ?? ?? ?? 48 89 C3");
 
 			if (!handle.IsValid())
 				return false;
