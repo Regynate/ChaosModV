@@ -189,10 +189,6 @@ static void Init()
 
 	INIT_COMPONENT("Tracking", "Entity Tracking", Tracking);
 
-	INIT_COMPONENT("EffectDispatcher", "effects dispatcher", EffectDispatcher);
-
-	INIT_COMPONENT("EffectDispatchTimer", "effects dispatch timer", EffectDispatchTimer);
-
 	INIT_COMPONENT("DebugMenu", "debug menu", DebugMenu);
 
 	INIT_COMPONENT("EffectShortcuts", "effect shortcuts handler", EffectShortcuts);
@@ -204,6 +200,10 @@ static void Init()
 	INIT_COMPONENT("Failsafe", "Failsafe", Failsafe);
 
 	INIT_COMPONENT("HelpTextQueue", "script help text queue", HelpTextQueue);
+
+	INIT_COMPONENT("EffectDispatcher", "effects dispatcher", EffectDispatcher);
+
+	INIT_COMPONENT("EffectDispatchTimer", "effects dispatch timer", EffectDispatchTimer);
 
 	INIT_COMPONENT("CrossingChallenge", "Crossing Challenge", CrossingChallenge);
 

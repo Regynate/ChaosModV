@@ -33,7 +33,7 @@ CHAOS_VAR std::list<Message> dispatchedQueue;
 
 CHAOS_VAR std::map<std::string, std::string> usercolors;
 
-void encode(std::string &data)
+static void encode(std::string &data)
 {
 	std::string buffer;
 	buffer.reserve(data.size());

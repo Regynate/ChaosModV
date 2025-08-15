@@ -119,7 +119,7 @@ void DispatchSocket::HandleMessage(const std::string &message)
 	else if (type == "auth")
 	{
 		if (ComponentExists<SplashTexts>())
-			GetComponent<SplashTexts>()->ShowSplash("Points redemption active", { .83f, .62f }, .6f, { 255, 100, 100 });
+			GetComponent<SplashTexts>()->ShowSplash("Points redemption active", { .83f, .62f }, .6f, { 255, 100, 100 }, 4.f);
 	}
 	else if (type == "no-auth")
 	{

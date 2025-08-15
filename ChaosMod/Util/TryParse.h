@@ -12,19 +12,29 @@ namespace Util
 
 	inline Color ParseConfigColorString(const std::string &colorText, bool &success)
 	{
-		// Format: #ARGB
+		// Format: #ARGB or #RGB
 
-		success = false;
+		success           = false;
 
-		if (colorText.length() != 9)
+		const auto length = colorText.length();
+
+		if (length != 9 && length != 7)
 			return Color();
 
 		std::array<BYTE, 4> colors;
 
 		int j = 0;
-		for (int i = 1; i < 9; i += 2)
+		for (size_t i = 1; i < length; i += 2)
 			if (!Util::TryParse<BYTE>(colorText.substr(i, 2), colors[j++], 16))
 				return Color();
+
+		if (length == 7)
+		{
+			for (size_t i = 3; i > 0; i--)
+				colors[i] = colors[i - 1];
+
+			colors[0] = 0xFF;
+		}
 
 		success = true;
 		return Color(colors[1], colors[2], colors[3], colors[0]);
