@@ -38,7 +38,7 @@ const char *HK_GetLabelText(void *text, Hash hash)
 	else
 	{
 		const char *ogText = OG_GetLabelText(text, hash);
-		if (!ogText)
+		if (!ogText || methodIDs == 0)
 			return ogText;
 		outText = ogText;
 	}
