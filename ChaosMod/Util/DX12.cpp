@@ -24,25 +24,43 @@ static void AddBarrier(ID3D12GraphicsCommandList *commandList, ID3D12Resource *r
 void DX12PipelineInjector::CreatePostProcessRootSignature()
 {
 	HRESULT hr                                               = S_OK;
-	D3D12_DESCRIPTOR_RANGE srvTable                          = {};
-	srvTable.RangeType                                       = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	srvTable.NumDescriptors                                  = 1;
-	srvTable.BaseShaderRegister                              = 0;
-	srvTable.RegisterSpace                                   = 0;
-	srvTable.OffsetInDescriptorsFromTableStart               = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER slotRootParameter[2]                = {};
+	// SRV table for color texture
+	D3D12_DESCRIPTOR_RANGE srvTableColor                     = {};
+	srvTableColor.RangeType                                  = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	srvTableColor.NumDescriptors                             = 1;
+	srvTableColor.BaseShaderRegister                         = 0;
+	srvTableColor.RegisterSpace                              = 0;
+	srvTableColor.OffsetInDescriptorsFromTableStart          = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+	// SRV table for depth buffer
+	D3D12_DESCRIPTOR_RANGE srvTableDepth                     = {};
+	srvTableDepth.RangeType                                  = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	srvTableDepth.NumDescriptors                             = 1;
+	srvTableDepth.BaseShaderRegister                         = 1; // Use t1 for depth
+	srvTableDepth.RegisterSpace                              = 0;
+	srvTableDepth.OffsetInDescriptorsFromTableStart          = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_ROOT_PARAMETER slotRootParameter[3]                = {};
+
+	// Color texture SRV
 	slotRootParameter[0].ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	slotRootParameter[0].DescriptorTable.NumDescriptorRanges = 1;
-	slotRootParameter[0].DescriptorTable.pDescriptorRanges   = &srvTable;
+	slotRootParameter[0].DescriptorTable.pDescriptorRanges   = &srvTableColor;
 	slotRootParameter[0].ShaderVisibility                    = D3D12_SHADER_VISIBILITY_ALL;
 
-	slotRootParameter[1].ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	slotRootParameter[1].Constants.ShaderRegister            = 0;
-	slotRootParameter[1].Constants.RegisterSpace             = 0;
-	slotRootParameter[1].Constants.Num32BitValues            = 2;
+	// Depth buffer SRV
+	slotRootParameter[1].ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	slotRootParameter[1].DescriptorTable.NumDescriptorRanges = 1;
+	slotRootParameter[1].DescriptorTable.pDescriptorRanges   = &srvTableDepth;
 	slotRootParameter[1].ShaderVisibility                    = D3D12_SHADER_VISIBILITY_ALL;
+
+	// Constants
+	slotRootParameter[2].ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	slotRootParameter[2].Constants.ShaderRegister            = 0;
+	slotRootParameter[2].Constants.RegisterSpace             = 0;
+	slotRootParameter[2].Constants.Num32BitValues            = 2;
+	slotRootParameter[2].ShaderVisibility                    = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_STATIC_SAMPLER_DESC samplerDesc                    = {};
 	samplerDesc.Filter                                       = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -60,7 +78,7 @@ void DX12PipelineInjector::CreatePostProcessRootSignature()
 	samplerDesc.ShaderVisibility                             = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_ROOT_SIGNATURE_DESC rsDesc                         = {};
-	rsDesc.NumParameters                                     = 2;
+	rsDesc.NumParameters                                     = 3;
 	rsDesc.pParameters                                       = slotRootParameter;
 	rsDesc.NumStaticSamplers                                 = 1;
 	rsDesc.pStaticSamplers                                   = &samplerDesc;
@@ -158,10 +176,28 @@ void DX12PipelineInjector::CreateTexture()
 
 	LOG("Scene texture " << m_SceneTexture.Get() << " " << m_Width << " " << m_Height);
 
+	D3D12_RESOURCE_DESC depthDesc = {};
+	depthDesc.Dimension           = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	depthDesc.Alignment           = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+	depthDesc.Width               = m_Width;
+	depthDesc.Height              = m_Height;
+	depthDesc.DepthOrArraySize    = 1;
+	depthDesc.MipLevels           = 1;
+	depthDesc.Format              = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+	depthDesc.SampleDesc.Count    = 1;
+	depthDesc.SampleDesc.Quality  = 0;
+	depthDesc.Layout              = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	depthDesc.Flags               = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+	hr = m_Device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &depthDesc, D3D12_RESOURCE_STATE_COMMON,
+	                                       nullptr, IID_PPV_ARGS(&m_DepthBuffer));
+
+	LOG("Depth buffer " << m_DepthBuffer.Get() << " " << m_Width << " " << m_Height);
+
 	// Create SRV
 
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc;
-	heapDesc.NumDescriptors = 1;
+	heapDesc.NumDescriptors = 2;
 	heapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.NodeMask       = 0;
 	heapDesc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
@@ -171,12 +207,23 @@ void DX12PipelineInjector::CreateTexture()
 
 	LOG("Created descriptor heap: " << m_SRVHeap.Get());
 
+	D3D12_CPU_DESCRIPTOR_HANDLE srvHandle   = m_SRVHeap->GetCPUDescriptorHandleForHeapStart();
+
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Format                          = DXGI_FORMAT_B8G8R8A8_UNORM;
 	srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.Texture2D.MipLevels             = 1;
-	m_Device->CreateShaderResourceView(m_SceneTexture.Get(), &srvDesc, m_SRVHeap->GetCPUDescriptorHandleForHeapStart());
+	m_Device->CreateShaderResourceView(m_SceneTexture.Get(), &srvDesc, srvHandle);
+
+	srvHandle.ptr += m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	srvDesc                         = {};
+	srvDesc.Format                  = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+	srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels     = 1;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	m_Device->CreateShaderResourceView(m_DepthBuffer.Get(), &srvDesc, srvHandle);
 }
 
 void DX12PipelineInjector::CreatePostProcessPSO(std::string_view pixelShader, std::string_view vertexShader,
@@ -296,9 +343,8 @@ void DX12PipelineInjector::CreatePostProcessPSO(std::string_view pixelShader, st
 	LOG("Created pipeline state: " << result);
 }
 
-void DX12PipelineInjector::InjectShaders(ID3D12GraphicsCommandList *commandList, ID3D12Resource *backBufferResource,
-                                         D3D12_CPU_DESCRIPTOR_HANDLE backBufferView,
-                                         D3D12_RESOURCE_STATES backBufferState, std::string_view pixelShader,
+void DX12PipelineInjector::InjectShaders(ID3D12GraphicsCommandList *commandList, ResourceInfo backBufferInfo,
+                                         ResourceInfo depthBufferInfo, std::string_view pixelShader,
                                          std::string_view vertexShader)
 {
 	if (!IsInit())
@@ -321,16 +367,26 @@ void DX12PipelineInjector::InjectShaders(ID3D12GraphicsCommandList *commandList,
 
 	AddBarrier(commandList, m_SceneTexture.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
 	           D3D12_RESOURCE_STATE_COPY_DEST);
-	AddBarrier(commandList, backBufferResource, backBufferState, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	AddBarrier(commandList, backBufferInfo.Resource, backBufferInfo.State, D3D12_RESOURCE_STATE_COPY_SOURCE);
 
-	commandList->CopyResource(m_SceneTexture.Get(), backBufferResource);
+	commandList->CopyResource(m_SceneTexture.Get(), backBufferInfo.Resource);
 	AddBarrier(commandList, m_SceneTexture.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
 	           D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	AddBarrier(commandList, backBufferResource, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	AddBarrier(commandList, backBufferInfo.Resource, D3D12_RESOURCE_STATE_COPY_SOURCE,
+	           D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-	commandList->OMSetRenderTargets(1, &backBufferView, false, nullptr);
+	AddBarrier(commandList, m_DepthBuffer.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+	           D3D12_RESOURCE_STATE_COPY_DEST);
+	AddBarrier(commandList, depthBufferInfo.Resource, depthBufferInfo.State, D3D12_RESOURCE_STATE_COPY_SOURCE);
+
+	commandList->CopyResource(m_DepthBuffer.Get(), depthBufferInfo.Resource);
+	AddBarrier(commandList, m_DepthBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
+	           D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	AddBarrier(commandList, depthBufferInfo.Resource, D3D12_RESOURCE_STATE_COPY_SOURCE, depthBufferInfo.State);
+
+	commandList->OMSetRenderTargets(1, &backBufferInfo.View, false, nullptr);
 	float color[4] = { 0.0f, 0.3f, 0.7f, 1.0f };
-	commandList->ClearRenderTargetView(backBufferView, color, 0, nullptr);
+	commandList->ClearRenderTargetView(backBufferInfo.View, color, 0, nullptr);
 
 	commandList->SetPipelineState(pipelineState.Get());
 
@@ -338,7 +394,13 @@ void DX12PipelineInjector::InjectShaders(ID3D12GraphicsCommandList *commandList,
 
 	ID3D12DescriptorHeap *heaps[] = { m_SRVHeap.Get() };
 	commandList->SetDescriptorHeaps(1, heaps);
-	commandList->SetGraphicsRootDescriptorTable(0, m_SRVHeap->GetGPUDescriptorHandleForHeapStart());
+
+	D3D12_GPU_DESCRIPTOR_HANDLE srvHandle = m_SRVHeap->GetGPUDescriptorHandleForHeapStart();
+	commandList->SetGraphicsRootDescriptorTable(0, srvHandle);
+
+	srvHandle.ptr += m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	commandList->SetGraphicsRootDescriptorTable(1, srvHandle);
+
 	// rootsigs only support 32 bit values
 	ULONG ticks = GetTickCount();
 	union FloatBits
@@ -352,7 +414,7 @@ void DX12PipelineInjector::InjectShaders(ID3D12GraphicsCommandList *commandList,
 
 	ULONG constants[] = { ticks, rand.i };
 
-	commandList->SetGraphicsRoot32BitConstants(1, 2, constants, 0);
+	commandList->SetGraphicsRoot32BitConstants(2, 2, constants, 0);
 
 	D3D12_VERTEX_BUFFER_VIEW vbView;
 	vbView.BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();
@@ -371,5 +433,6 @@ void DX12PipelineInjector::InjectShaders(ID3D12GraphicsCommandList *commandList,
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->DrawInstanced(6, 1, 0, 0);
 
-	AddBarrier(commandList, backBufferResource, D3D12_RESOURCE_STATE_RENDER_TARGET, backBufferState);
+	if (D3D12_RESOURCE_STATE_RENDER_TARGET != backBufferInfo.State)
+		AddBarrier(commandList, backBufferInfo.Resource, D3D12_RESOURCE_STATE_RENDER_TARGET, backBufferInfo.State);
 }

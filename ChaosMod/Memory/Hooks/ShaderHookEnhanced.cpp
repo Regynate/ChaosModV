@@ -31,18 +31,22 @@ static std::vector<ID3D12Resource *> ms_BackBuffers {};
 
 static bool ms_InjectRecurseCheck = false;
 
-static struct InjectInfo
+struct InjectInfo
 {
 	bool m_Active;
 	ID3D12CommandList *m_ListToInject;
 	ID3D12Resource *m_Resource;
 	D3D12_RESOURCE_STATES m_State;
 	D3D12_CPU_DESCRIPTOR_HANDLE m_CPUDesc;
-} ms_BackBufferInjectInfo;
+};
+
+InjectInfo ms_BackBufferInjectInfo;
+InjectInfo ms_DepthBufferInjectInfo;
 
 struct CommandListInfo
 {
 	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> renderTargets;
+	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> depthTargets;
 };
 
 static std::map<ID3D12CommandList *, CommandListInfo> ms_CommandListInfos;
@@ -96,42 +100,6 @@ static HRESULT HK_IDXGISwapChain_Present(IDXGISwapChain *swapChain, UINT syncInt
 	return OG_IDXGISwapChain_Present(swapChain, syncInterval, flags);
 }
 
-static __int64 (*OG_CreateRenderTarget)(char *a1, char *name, __int64 a3, __int64 a4, unsigned __int8 a5,
-                                        unsigned int a6, __int64 a7, unsigned int a8, char a9);
-static __int64 HK_CreateRenderTarget(char *a1, char *name, __int64 a3, __int64 a4, unsigned __int8 a5, unsigned int a6,
-                                     __int64 a7, unsigned int a8, char a9)
-{
-	SHADER_LOG("CreateRenderTarget; name=" << a1);
-	return OG_CreateRenderTarget(a1, name, a3, a4, a5, a6, a7, a8, a9);
-}
-
-static void (*OG_CreateRenderTargetView)(ID3D12Device *This, ID3D12Resource *pResource,
-                                         const D3D12_RENDER_TARGET_VIEW_DESC *pDesc,
-                                         D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
-static void HK_CreateRenderTargetView(ID3D12Device *This, ID3D12Resource *pResource,
-                                      const D3D12_RENDER_TARGET_VIEW_DESC *pDesc,
-                                      D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
-{
-	SHADER_LOG("CreateRenderTargetView");
-	return OG_CreateRenderTargetView(This, pResource, pDesc, DestDescriptor);
-}
-
-static HRESULT (*OG_CreateCommittedResource)(ID3D12Device *This, const D3D12_HEAP_PROPERTIES *pHeapProperties,
-                                             D3D12_HEAP_FLAGS HeapFlags, const D3D12_RESOURCE_DESC *pDesc,
-                                             D3D12_RESOURCE_STATES InitialResourceState,
-                                             const D3D12_CLEAR_VALUE *pOptimizedClearValue,
-                                             const IID *const riidResource, void **ppvResource);
-static HRESULT HK_CreateCommittedResource(ID3D12Device *This, const D3D12_HEAP_PROPERTIES *pHeapProperties,
-                                          D3D12_HEAP_FLAGS HeapFlags, const D3D12_RESOURCE_DESC *pDesc,
-                                          D3D12_RESOURCE_STATES InitialResourceState,
-                                          const D3D12_CLEAR_VALUE *pOptimizedClearValue, const IID *const riidResource,
-                                          void **ppvResource)
-{
-	SHADER_LOG("CreateCommittedResource");
-	return OG_CreateCommittedResource(This, pHeapProperties, HeapFlags, pDesc, InitialResourceState,
-	                                  pOptimizedClearValue, riidResource, ppvResource);
-}
-
 static void (*OG_DrawInstanced)(ID3D12GraphicsCommandList *_this, UINT VertexCountPerInstance, UINT InstanceCount,
                                 UINT StartVertexLocation, UINT StartInstanceLocation);
 static void HK_DrawInstanced(ID3D12GraphicsCommandList *_this, UINT VertexCountPerInstance, UINT InstanceCount,
@@ -152,9 +120,17 @@ static void HK_DrawInstanced(ID3D12GraphicsCommandList *_this, UINT VertexCountP
 			std::lock_guard lock(ms_ShaderVectorMutex);
 			for (const auto shader : ms_Shaders)
 			{
-				DX12PipelineInjector::Get().InjectPixelShader(_this, ms_BackBufferInjectInfo.m_Resource,
-				                                              ms_BackBufferInjectInfo.m_CPUDesc,
-				                                              ms_BackBufferInjectInfo.m_State, shader.src);
+				DX12PipelineInjector::ResourceInfo backBufferInfo {
+					.Resource = ms_BackBufferInjectInfo.m_Resource,
+					.View = ms_BackBufferInjectInfo.m_CPUDesc,
+					.State = ms_BackBufferInjectInfo.m_State
+				};
+				DX12PipelineInjector::ResourceInfo depthBufferInfo {
+					.Resource = ms_DepthBufferInjectInfo.m_Resource,
+					.View = ms_DepthBufferInjectInfo.m_CPUDesc,
+					.State = ms_DepthBufferInjectInfo.m_State
+				};
+				DX12PipelineInjector::Get().InjectPixelShader(_this, backBufferInfo, depthBufferInfo, shader.src);
 			}
 			ms_InjectRecurseCheck = false;
 		}
@@ -176,15 +152,17 @@ static void HK_ResourceBarrier(ID3D12GraphicsCommandList *_this, UINT NumBarrier
 	{
 		SHADER_LOG("Barrier " << i << " " << pBarriers[i].Flags << " " << pBarriers[i].Type);
 
+		const auto barrier = pBarriers[i];
+
 		std::lock_guard lock(ms_BackBufferVectorMutex);
 		std::lock_guard lock1(ms_CommandListMapMutex);
 		for (size_t j = 0; j < ms_BackBuffers.size(); j++)
 		{
 			ID3D12Resource *backBuffer = ms_BackBuffers[j];
-			if (backBuffer == pBarriers[i].Transition.pResource)
+			if (backBuffer == barrier.Transition.pResource)
 			{
 				SHADER_LOG("FOUND BACK BUFFER: " << backBuffer << " (" << j << ")");
-				if (pBarriers[i].Transition.StateAfter == D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE
+				if (barrier.Transition.StateAfter == D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE
 				    && ms_CommandListInfos[_this].renderTargets.size() > 0)
 				{
 					D3D12_CPU_DESCRIPTOR_HANDLE desc       = ms_CommandListInfos[_this].renderTargets.back();
@@ -193,8 +171,29 @@ static void HK_ResourceBarrier(ID3D12GraphicsCommandList *_this, UINT NumBarrier
 					ms_BackBufferInjectInfo.m_Resource     = backBuffer;
 					ms_BackBufferInjectInfo.m_ListToInject = _this;
 					ms_BackBufferInjectInfo.m_CPUDesc      = desc;
-					ms_BackBufferInjectInfo.m_State        = pBarriers[i].Transition.StateAfter;
+					ms_BackBufferInjectInfo.m_State        = barrier.Transition.StateAfter;
 				}
+			}
+		}
+	}
+
+	if (NumBarriers == 1)
+	{
+		const auto barrier = pBarriers[0];
+		if (barrier.Transition.StateAfter == D3D12_RESOURCE_STATE_COPY_SOURCE
+		    && barrier.Transition.StateBefore == D3D12_RESOURCE_STATE_DEPTH_WRITE)
+		{
+			if (ms_CommandListInfos[_this].depthTargets.size() > 0)
+			{
+				SHADER_LOG("FOUND DEPTH BUFFER: " << barrier.Transition.pResource);
+
+				D3D12_CPU_DESCRIPTOR_HANDLE desc        = ms_CommandListInfos[_this].depthTargets.back();
+
+				ms_DepthBufferInjectInfo.m_Active       = true;
+				ms_DepthBufferInjectInfo.m_Resource     = barrier.Transition.pResource;
+				ms_DepthBufferInjectInfo.m_ListToInject = _this;
+				ms_DepthBufferInjectInfo.m_CPUDesc      = desc;
+				ms_DepthBufferInjectInfo.m_State        = D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
 			}
 		}
 	}
@@ -241,6 +240,8 @@ static void HK_OMSetRenderTargets(ID3D12GraphicsCommandList *_this, UINT NumRend
 		std::lock_guard lock(ms_CommandListMapMutex);
 		for (size_t i = 0; i < NumRenderTargetDescriptors; i++)
 			ms_CommandListInfos[_this].renderTargets.push_back(pRenderTargetDescriptors[i]);
+		if (pDepthStencilDescriptor)
+			ms_CommandListInfos[_this].depthTargets.push_back(*pDepthStencilDescriptor);
 	}
 
 	OG_OMSetRenderTargets(_this, NumRenderTargetDescriptors, pRenderTargetDescriptors, RTsSingleHandleToDescriptorRange,
@@ -376,12 +377,12 @@ static void OnCleanup()
 		return;
 
 	SHADER_LOG("Cleanup");
-	
+
 	{
 		std::lock_guard lock1(ms_BackBufferVectorMutex);
 		std::lock_guard lock2(ms_CommandListMapMutex);
 		std::lock_guard lock3(ms_ShaderVectorMutex);
-		
+
 		ms_BackBuffers.clear();
 		ms_CommandListInfos.clear();
 		ms_Shaders.clear();
@@ -409,7 +410,7 @@ static void OnCleanup()
 		Memory::Write<void *>(ms_ResetAddr, reinterpret_cast<void *>(OG_Reset));
 
 	SHADER_LOG("Cleaned up hooks");
-	
+
 	DX12PipelineInjector::Get().UnInit();
 
 	SHADER_LOG("Uninit injector");

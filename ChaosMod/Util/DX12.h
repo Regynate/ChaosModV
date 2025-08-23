@@ -12,6 +12,14 @@
 
 class DX12PipelineInjector
 {
+  public:
+	struct ResourceInfo
+	{
+		ID3D12Resource *Resource;
+		D3D12_CPU_DESCRIPTOR_HANDLE View;
+		D3D12_RESOURCE_STATES State;
+	};
+
   private:
 	static const char *ms_DefaultPixelShader;
 	static const char *ms_DefaultVertexShader;
@@ -28,6 +36,7 @@ class DX12PipelineInjector
 	ComPointer<ID3D12DescriptorHeap> m_SRVHeap;
 	ComPointer<ID3D12DescriptorHeap> m_RtvHeap;
 	ComPointer<ID3D12Resource> m_SceneTexture;
+	ComPointer<ID3D12Resource> m_DepthBuffer;
 	ComPointer<ID3D12RootSignature> m_PostProcessRootSignature;
 	ComPointer<ID3D12Resource> m_VertexBuffer;
 	ComPointer<ID3D12PipelineState> m_PostProcessPSO;
@@ -36,28 +45,22 @@ class DX12PipelineInjector
 	std::unordered_map<size_t, ComPointer<ID3D12PipelineState>> m_PSOMap;
 
   public:
-	void InjectShaders(ID3D12GraphicsCommandList *commandList, ID3D12Resource *backBufferResource,
-	                   D3D12_CPU_DESCRIPTOR_HANDLE backBufferView, D3D12_RESOURCE_STATES backBufferState,
-	                   std::string_view pixelShader, std::string_view vertexShader);
-	inline void InjectShaders(ID3D12GraphicsCommandList *commandList, ID3D12Resource *backBufferResource,
-	                          D3D12_CPU_DESCRIPTOR_HANDLE backBufferView, D3D12_RESOURCE_STATES backBufferState)
+	void InjectShaders(ID3D12GraphicsCommandList *commandList, ResourceInfo backBufferInfo,
+	                   ResourceInfo depthBufferInfo, std::string_view pixelShader, std::string_view vertexShader);
+	inline void InjectShaders(ID3D12GraphicsCommandList *commandList, ResourceInfo backBufferInfo,
+	                          ResourceInfo depthBufferInfo)
 	{
-		InjectShaders(commandList, backBufferResource, backBufferView, backBufferState, ms_DefaultPixelShader,
-		              ms_DefaultVertexShader);
+		InjectShaders(commandList, backBufferInfo, depthBufferInfo, ms_DefaultPixelShader, ms_DefaultVertexShader);
 	}
-	inline void InjectPixelShader(ID3D12GraphicsCommandList *commandList, ID3D12Resource *backBufferResource,
-	                              D3D12_CPU_DESCRIPTOR_HANDLE backBufferView, D3D12_RESOURCE_STATES backBufferState,
-	                              std::string_view shaderSrc)
+	inline void InjectPixelShader(ID3D12GraphicsCommandList *commandList, ResourceInfo backBufferInfo,
+	                              ResourceInfo depthBufferInfo, std::string_view shaderSrc)
 	{
-		InjectShaders(commandList, backBufferResource, backBufferView, backBufferState, shaderSrc,
-		              ms_DefaultVertexShader);
+		InjectShaders(commandList, backBufferInfo, depthBufferInfo, shaderSrc, ms_DefaultVertexShader);
 	}
-	inline void InjectVertexShader(ID3D12GraphicsCommandList *commandList, ID3D12Resource *backBufferResource,
-	                               D3D12_CPU_DESCRIPTOR_HANDLE backBufferView, D3D12_RESOURCE_STATES backBufferState,
-	                               std::string_view shaderSrc)
+	inline void InjectVertexShader(ID3D12GraphicsCommandList *commandList, ResourceInfo backBufferInfo,
+	                               ResourceInfo depthBufferInfo, std::string_view shaderSrc)
 	{
-		InjectShaders(commandList, backBufferResource, backBufferView, backBufferState, ms_DefaultPixelShader,
-		              shaderSrc);
+		InjectShaders(commandList, backBufferInfo, depthBufferInfo, ms_DefaultPixelShader, shaderSrc);
 	}
 
 	inline void SetDevice(ID3D12Device7 *device)
