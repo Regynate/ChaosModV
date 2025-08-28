@@ -1,18 +1,22 @@
 name: Compile
 
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   build-asi:
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: true
+
+      - name: Get submodules
+        run: git submodule update --init --recursive
 
       - name: Restore Timestamps
-        uses: chetan/git-restore-mtime-action@v1
+        uses: chetan/git-restore-mtime-action@v2.1.1
       
       - name: Enable Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1.13.0
@@ -24,8 +28,8 @@ jobs:
           cache-name: cache-build-dir
         with:
           path: ChaosMod/build
-          key: build-${{ hashFiles('ChaosMod/**', 'CMakeLists.txt') }}
-          restore-keys: build-
+          key: build-${{ env.BRANCH_NAME }}-${{ hashFiles('ChaosMod/**', 'CMakeLists.txt') }}
+          restore-keys: build-${{ env.BRANCH_NAME }}
 
       - name: Compile ASI & Dependencies
         run: |
