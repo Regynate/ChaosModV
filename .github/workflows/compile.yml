@@ -18,6 +18,16 @@ jobs:
       - name: Restore Timestamps
         uses: chetan/git-restore-mtime-action@v2.1.1
       
+      - name: Restore Timestamps Minhook
+        uses: chetan/git-restore-mtime-action@v2.1.1
+        with:
+          working-directory: 'vendor/minhook'
+      
+      - name: Restore Timestamps IXWebSocket
+        uses: chetan/git-restore-mtime-action@v2.1.1
+        with:
+          working-directory: 'vendor/IXWebSocket'
+      
       - name: Enable Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1.13.0
 
