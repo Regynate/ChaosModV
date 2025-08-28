@@ -18,10 +18,10 @@ static void OnTick()
 }
 
 // clang-format off
-//REGISTER_EFFECT(OnStart, OnStop, OnTick, 
-//	{
-//		.Name = "Blackout",
-//		.Id = "world_blackout",
-//		.IsTimed = true
-//	}
-//);
+REGISTER_EFFECT(OnStart, OnStop, OnTick, 
+	{
+		.Name = "Blackout",
+		.Id = "world_blackout",
+		.IsTimed = true
+	}
+);
