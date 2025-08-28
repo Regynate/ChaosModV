@@ -28,6 +28,11 @@ jobs:
         with:
           working-directory: 'vendor/IXWebSocket'
       
+      - name: Restore Timestamps shv
+        uses: chetan/git-restore-mtime-action@v2.1.1
+        with:
+          working-directory: 'vendor/shv'
+
       - name: Enable Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1.13.0
 
