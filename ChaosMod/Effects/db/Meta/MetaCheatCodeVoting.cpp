@@ -92,7 +92,7 @@ static void OnTick()
 			for (const auto &entry : availableEffects)
 			{
 				RemoveSpaces(message.m_Message);
-				if (!CompareCaseInsensitive(message.m_Message, entry.NameNoSpaces))
+				if (!CompareCaseInsensitive(message.m_Message, entry.NameNoSpaces) || !CompareCaseInsensitive(message.m_Message, entry.Id))
 				{
 					auto username    = message.m_Userstate.m_Username;
 					auto displayName = message.m_Userstate.m_DisplayName;
