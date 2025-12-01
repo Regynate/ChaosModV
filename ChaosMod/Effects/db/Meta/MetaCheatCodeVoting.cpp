@@ -72,11 +72,6 @@ static void OnStart()
 		                                [&](const ChatMessage &message) { AddMessageToQueue(message); });
 	}
 
-	if (ComponentExists<SplashTexts>())
-		GetComponent<SplashTexts>()->ShowSplash(
-		    "CHEAT CODE VOTING~n~Type an effect name~n~(with or without spaces, I don't care)~n~into chat!",
-		    { 0.5f, 0.3f }, 1.2f, { 255, 255, 255 }, VOTING_TIME / 1000.f);
-
 	startTick = GetTickCount64();
 }
 
@@ -84,6 +79,11 @@ static void OnTick()
 {
 	if (GetTickCount64() - startTick < VOTING_TIME)
 	{
+		if (ComponentExists<SplashTexts>())
+			GetComponent<SplashTexts>()->ShowSplash(
+			    "CHEAT CODE VOTING~n~Type an effect name~n~(with or without spaces, I don't care)~n~into chat!",
+			    { 0.5f, 0.3f }, 1.2f, { 255, 255, 255 }, 0);
+
 		while (!messageQueue.empty())
 		{
 			auto message = messageQueue.front();
@@ -92,7 +92,8 @@ static void OnTick()
 			for (const auto &entry : availableEffects)
 			{
 				RemoveSpaces(message.m_Message);
-				if (!CompareCaseInsensitive(message.m_Message, entry.NameNoSpaces) || !CompareCaseInsensitive(message.m_Message, entry.Id))
+				if (!CompareCaseInsensitive(message.m_Message, entry.NameNoSpaces)
+				    || !CompareCaseInsensitive(message.m_Message, entry.Id))
 				{
 					auto username    = message.m_Userstate.m_Username;
 					auto displayName = message.m_Userstate.m_DisplayName;
