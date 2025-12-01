@@ -64,7 +64,7 @@ inline void DrawScreenText(const std::string &text, const ScreenTextVector &text
 	}
 }
 
-inline void DrawScreenText(const std::string &text, Color textColor, float x, float y, float z, float size, float maxWidth)
+inline void DrawScreenText(const std::string &text, Color textColor, float x, float y, float z, float size, float maxSize, float maxWidth)
 {
 	ChaosVector2 screenPos;
 	Memory::WorldToScreen({ x, y, z }, &screenPos);
@@ -73,13 +73,13 @@ inline void DrawScreenText(const std::string &text, Color textColor, float x, fl
 	const auto distance = GET_DISTANCE_BETWEEN_COORDS(camCoord.x, camCoord.y, camCoord.z, x, y, z, true);
 
 	const auto angle    = 2 * ATAN2(size, 2 * distance);
-	const auto textSize = angle / fov;
+	const auto textSize = std::min(maxSize, angle / fov);
 
 	DrawScreenText(text, { screenPos.x, screenPos.y }, textSize, textColor, true, ScreenTextAdjust::Center, {screenPos.x - textSize * maxWidth, screenPos.x + textSize * maxWidth});
 }
 
-inline void DrawTextAbovePedHead(const std::string &text, Ped ped, float size, Color color, float distance = 0.4f, float maxWidth = 10000.f)
+inline void DrawTextAbovePedHead(const std::string &text, Ped ped, float size, float maxSize, Color color, float distance = 0.4f, float maxWidth = 10000.f)
 {
 	Vector3 coords = GET_PED_BONE_COORDS(ped, 31086, distance, 0, 0);
-	DrawScreenText(text, color, coords.x, coords.y, coords.z, size, maxWidth);
+	DrawScreenText(text, color, coords.x, coords.y, coords.z, size, maxSize, maxWidth);
 }

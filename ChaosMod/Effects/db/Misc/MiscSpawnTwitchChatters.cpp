@@ -188,14 +188,14 @@ static void UpdateUser(Ped ped, std::string userid)
 	if (displayName.size() != username.size())
 		displayName = username;
 
-	float nameDistance = 0.4f;
+	float nameDistance = 0.5f;
 
 	if (GetTickCount64() - user.m_LastMessageTimestamp < 5000)
 	{
-		DrawTextAbovePedHead(user.m_LastMessage.m_Message, ped, 1.f, Color(255, 255, 255), 0.4f, 0.3f);
-		nameDistance = 0.6f;
+		DrawTextAbovePedHead(user.m_LastMessage.m_Message, ped, 2.f, 0.6f, Color(255, 255, 255), 0.4f, 0.4f);
+		nameDistance = 0.7f;
 	}
-	DrawTextAbovePedHead(displayName, ped, 2.f, Color(color), nameDistance);
+	DrawTextAbovePedHead(displayName, ped, 3.f, 0.8f, Color(color), nameDistance);
 }
 
 static Ped SpawnEnemy()
