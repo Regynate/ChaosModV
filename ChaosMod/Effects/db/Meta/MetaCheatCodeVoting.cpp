@@ -22,6 +22,7 @@ CHAOS_VAR std::list<ChatMessage> messageQueue;
 struct EffectEntry
 {
 	std::string Id;
+	std::string IdNoSpaces;
 	std::string Name;
 	std::string NameNoSpaces;
 };
@@ -44,7 +45,7 @@ static void RemoveSpaces(std::string &data)
 	std::string buffer;
 	buffer.reserve(data.size());
 	for (size_t pos = 0; pos != data.size(); ++pos)
-		if ((data[pos] > 'a' && data[pos] < 'z') || (data[pos] > 'A' && data[pos] < 'Z'))
+		if ((data[pos] >= 'a' && data[pos] <= 'z') || (data[pos] >= 'A' && data[pos] <= 'Z'))
 			buffer.append(&data[pos], 1);
 	data.swap(buffer);
 }
@@ -56,9 +57,12 @@ static void AddMessageToQueue(ChatMessage message)
 		{
 			const auto name   = effect->HasCustomName() ? effect->CustomName : effect->Name;
 			auto nameNoSpaces = name;
-			RemoveSpaces(nameNoSpaces);
 
-			availableEffects.emplace_back(effect->Id, name, nameNoSpaces);
+			const auto id = effect->Id.Id();
+			auto idNoSpaces = id;
+			RemoveSpaces(idNoSpaces);
+
+			availableEffects.emplace_back(id, idNoSpaces, name, nameNoSpaces);
 		}
 
 	messageQueue.push_back(message);
@@ -93,7 +97,7 @@ static void OnTick()
 			{
 				RemoveSpaces(message.m_Message);
 				if (!CompareCaseInsensitive(message.m_Message, entry.NameNoSpaces)
-				    || !CompareCaseInsensitive(message.m_Message, entry.Id))
+				    || !CompareCaseInsensitive(message.m_Message, entry.IdNoSpaces))
 				{
 					auto username    = message.m_Userstate.m_Username;
 					auto displayName = message.m_Userstate.m_DisplayName;
