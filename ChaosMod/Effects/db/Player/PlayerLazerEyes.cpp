@@ -11,6 +11,8 @@ static void DrawLine(Vector3 startPosition, Vector3 endPosition)
 
 CHAOS_VAR std::list<Ped> pedsOnFire {};
 
+CHAOS_VAR int lastFoliageFire {};
+
 static void StartFire(Ped ped)
 {
 	if (IS_ENTITY_ON_FIRE(ped))
@@ -83,6 +85,32 @@ static void OnTick()
 				USE_PARTICLE_FX_ASSET("core");
 				START_PARTICLE_FX_NON_LOOPED_AT_COORD("exp_grd_gren_sp", hitCoords.x, hitCoords.y, hitCoords.z, 0.f,
 				                                      0.f, 0.f, 0.2f, 0, 0, 0);
+			}
+		}
+	}
+
+	// there must be a better way to do this rather than firing shapetest twice..
+
+	if (GET_GAME_TIMER() - lastFoliageFire > 2000)
+	{
+		auto const raycast1 = START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(
+		    eyeCoordsMid.x, eyeCoordsMid.y, eyeCoordsMid.z, targetCoordsMid.x, targetCoordsMid.y, targetCoordsMid.z,
+		    256, ignoreEntity, 0);
+
+		BOOL hit {};
+		Vector3 hitCoords {};
+		Vector3 surface {};
+		Entity hitEntity {};
+
+		if (GET_SHAPE_TEST_RESULT(raycast1, &hit, &hitCoords, &surface, &hitEntity) == 2)
+		{
+			if (hit)
+			{
+				if (!hitCoords.IsDefault())
+				{
+					ADD_EXPLOSION(hitCoords.x, hitCoords.y, hitCoords.z, 3, 0.0, false, false, false, true);
+					lastFoliageFire = GET_GAME_TIMER();
+				}
 			}
 		}
 	}
