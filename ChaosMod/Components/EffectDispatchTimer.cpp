@@ -12,6 +12,7 @@ EffectDispatchTimer::EffectDispatchTimer() : Component()
 
 	m_DrawTimerBar    = !g_OptionsManager.GetConfigValue({ "DisableTimerBarDraw" }, OPTION_DEFAULT_NO_EFFECT_BAR);
 	m_EffectSpawnTime = g_OptionsManager.GetConfigValue({ "NewEffectSpawnTime" }, OPTION_DEFAULT_EFFECT_SPAWN_TIME);
+	LOG("Init effectSpawnTime=" << m_EffectSpawnTime);
 
 	m_DistanceChaosState.EnableDistanceBasedEffectDispatch =
 	    g_OptionsManager.GetConfigValue({ "EffectDispatchMode", " EnableDistanceBasedEffectDispatch " },
@@ -19,20 +20,65 @@ EffectDispatchTimer::EffectDispatchTimer() : Component()
 	        ? true
 	        : false;
 	m_DistanceChaosState.DistanceToActivateEffect =
-	    g_OptionsManager.GetConfigValue<float>({ "DistanceToActivateEffect" }, OPTION_DEFAULT_EFFECT_SPAWN_DISTANCE);
+	    g_OptionsManager.GetConfigValue({ "DistanceToActivateEffect" }, OPTION_DEFAULT_EFFECT_SPAWN_DISTANCE);
 	m_DistanceChaosState.DistanceType = static_cast<DistanceChaosState::TravelledDistanceType>(
 	    g_OptionsManager.GetConfigValue({ "DistanceType" }, OPTION_DEFAULT_DISTANCE_TYPE));
 }
 
+void EffectDispatchTimer::OnRun()
+{
+	auto curTime = GetTickCount64();
+
+	if (!m_EnableTimer || (ComponentExists<MetaModifiers>() && GetComponent<MetaModifiers>()->DisableChaos))
+	{
+		ResetSavedPosition();
+		m_Timer = curTime;
+		return;
+	}
+
+	if (m_DrawTimerBar && (!ComponentExists<MetaModifiers>() || !GetComponent<MetaModifiers>()->HideChaosUI))
+	{
+		float percentage = m_FakeTimerPercentage != 0.f ? m_FakeTimerPercentage : m_TimerPercentage;
+
+		// Timer bar at the top
+		DRAW_RECT(.5f, .01f, 1.f, .021f, 0, 0, 0, 127, false);
+
+		auto color = m_TimerColor;
+
+		if (ComponentExists<MetaModifiers>() && GetComponent<MetaModifiers>()->FlipChaosUI)
+			DRAW_RECT(1.f - percentage * .5f, .01f, percentage, .02f, color.R, color.G, color.B, color.A, false);
+		else
+			DRAW_RECT(percentage * .5f, .01f, percentage, .02f, color.R, color.G, color.B, color.A, false);
+	}
+
+	int deltaTime = curTime - m_Timer;
+
+	// The game was paused
+	if (deltaTime > 1000)
+		deltaTime = 0;
+
+	if (!m_PauseTimer)
+	{
+		LOG("OnRun: Updating timer");
+		if (m_DistanceChaosState.EnableDistanceBasedEffectDispatch)
+			UpdateTravelledDistance();
+		else
+			UpdateTimer(deltaTime);
+	}
+
+	m_Timer = curTime;
+}
+
 void EffectDispatchTimer::UpdateTimer(int deltaTime)
 {
-	int effectSpawnTime = ComponentExists<MetaModifiers>() && GetComponent<MetaModifiers>()->TimeToDispatchEffect > 0
-	                        ? GetComponent<MetaModifiers>()->TimeToDispatchEffect
-	                        : m_EffectSpawnTime;
-
-	m_TimerPercentage += deltaTime
+	m_TimerPercentage += (float)deltaTime
 	                   * (!ComponentExists<MetaModifiers>() ? 1.f : GetComponent<MetaModifiers>()->TimerSpeedModifier)
-	                   / effectSpawnTime / 1000.f;
+	                   / m_EffectSpawnTime / 1000.f;
+
+	LOG("Updating timer; m_EffectSpawnTime="
+	    << m_EffectSpawnTime << " TimerSpeedModifier="
+	    << (!ComponentExists<MetaModifiers>() ? 1.f : GetComponent<MetaModifiers>()->TimerSpeedModifier)
+	    << " deltaTime=" << deltaTime << " new value=" << m_TimerPercentage);
 
 	if (m_TimerPercentage >= 1.f && m_DispatchEffectsOnTimer && ComponentExists<EffectDispatcher>())
 	{
@@ -191,68 +237,4 @@ void EffectDispatchTimer::SetTimerPaused(bool pause)
 bool EffectDispatchTimer::IsUsingDistanceBasedDispatch() const
 {
 	return m_DistanceChaosState.EnableDistanceBasedEffectDispatch;
-}
-
-void EffectDispatchTimer::OnRun()
-{
-	auto curTime = GetTickCount64();
-
-	if (!m_EnableTimer || (ComponentExists<MetaModifiers>() && GetComponent<MetaModifiers>()->DisableChaos))
-	{
-		ResetSavedPosition();
-		m_Timer = curTime;
-		return;
-	}
-
-	if (m_DrawTimerBar && (!ComponentExists<MetaModifiers>() || !GetComponent<MetaModifiers>()->HideChaosUI))
-	{
-		float percentage = m_FakeTimerPercentage != 0.f ? m_FakeTimerPercentage : m_TimerPercentage;
-
-		// Timer bar at the top
-		DRAW_RECT(.5f, .01f, 1.f, .023f, 0, 0, 0, 127, false);
-
-		auto color = m_TimerColor;
-
-		if (ComponentExists<MetaModifiers>())
-		{
-			auto colorOverride = GetComponent<MetaModifiers>()->TimerColorOverride;
-			if (colorOverride.has_value())
-				color = colorOverride.value();
-		}
-
-		if (ComponentExists<MetaModifiers>() && GetComponent<MetaModifiers>()->FlipChaosUI)
-			DRAW_RECT(1.f - percentage * .5f, .01f, percentage, .02f, color.R, color.G, color.B, color.A, false);
-		else
-			DRAW_RECT(percentage * .5f, .01f, percentage, .02f, color.R, color.G, color.B, color.A, false);
-	}
-
-	int deltaTime = curTime - m_Timer;
-
-	// The game was paused
-	if (deltaTime > 1000)
-		deltaTime = 0;
-
-	if (!m_PauseTimer)
-	{
-		const TimerMode modeOverride =
-		    ComponentExists<MetaModifiers>() ? GetComponent<MetaModifiers>()->TimerModeOverride : TimerMode::None;
-
-		switch (modeOverride)
-		{
-		case TimerMode::Time:
-			UpdateTimer(deltaTime);
-			break;
-		case TimerMode::Distance:
-			UpdateTravelledDistance();
-			break;
-		default:
-			if (m_DistanceChaosState.EnableDistanceBasedEffectDispatch)
-				UpdateTravelledDistance();
-			else
-				UpdateTimer(deltaTime);
-			break;
-		}
-	}
-
-	m_Timer = curTime;
 }
