@@ -167,7 +167,7 @@ void EffectDispatchTimer::SetTimerEnabled(bool state)
 
 int EffectDispatchTimer::GetDefaultEffectSpawnTime() const
 {
-	return m_EffectSpawnTime;
+	return static_cast<int>(m_EffectSpawnTime);;
 }
 
 int EffectDispatchTimer::GetDefaultEffectSpawnDistance() const
