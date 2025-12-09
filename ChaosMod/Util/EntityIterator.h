@@ -278,11 +278,19 @@ class BuildingPoolEncryptedPointer : public EncryptedPointer<GenericPool, 29, 1>
 {
 };
 
+class DummyObjectPoolEncryptedPointer : public EncryptedPointer<GenericPool, 30, 2>
+{
+};
+
 class AnimatedBuildingPoolEncryptedPointer : public EncryptedPointer<GenericPool, 29, 5>
 {
 };
 
 class GrassPoolEncryptedPointer : public EncryptedPointer<GenericPool, 29, 1>
+{
+};
+
+class VehicleGlassPoolEncryptedPointer : public EncryptedPointer<GenericPool, 27, 2>
 {
 };
 
@@ -345,7 +353,7 @@ inline auto &GetAllProps()
 	return propPool;
 }
 
-inline auto GetAllBuildings()
+inline auto &GetAllBuildings()
 {
 	static GenericPool buildingPool = []
 	{
@@ -365,7 +373,28 @@ inline auto GetAllBuildings()
 	return buildingPool;
 }
 
-inline auto GetAllAnimatedBuildings()
+inline auto &GetAllDummyObjects()
+{
+	static GenericPool buildingPool = []
+	{
+		if (IsLegacy())
+		{
+			auto handle = Memory::FindPattern("4C 8B 35 ?? ?? ?? ?? 8B C8");
+			return GenericPool(handle.At(2).Into().Value<UINT64>());
+		}
+		else
+		{
+			auto handle =
+			    Memory::FindPattern("0F B6 0D ?? ?? ?? ?? F6 C1 01 B9 00 00 00 00 48 0F 45 CA 48 8B 51 10 0F B6 14 02");
+			auto encryptedPtr = DummyObjectPoolEncryptedPointer(handle.At(2).Into().Addr());
+			return encryptedPtr.GetPool();
+		}
+	}();
+
+	return buildingPool;
+}
+
+inline auto &GetAllAnimatedBuildings()
 {
 	static GenericPool buildingPool = []
 	{
@@ -386,7 +415,7 @@ inline auto GetAllAnimatedBuildings()
 	return buildingPool;
 }
 
-inline auto GetAllGrass()
+inline auto &GetAllGrass()
 {
 	static GenericPool grassPool = []
 	{
@@ -419,6 +448,11 @@ inline auto GetAllVehsArray()
 inline auto GetAllPropsArray()
 {
 	return GetAllProps().ToArray();
+}
+
+inline auto GetAllDummyObjectsArray()
+{
+	return GetAllDummyObjects().ToArray();
 }
 
 inline auto GetAllBuildingsArray()

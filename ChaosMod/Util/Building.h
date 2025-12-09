@@ -373,11 +373,11 @@ inline auto GetAllVisibleBuildings()
 			Vector3 min, max;
 			GET_MODEL_DIMENSIONS(model, &min, &max);
 
-			const auto radius =
+			const auto diameter =
 			    std::max(std::abs(max.x - min.x), std::max(std::abs(max.y - min.y), std::abs(max.z - min.z)));
 
-			if (radius / coords.DistanceTo(playerPos) > 0.02f
-			    && IS_SPHERE_VISIBLE(coords.x, coords.y, coords.z, radius))
+			if (diameter / coords.DistanceTo(playerPos) > 0.02f
+			    && IS_SPHERE_VISIBLE(coords.x, coords.y, coords.z, diameter / 2))
 				arr.push_back(building);
 		}
 	};
@@ -388,15 +388,15 @@ inline auto GetAllVisibleBuildings()
 	for (const auto building : GetAllAnimatedBuildings())
 		process(building);
 
-	for (const auto building : GetAllGrass())
-		process(building);
-
 	return arr;
 }
 
 inline auto GetAllTrees()
 {
 	std::vector<Entity> arr;
+
+	for (const auto building : GetAllGrass())
+		arr.push_back(building);
 
 	for (const auto building : GetAllVisibleBuildings())
 	{

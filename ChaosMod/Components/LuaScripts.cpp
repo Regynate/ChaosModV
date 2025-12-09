@@ -614,6 +614,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		  [](Vehicle veh, Hash model, bool addToPool) { return ReplaceVehicleWithModel(veh, model, addToPool, true); }),
 
 		E("GetAllProps", GetAllPropsArray),
+		E("GetAllDummyObjects", GetAllDummyObjectsArray),
 		E("CreatePoolProp", CreatePoolProp),
 
 		E("GetAllWeapons", Memory::GetAllWeapons),
