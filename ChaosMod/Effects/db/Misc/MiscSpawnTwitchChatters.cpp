@@ -266,23 +266,6 @@ static SpawnedUser SpawnUser(const User user)
 
 	const auto userid = user.m_Userid;
 
-	if (ComponentExists<Tracking>())
-	{
-		GetComponent<Tracking>()->AddEntityTracker(ped,
-		                                           [userid](Ped ped)
-		                                           {
-			                                           UpdateUser(ped, userid);
-
-			                                           if (!spawnedUsers.contains(userid))
-			                                           {
-				                                           RemovePed(ped);
-				                                           return false;
-			                                           }
-
-			                                           return true;
-		                                           });
-	}
-
 	return { user, ped };
 }
 
@@ -291,7 +274,32 @@ static void SpawnUsers()
 	std::lock_guard lock(messageMutex);
 
 	for (const auto &user : userQueue)
+	{
 		spawnedUsers.emplace(user.m_Userid, SpawnUser(user));
+		WAIT(0);
+	}
+
+	if (ComponentExists<Tracking>())
+	{
+		for (const auto &[_, user] : spawnedUsers)
+		{
+			const auto userid = user.m_User.m_Userid;
+			GetComponent<Tracking>()->AddEntityTracker(user.m_Ped,
+			                                           [userid](Ped ped)
+			                                           {
+				                                           UpdateUser(ped, userid);
+
+				                                           if (!spawnedUsers.contains(userid))
+				                                           {
+					                                           RemovePed(ped);
+					                                           return false;
+				                                           }
+
+				                                           return true;
+			                                           });
+			WAIT(0);
+		}
+	}
 }
 
 static void Cleanup()
