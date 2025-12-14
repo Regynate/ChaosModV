@@ -59,7 +59,7 @@ void DX12PipelineInjector::CreatePostProcessRootSignature()
 	slotRootParameter[2].ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 	slotRootParameter[2].Constants.ShaderRegister            = 0;
 	slotRootParameter[2].Constants.RegisterSpace             = 0;
-	slotRootParameter[2].Constants.Num32BitValues            = 2;
+	slotRootParameter[2].Constants.Num32BitValues            = 12;
 	slotRootParameter[2].ShaderVisibility                    = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_STATIC_SAMPLER_DESC samplerDesc                    = {};
@@ -410,11 +410,20 @@ void DX12PipelineInjector::InjectShaders(ID3D12GraphicsCommandList *commandList,
 	};
 
 	FloatBits rand;
-	rand.f            = g_Random.GetRandomFloat(0.f, 1.f);
+	rand.f = g_Random.GetRandomFloat(0.f, 1.f);
+	
+	ULONG constants[12];
+	constants[0] = ticks;
+	constants[1] = rand.i;
 
-	ULONG constants[] = { ticks, rand.i };
+	for (int i = 0; i < 10; ++i)
+	{
+		FloatBits fb;
+		fb.f = m_CustomData[i];
+		constants[2+i] = fb.i;
+	}
 
-	commandList->SetGraphicsRoot32BitConstants(2, 2, constants, 0);
+	commandList->SetGraphicsRoot32BitConstants(2, 12, constants, 0);
 
 	D3D12_VERTEX_BUFFER_VIEW vbView;
 	vbView.BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();

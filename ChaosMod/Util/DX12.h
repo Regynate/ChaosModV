@@ -44,6 +44,8 @@ class DX12PipelineInjector
 
 	std::unordered_map<size_t, ComPointer<ID3D12PipelineState>> m_PSOMap;
 
+	std::array<float, 10> m_CustomData;
+
   public:
 	void InjectShaders(ID3D12GraphicsCommandList *commandList, ResourceInfo backBufferInfo,
 	                   ResourceInfo depthBufferInfo, std::string_view pixelShader, std::string_view vertexShader);
@@ -102,6 +104,11 @@ class DX12PipelineInjector
 		m_PSOMap.clear();
 
 		m_Init = false;
+	}
+
+	inline void SetCustomData(int index, float data)
+	{
+		m_CustomData[index] = data;
 	}
 
   private:
