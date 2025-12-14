@@ -26,12 +26,15 @@
 #include "Memory/Hooks/ShaderHookEnhanced.h"
 #include "Memory/PedModels.h"
 #include "Memory/Rain.h"
+#include "Memory/Settings.h"
 #include "Memory/Snow.h"
+#include "Memory/UI.h"
 #include "Memory/Vehicle.h"
 #include "Memory/Water.h"
 #include "Memory/WeaponPool.h"
 #include "Util/Building.h"
 #include "Util/Camera.h"
+#include "Util/DX12.h"
 #include "Util/EntityIterator.h"
 #include "Util/File.h"
 #include "Util/HelpText.h"
@@ -648,6 +651,15 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("ResetAudioLPFCutoff", Hooks::ResetAudioLPFCutoff),
 		E("SetAudioVolume", Hooks::SetAudioVolume),
 		E("ResetAudioVolume", Hooks::ResetAudioVolume),
+
+		E("SetRadarOffset", Memory::SetRadarOffset),
+		E("MultiplyRadarSize", Memory::MultiplyRadarSize),
+
+		E("SetSetting", Memory::SetSetting),
+		E("GetSetting", Memory::GetSetting),
+		E("ApplySettings", Memory::ApplySettings),
+
+		E("SetShaderConstant", [](int index, float value) { DX12PipelineInjector::Get().SetCustomData(index, value); }),
 
 		E("SetTimeScale", Hooks::SetTimeScale),
 
