@@ -11,4 +11,6 @@ namespace Hooks
 
 	void AddCustomLabel(std::string_view label, const std::string &text);
 	void ClearCustomLabels();
+
+	void ShowSubtitle(std::string_view label);
 }

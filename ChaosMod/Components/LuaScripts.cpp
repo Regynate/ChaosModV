@@ -658,6 +658,8 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("SetSetting", Memory::SetSetting),
 		E("GetSetting", Memory::GetSetting),
 		E("ApplySettings", Memory::ApplySettings),
+		
+		E("ShowSubtitle", Hooks::ShowSubtitle),
 
 		E("SetShaderConstant", [](int index, float value) { DX12PipelineInjector::Get().SetCustomData(index, value); }),
 

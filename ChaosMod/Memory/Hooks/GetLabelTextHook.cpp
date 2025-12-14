@@ -19,6 +19,8 @@ struct LabelInfo
 static std::unordered_map<Hash, LabelInfo> ms_ProcessedLabels;
 static std::mutex ms_GetLabelMutex;
 
+static void (*CGarage__PrintMessage)(__int64 _this, const char *pTextLabel);
+
 const char *(*OG_GetLabelText)(void *, Hash);
 const char *HK_GetLabelText(void *text, Hash hash)
 {
@@ -59,6 +61,10 @@ static bool OnHook()
 		return false;
 
 	Memory::AddHook(handle.At(IsLegacy() ? 5 : 4).Into().Get<void>(), HK_GetLabelText, &OG_GetLabelText);
+
+	handle = Memory::FindPattern("E8 ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? E9 3C 01 00 00", "E8 ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? E9 B1 00 00 00");
+
+	CGarage__PrintMessage = handle.Into().Get<void(__int64, const char*)>();
 
 	return true;
 }
@@ -112,5 +118,10 @@ namespace Hooks
 	{
 		ms_CustomLabels.clear();
 		ms_CustomLabelHashes = std::queue<Hash>();
+	}
+
+	void ShowSubtitle(std::string_view label)
+	{
+		CGarage__PrintMessage(0, label.data());
 	}
 }
