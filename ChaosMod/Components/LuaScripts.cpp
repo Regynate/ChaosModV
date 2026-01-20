@@ -18,6 +18,7 @@
 #include "Memory/Gameconfig.h"
 #include "Memory/Gravity.h"
 #include "Memory/Hooks/AudioSettingsHook.h"
+#include "Memory/Hooks/ControlHook.h"
 #include "Memory/Hooks/GameSpeedHook.h"
 #include "Memory/Hooks/GetLabelTextHook.h"
 #include "Memory/Hooks/MinimapHook.h"
@@ -42,6 +43,7 @@
 #include "Util/Player.h"
 #include "Util/PoolSpawner.h"
 #include "Util/Script.h"
+#include "Util/ScriptText.h"
 #include "Util/Text.h"
 #include "Util/Types.h"
 #include "Util/Vehicle.h"
@@ -591,6 +593,13 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		      return false;
 		  }),
 
+		E("DrawScreenText",
+		  [](std::string text, float x, float y, float scale, int r, int g, int b, bool outline)
+		  {
+		      DrawScreenText(text, { x, y }, scale, { (uint8_t)r, (uint8_t)g, (uint8_t)b }, outline,
+		                     ScreenTextAdjust::Center, { -1000, 1000 }, false);
+		  }),
+
 		E("APPLY_FORCE_TO_ENTITY", APPLY_FORCE_TO_ENTITY),
 		E("APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS", APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS),
 
@@ -658,7 +667,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("SetSetting", Memory::SetSetting),
 		E("GetSetting", Memory::GetSetting),
 		E("ApplySettings", Memory::ApplySettings),
-		
+
 		E("ShowSubtitle", Hooks::ShowSubtitle),
 
 		E("SetShaderConstant", [](int index, float value) { DX12PipelineInjector::Get().SetCustomData(index, value); }),
@@ -854,6 +863,18 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		E("IsVotingEnabled", []() { return ComponentExists<Voting>() && GetComponent<Voting>()->IsEnabled(); }),
 		E("AddPixelShader", Hooks::AddPixelShader),
 		E("RemovePixelShader", Hooks::RemovePixelShader),
+		E("RouteKey", Hooks::RouteKey),
+		E("RouteKeyWithMult",
+		  [](int ogAction, int routeAction, const float mult)
+		  {
+		      const auto transform = [mult](float x) -> float
+		      {
+			      return mult * x;
+		      };
+		      Hooks::RouteKeyWithTransform(ogAction, routeAction, transform);
+		  }),
+		E("ResetKeyRoute", Hooks::ResetKeyRoute),
+		E("ResetKeyRoutes", Hooks::ResetKeyRoutes),
 	};
 #undef E
 
