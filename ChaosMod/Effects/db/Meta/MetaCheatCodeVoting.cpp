@@ -52,24 +52,27 @@ static void RemoveSpaces(std::string &data)
 
 static void AddMessageToQueue(ChatMessage message)
 {
-	for (const auto &effect : GetFilteredEnabledEffects())
-		if (!effect->IsExcludedFromCheatVoting())
-		{
-			const auto name   = effect->HasCustomName() ? effect->CustomName : effect->Name;
-			auto nameNoSpaces = name;
-
-			const auto id = effect->Id.Id();
-			auto idNoSpaces = id;
-			RemoveSpaces(idNoSpaces);
-
-			availableEffects.emplace_back(id, idNoSpaces, name, nameNoSpaces);
-		}
-
 	messageQueue.push_back(message);
 }
 
 static void OnStart()
 {
+	availableEffects.clear();
+
+	for (const auto &effect : GetFilteredEnabledEffects())
+		if (!effect->IsExcludedFromCheatVoting())
+		{
+			const auto name   = effect->HasCustomName() ? effect->CustomName : effect->Name;
+			auto nameNoSpaces = name;
+			RemoveSpaces(nameNoSpaces);
+
+			const auto id     = effect->Id.Id();
+			auto idNoSpaces   = id;
+			RemoveSpaces(idNoSpaces);
+
+			availableEffects.emplace_back(id, idNoSpaces, name, nameNoSpaces);
+		}
+
 	if (ComponentExists<Voting>())
 	{
 		m_OnNewMessageListener.Register(GetComponent<Voting>()->OnNewMessage,
