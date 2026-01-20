@@ -160,6 +160,8 @@ static void PostRender(Entity entity, unsigned int boneId, Transform &transform)
 static void (*OG_CGame__Render)(void);
 static void HK_CGame__Render(void)
 {
+	Hooks::OnPreRender.Fire();
+
 	for (auto it = ms_EntityMap.begin(); it != ms_EntityMap.end(); ++it)
 	{
 		auto &[entityAddr, transform] = *it;

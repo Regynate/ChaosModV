@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Util/Events.h"
+
 #include "scripthookv/inc/types.h"
 
 namespace Hooks
@@ -11,4 +13,6 @@ namespace Hooks
 	void AddTranslationVector(const Entity entity, unsigned int boneId, const Vector3 &translation);
 	void AddRotationVector(const Entity entity, unsigned int boneId, const Vector3 &rotation);
 	void AddScaleVector(const Entity entity, unsigned int boneId, const Vector3 &scale);
+
+	inline ChaosEvent OnPreRender;
 }

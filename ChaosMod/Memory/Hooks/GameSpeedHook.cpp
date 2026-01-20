@@ -54,6 +54,8 @@ void _HK_rage__fwTimer__Update(void *_this)
 	if (sm_fMaximumFrameTime)
 		*sm_fMaximumFrameTime = targetScale > 1.f ? 100.f : 0.06666f;
 
+	Hooks::OnTimerUpdate.Fire();
+
 	_OG_rage__fwTimer__Update(_this);
 }
 
