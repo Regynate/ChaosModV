@@ -20,6 +20,9 @@ static std::unordered_map<Hash, LabelInfo> ms_ProcessedLabels;
 static std::mutex ms_GetLabelMutex;
 
 static void (*CGarage__PrintMessage)(__int64 _this, const char *pTextLabel);
+static void (*CTextFile__ReloadAfterLanguageChange)(__int64 *_this);
+
+static __int64 *TheText;
 
 const char *(*OG_GetLabelText)(void *, Hash);
 const char *HK_GetLabelText(void *text, Hash hash)
@@ -62,9 +65,25 @@ static bool OnHook()
 
 	Memory::AddHook(handle.At(IsLegacy() ? 5 : 4).Into().Get<void>(), HK_GetLabelText, &OG_GetLabelText);
 
-	handle = Memory::FindPattern("E8 ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? E9 3C 01 00 00", "E8 ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? E9 B1 00 00 00");
+	handle                = Memory::FindPattern("E8 ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? E9 3C 01 00 00",
+	                                            "E8 ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? E9 B1 00 00 00");
 
-	CGarage__PrintMessage = handle.Into().Get<void(__int64, const char*)>();
+	CGarage__PrintMessage = handle.Into().Get<void(__int64, const char *)>();
+
+	handle                = Memory::FindPattern("48 8D 0D ?? ?? ?? ?? 75 5F",
+	                                            "48 8D 0D ?? ?? ?? ?? 89 C2 E8 ?? ?? ?? ?? 48 85 C0 0F 85 F8 FD FF FF");
+	if (handle.IsValid())
+		TheText = handle.At(2).Into().Get<__int64>();
+	else
+		return false;
+
+	handle = Memory::FindPattern("E8 ?? ?? ?? ?? 8B 0D ?? ?? ?? ?? 48 8B 5C 24 30 48 8B 6C 24 38",
+	                             "E8 ?? ?? ?? ?? 89 F1 E8 ?? ?? ?? ?? B9 FF FF FF FF");
+
+	if (handle.IsValid())
+		CTextFile__ReloadAfterLanguageChange = handle.Into().Get<void(__int64*)>();
+	else
+		return false;
 
 	return true;
 }
@@ -123,5 +142,11 @@ namespace Hooks
 	void ShowSubtitle(std::string_view label)
 	{
 		CGarage__PrintMessage(0, label.data());
+	}
+
+	void ReloadText()
+	{
+		if (CTextFile__ReloadAfterLanguageChange && TheText)
+			CTextFile__ReloadAfterLanguageChange(TheText);
 	}
 }

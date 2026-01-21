@@ -13,4 +13,6 @@ namespace Hooks
 	void ClearCustomLabels();
 
 	void ShowSubtitle(std::string_view label);
+
+	void ReloadText();
 }
