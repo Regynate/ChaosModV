@@ -51,3 +51,12 @@ else()
     target_compile_options(ChaosMod PUBLIC -municode -flarge-source-files -Werror -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wno-unused-variable -Wno-maybe-uninitialized -Wno-array-bounds -Wno-unused-but-set-variable)
     target_link_options(ChaosMod PUBLIC -static)
 endif()
+
+
+add_custom_command(TARGET ChaosMod POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_SOURCE_DIR}/../out"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/../out"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "$<TARGET_FILE_DIR:ChaosMod>"
+        "${CMAKE_SOURCE_DIR}/../out"
+)
