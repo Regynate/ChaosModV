@@ -11,7 +11,7 @@ inline std::string StringTrim(std::string str)
 	return str;
 };
 
-static int CompareCaseInsensitive(std::string_view a, std::string_view b)
+inline int CompareCaseInsensitive(std::string_view a, std::string_view b)
 {
 	for (size_t i = 0;; i++)
 	{
@@ -25,4 +25,14 @@ static int CompareCaseInsensitive(std::string_view a, std::string_view b)
 		if (ai != bi)
 			return bi - ai;
 	}
+}
+
+inline void RemoveSpaces(std::string &data)
+{
+	std::string buffer;
+	buffer.reserve(data.size());
+	for (size_t pos = 0; pos != data.size(); ++pos)
+		if ((data[pos] >= 'a' && data[pos] <= 'z') || (data[pos] >= 'A' && data[pos] <= 'Z'))
+			buffer.append(&data[pos], 1);
+	data.swap(buffer);
 }

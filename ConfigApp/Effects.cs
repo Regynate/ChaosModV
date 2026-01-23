@@ -499,6 +499,7 @@
             { "meta_cheat_code_voting", new EffectInfo("Cheat Code Voting", EffectCategory.Meta, true) },
             { "misc_shuffled_letters", new EffectInfo("Shuffled Letters", EffectCategory.Misc, true) },
             { "misc_buttsbot", new EffectInfo("Buttsbot", EffectCategory.Misc, true) },
+            { "screen_chat_control_camera", new EffectInfo("Chat Controls Camera", EffectCategory.Screen, true, true) },
         };
     }
 }

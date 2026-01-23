@@ -10,7 +10,6 @@
 #include "Effects/EnabledEffects.h"
 #include "Util/Chat/ChatMessage.h"
 #include "Util/Events.h"
-#include "Util/Random.h"
 #include "Util/Text.h"
 
 #include "Effects/Register/RegisterEffect.h"
@@ -39,16 +38,6 @@ CHAOS_VAR std::list<EffectWithAuthor> effectQueue;
 CHAOS_VAR size_t startTick;
 
 CHAOS_VAR const int VOTING_TIME = 25000;
-
-static void RemoveSpaces(std::string &data)
-{
-	std::string buffer;
-	buffer.reserve(data.size());
-	for (size_t pos = 0; pos != data.size(); ++pos)
-		if ((data[pos] >= 'a' && data[pos] <= 'z') || (data[pos] >= 'A' && data[pos] <= 'Z'))
-			buffer.append(&data[pos], 1);
-	data.swap(buffer);
-}
 
 static void AddMessageToQueue(ChatMessage message)
 {
