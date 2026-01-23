@@ -876,6 +876,7 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 		  }),
 		E("ResetKeyRoute", Hooks::ResetKeyRoute),
 		E("ResetKeyRoutes", Hooks::ResetKeyRoutes),
+		E("SetInputDelayMs", Hooks::SetInputDelayMs),
 	};
 #undef E
 
