@@ -22,4 +22,7 @@ class KeyStates : public Component
 
 	bool IsKeyPressed(BYTE key) const;
 	bool IsKeyJustPressed(BYTE key) const;
+
+	void SimulateKeyPress(BYTE key) const;
+	void SimulateKeyRelease(BYTE key) const;
 };

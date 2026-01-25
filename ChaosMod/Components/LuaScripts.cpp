@@ -592,6 +592,18 @@ LuaScripts::ParseScriptRaw(std::string scriptName, const std::string &script, Pa
 
 		      return false;
 		  }),
+		E("SimulateKeyPress",
+		  [](unsigned char key)
+		  {
+		      if (ComponentExists<KeyStates>())
+			      GetComponent<KeyStates>()->SimulateKeyPress(key);
+		  }),
+		E("SimulateKeyRelease",
+		  [](unsigned char key)
+		  {
+		      if (ComponentExists<KeyStates>())
+			      GetComponent<KeyStates>()->SimulateKeyRelease(key);
+		  }),
 
 		E("DrawScreenText",
 		  [](std::string text, float x, float y, float scale, int r, int g, int b, bool outline)

@@ -21,3 +21,22 @@ bool KeyStates::IsKeyJustPressed(BYTE key) const
 {
 	return m_KeyStates[key] == KeyState::JustPressed;
 }
+
+void KeyStates::SimulateKeyPress(BYTE key) const
+{
+	INPUT inputs[1]    = {};
+	inputs[0].type     = INPUT_KEYBOARD;
+	inputs[0].ki.wVk   = key;
+	inputs[0].ki.wScan = MapVirtualKey(key, MAPVK_VK_TO_VSC);
+	SendInput(ARRAYSIZE(inputs), inputs, sizeof(INPUT));
+}
+
+void KeyStates::SimulateKeyRelease(BYTE key) const
+{
+	INPUT inputs[1]      = {};
+	inputs[0].type       = INPUT_KEYBOARD;
+	inputs[0].ki.wVk     = key;
+	inputs[0].ki.wScan   = MapVirtualKey(key, MAPVK_VK_TO_VSC);
+	inputs[0].ki.dwFlags = KEYEVENTF_KEYUP;
+	SendInput(ARRAYSIZE(inputs), inputs, sizeof(INPUT));
+}
