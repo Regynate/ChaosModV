@@ -21,6 +21,8 @@ static std::mutex ms_GetLabelMutex;
 
 static void (*CGarage__PrintMessage)(__int64 _this, const char *pTextLabel);
 static void (*CTextFile__ReloadAfterLanguageChange)(__int64 *_this);
+static const char *(*CTextFile__GetInternal)(__int64 *_this, unsigned int hash);
+static const char *(*atHashStringNamespaceSupport__GetString)(int _namespace, unsigned int hash);
 
 static __int64 *TheText;
 
@@ -81,7 +83,19 @@ static bool OnHook()
 	                             "E8 ?? ?? ?? ?? 89 F1 E8 ?? ?? ?? ?? B9 FF FF FF FF");
 
 	if (handle.IsValid())
-		CTextFile__ReloadAfterLanguageChange = handle.Into().Get<void(__int64*)>();
+		CTextFile__ReloadAfterLanguageChange = handle.Into().Get<void(__int64 *)>();
+	else
+		return false;
+
+	handle = Memory::FindPattern("48 8B CB 8B D0 E8 ? ? ? ? 48 85 C0 0F 95 C0", "48 83 EC 28 E8 ? ? ? ? 48 85 C0 75");
+	if (handle.IsValid())
+		CTextFile__GetInternal = handle.At(IsLegacy() ? 5 : 4).Into().Get<const char *(__int64 *, unsigned int)>();
+	else
+		return false;
+
+	handle = Memory::FindPattern("E8 ?? ?? ?? ?? 48 8B E8 48 89 44 24 48", "E8 ?? ?? ?? ?? 49 89 C7 48 8B 0E");
+	if (handle.IsValid())
+		atHashStringNamespaceSupport__GetString = handle.Into().Get<const char *(int, unsigned int)>();
 	else
 		return false;
 
@@ -148,5 +162,27 @@ namespace Hooks
 	{
 		if (CTextFile__ReloadAfterLanguageChange && TheText)
 			CTextFile__ReloadAfterLanguageChange(TheText);
+	}
+
+	std::string GetStringFromHashKey(unsigned int hash)
+	{
+		if (TheText && CTextFile__GetInternal)
+		{
+			const auto res = CTextFile__GetInternal(TheText, hash);
+			return res ? res : "";
+		}
+		
+		return "";
+	}
+	
+	std::string GetNameFromHashKey(int _namespace, unsigned int hash)
+	{
+		if (atHashStringNamespaceSupport__GetString)
+		{
+			const auto res = atHashStringNamespaceSupport__GetString(_namespace, hash);
+			return res ? res : "";
+		}
+
+		return "";
 	}
 }

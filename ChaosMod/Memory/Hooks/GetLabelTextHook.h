@@ -15,4 +15,7 @@ namespace Hooks
 	void ShowSubtitle(std::string_view label);
 
 	void ReloadText();
+
+	std::string GetStringFromHashKey(unsigned int hash);
+	std::string GetNameFromHashKey(int _namespace, unsigned int hash);
 }
