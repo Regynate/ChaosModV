@@ -122,8 +122,8 @@ static void Init()
 	ms_Flags.AntiSoftlockShortcutEnabled =
 	    g_OptionsManager.GetConfigValue({ "EnableAntiSoftlockShortcut" }, OPTION_DEFAULT_SHORTCUT_ANTI_SOFTLOCK);
 
-	g_EnableGroupWeighting =
-	    g_OptionsManager.GetConfigValue({ "EnableGroupWeightingAdjustments" }, OPTION_DEFAULT_GROUP_WEIGHTING);
+	g_EnableGroupWeighting = false; //
+	//    g_OptionsManager.GetConfigValue({ "EnableGroupWeightingAdjustments" }, OPTION_DEFAULT_GROUP_WEIGHTING);
 
 	auto seed = g_OptionsManager.GetConfigValue<std::string>({ "Seed" });
 	if (!seed.empty())
