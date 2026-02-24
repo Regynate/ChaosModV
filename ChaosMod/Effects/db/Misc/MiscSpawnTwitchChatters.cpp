@@ -41,14 +41,14 @@ struct SpawnedUser
 	}
 };
 
-CHAOS_VAR std::list<User> userQueue;
-CHAOS_VAR std::map<std::string, SpawnedUser> spawnedUsers;
-
-CHAOS_VAR std::map<std::string, std::string> usercolors;
-
-CHAOS_VAR std::mutex messageMutex;
-
-CHAOS_VAR const int MAX_USERS = 10;
+namespace
+{
+	std::list<User> userQueue;
+	std::map<std::string, SpawnedUser> spawnedUsers;
+	std::map<std::string, std::string> usercolors;
+	std::mutex messageMutex;
+	const int MAX_USERS = 10;
+}
 
 static void encode(std::string &data)
 {
@@ -275,7 +275,7 @@ static void SpawnUsers()
 
 	for (const auto &user : userQueue)
 	{
-		spawnedUsers.emplace(user.m_Userid, SpawnUser(user));
+		spawnedUsers.insert_or_assign(user.m_Userid, SpawnUser(user));
 		WAIT(0);
 	}
 
