@@ -16,7 +16,8 @@
 CHAOS_VAR CHAOS_EVENT_LISTENER(Voting::OnNewMessage) m_OnNewMessageListener;
 
 CHAOS_VAR const float ANGLE_INCREMENT = 2.f;
-CHAOS_VAR float angle;
+CHAOS_VAR float angleLR;
+CHAOS_VAR float angleUD;
 
 CHAOS_VAR Camera leanedCamera = 0;
 
@@ -27,7 +28,9 @@ struct Message
 	enum Position
 	{
 		LEFT,
-		RIGHT
+		RIGHT,
+		UP,
+		DOWN
 	} m_Position;
 
 	Message(ChatMessage message, int timestamp, Position position)
@@ -49,19 +52,29 @@ static void ProcessMessage(const ChatMessage &message)
 	RemoveSpaces(m);
 	if (!CompareCaseInsensitive(m, "LEFT"))
 	{
-		angle += ANGLE_INCREMENT;
+		angleLR += ANGLE_INCREMENT;
 		messageQueue.push_back({ message, GET_GAME_TIMER(), Message::LEFT });
 	}
 	if (!CompareCaseInsensitive(m, "RIGHT"))
 	{
-		angle -= ANGLE_INCREMENT;
+		angleLR -= ANGLE_INCREMENT;
 		messageQueue.push_back({ message, GET_GAME_TIMER(), Message::RIGHT });
+	}
+	if (!CompareCaseInsensitive(m, "UP"))
+	{
+		angleUD += ANGLE_INCREMENT;
+		messageQueue.push_back({ message, GET_GAME_TIMER(), Message::UP });
+	}
+	if (!CompareCaseInsensitive(m, "DOWN"))
+	{
+		angleUD -= ANGLE_INCREMENT;
+		messageQueue.push_back({ message, GET_GAME_TIMER(), Message::DOWN });
 	}
 }
 
 static void OnStart()
 {
-	angle = 0;
+	angleLR = angleUD = 0;
 
 	if (ComponentExists<Voting>())
 	{
@@ -79,10 +92,10 @@ static void OnTick()
 	Vector3 coord = GET_GAMEPLAY_CAM_COORD();
 	Vector3 rot   = GET_GAMEPLAY_CAM_ROT(2);
 	float fov     = GET_GAMEPLAY_CAM_FOV();
-	SET_CAM_PARAMS(leanedCamera, coord.x, coord.y, coord.z, rot.x, angle, rot.z, fov, 0, 1, 1, 2);
+	SET_CAM_PARAMS(leanedCamera, coord.x, coord.y, coord.z, angleUD, angleLR, rot.z, fov, 0, 1, 1, 2);
 
-	DrawScreenText("Chat, type LEFT or RIGHT~n~to move streamer's camera!", { 0.8f, 0.8f }, 0.6f, { 255, 255, 255 },
-	               true);
+	DrawScreenText("Chat, type LEFT, RIGHT, UP or DOWN~n~to move streamer's camera!", { 0.8f, 0.8f }, 0.6f,
+	               { 255, 255, 255 }, true);
 
 	std::lock_guard lock(messageQueueMutex);
 
@@ -90,14 +103,18 @@ static void OnTick()
 	{
 		const auto message = *it;
 
-		float x, y;
+		float x = 0.5f, y = 0.55f;
 
 		if (message.m_Position == message.LEFT)
 			x = 0.05f;
 		else if (message.m_Position == message.RIGHT)
 			x = 0.95f;
+		else if (message.m_Position == message.UP)
+			y = 0.05f;
+		else if (message.m_Position == message.DOWN)
+			y = 0.95f;
 
-		y           = -(GET_GAME_TIMER() - message.m_ReceivedTimestamp) / 1000.f * 0.1f + 0.55f;
+		y += -(GET_GAME_TIMER() - message.m_ReceivedTimestamp) / 1000.f * 0.1f;
 
 		auto userid = message.m_Message.m_Userstate.m_Userid;
 		auto color  = message.m_Message.m_Userstate.m_ColorHex;
@@ -152,7 +169,6 @@ REGISTER_EFFECT(OnStart, OnStop, OnTick,
 		.Name = "Chat Controls Camera",
 		.Id = "screen_chat_control_camera",
 		.IsTimed = true,
-        .IsShortDuration = true,
 		.ConditionType = EffectConditionType::SilentVotingEnabled
 	}
 );
