@@ -41,14 +41,10 @@ struct SpawnedUser
 	}
 };
 
-namespace
-{
-	std::list<User> userQueue;
-	std::map<std::string, SpawnedUser> spawnedUsers;
-	std::map<std::string, std::string> usercolors;
-	std::mutex messageMutex;
-	const int MAX_USERS = 10;
-}
+CHAOS_VAR std::list<User> userQueue;
+CHAOS_VAR std::map<std::string, SpawnedUser> spawnedUsers;
+CHAOS_VAR std::map<std::string, std::string> usercolors;
+CHAOS_VAR const int MAX_USERS = 10;
 
 static void encode(std::string &data)
 {
@@ -101,8 +97,6 @@ static void RemovePed(Ped ped)
 
 static void AddMessageToQueue(ChatMessage message)
 {
-	std::lock_guard lock(messageMutex);
-
 	auto m = message.m_Message;
 	if (m.size() == 1 && m[0] >= '1' && m[0] <= '9')
 		return;
@@ -129,8 +123,6 @@ static void AddMessageToQueue(ChatMessage message)
 
 static void RemoveMessageById(std::string id)
 {
-	std::lock_guard lock(messageMutex);
-
 	userQueue.remove_if([id](User u) { return u.m_LastMessage.m_Id == id; });
 
 	for (auto &[_, user] : spawnedUsers)
@@ -143,8 +135,6 @@ static void RemoveMessageById(std::string id)
 
 static void RemoveMessagesByUserId(std::string userid)
 {
-	std::lock_guard lock(messageMutex);
-
 	userQueue.remove_if([userid](User u) { return u.m_Userid == userid; });
 
 	if (spawnedUsers.contains(userid))
@@ -271,8 +261,6 @@ static SpawnedUser SpawnUser(const User user)
 
 static void SpawnUsers()
 {
-	std::lock_guard lock(messageMutex);
-
 	for (const auto &user : userQueue)
 	{
 		spawnedUsers.insert_or_assign(user.m_Userid, SpawnUser(user));
@@ -304,8 +292,6 @@ static void SpawnUsers()
 
 static void Cleanup()
 {
-	std::lock_guard lock(messageMutex);
-
 	if (ComponentExists<Voting>())
 	{
 		m_OnNewMessageListener.Unregister(GetComponent<Voting>()->OnNewMessage);

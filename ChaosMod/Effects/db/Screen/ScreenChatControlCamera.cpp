@@ -41,12 +41,9 @@ struct Message
 
 CHAOS_VAR std::list<Message> messageQueue;
 CHAOS_VAR std::map<std::string, std::string> usercolors;
-CHAOS_VAR std::mutex messageQueueMutex;
 
 static void ProcessMessage(const ChatMessage &message)
 {
-	std::lock_guard lock(messageQueueMutex);
-
 	std::string m = message.m_Message;
 
 	RemoveSpaces(m);
@@ -96,8 +93,6 @@ static void OnTick()
 
 	DrawScreenText("Chat, type LEFT, RIGHT, UP or DOWN~n~to move streamer's camera!", { 0.8f, 0.8f }, 0.6f,
 	               { 255, 255, 255 }, true);
-
-	std::lock_guard lock(messageQueueMutex);
 
 	for (auto it = messageQueue.begin(); it != messageQueue.end();)
 	{
