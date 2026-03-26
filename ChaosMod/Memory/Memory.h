@@ -55,7 +55,5 @@ namespace Memory
 
 	const char *GetTypeName(__int64 vftAddr);
 
-	DWORD64 *GetGlobalPtr(int globalId);
-
 	std::string GetGameBuild();
 }
