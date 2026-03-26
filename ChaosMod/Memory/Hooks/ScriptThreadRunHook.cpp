@@ -75,11 +75,12 @@ static bool OnHook()
 {
 	Handle handle;
 
-	handle = Memory::FindPattern(
-	    "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 83 EC 20 48 8D 81 ? 00 00 00",
-	    "41 57 41 56 41 54 56 57 53 48 83 EC 28 48 89 CE 48 8D 81");
+	handle = Memory::FindPattern("48 8d 05 ? ? ? ? 48 8b d9 48 89 01 48 8d 05 ? ? ? ? 33 d2 48",
+	                             "48 8D 0D ?? ?? ?? ?? 48 89 08 0F 57 C0 0F 11 80 B8 00 00 00");
 	if (!handle.IsValid())
 		return false;
+
+	handle = handle.At(2).Into().At(16).Value<DWORD64>();
 
 	Memory::AddHook(handle.Get<void>(), HK_rage__scrThread__Run, &OG_rage__scrThread__Run);
 
