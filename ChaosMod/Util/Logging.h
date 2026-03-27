@@ -5,7 +5,6 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <mutex>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -18,12 +17,9 @@ inline std::ofstream g_ConsoleOut;
 
 inline const auto g_ModStartTime = std::time(nullptr);
 
-inline std::mutex g_LogMutex;
-
 #define _LOG(_text, _stream)                                 \
 	do                                                       \
 	{                                                        \
-		const std::lock_guard<std::mutex> lock(g_LogMutex);  \
 		_stream << _text;                                    \
 	} while (0)
 
