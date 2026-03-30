@@ -90,7 +90,7 @@ void Tracking::AddTracker(const std::function<bool(std::any &)> &tracker, const 
 
 void Tracking::AddTracker(const std::function<bool()> &tracker, const std::string &configKey)
 {
-	AddTracker([tracker](std::any) { return tracker(); }, configKey);
+	AddTracker([tracker](std::any) { return tracker(); }, nullptr, configKey);
 }
 
 void Tracking::AddTrackerByConfigValue(const std::string configKey, const std::function<bool(std::any &)> &tracker,
