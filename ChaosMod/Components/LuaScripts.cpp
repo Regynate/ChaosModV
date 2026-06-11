@@ -19,6 +19,7 @@
 #include "Memory/Snow.h"
 #include "Memory/Vehicle.h"
 #include "Memory/WeaponPool.h"
+#include "Memory/WorldToScreen.h"
 #include "Util/Camera.h"
 #include "Util/EntityIterator.h"
 #include "Util/File.h"
@@ -381,6 +382,102 @@ static void SetupState(sol::state &lua, const std::string &scriptName)
 
 static sol::bytecode ms_NativesDefCache;
 
+static nlohmann::json tableToJson(sol::table table)
+{
+	nlohmann::json json;
+	table.for_each(
+	    [&json](sol::object const &key, sol::object const &value)
+	    {
+		    if (key.is<std::string>())
+		    {
+			    std::string keyStr = key.as<std::string>();
+			    if (value.is<int>())
+			    {
+				    json[keyStr] = value.as<int>();
+			    }
+			    else if (value.is<double>())
+			    {
+				    json[keyStr] = value.as<double>();
+			    }
+			    else if (value.is<std::string>())
+			    {
+				    json[keyStr] = value.as<std::string>();
+			    }
+			    else if (value.is<bool>())
+			    {
+				    json[keyStr] = value.as<bool>();
+			    }
+			    else if (value.is<sol::table>())
+			    {
+				    json[keyStr] = tableToJson(value.as<sol::table>());
+			    }
+			    else
+			    {
+				    // Handle other types if needed
+			    }
+		    }
+	    });
+	return json;
+}
+
+static sol::table jsonToTable(sol::state &lua, nlohmann::json json)
+{
+	sol::table table = lua.create_table();
+
+	for (auto it = json.begin(); it != json.end(); ++it)
+	{
+		const std::string key     = it.key();
+		const nlohmann::json &val = it.value();
+
+		if (val.is_number_integer() || val.is_number_unsigned())
+		{
+			table[key] = val.get<int>();
+		}
+		else if (val.is_number_float())
+		{
+			table[key] = val.get<double>();
+		}
+		else if (val.is_string())
+		{
+			table[key] = val.get<std::string>();
+		}
+		else if (val.is_boolean())
+		{
+			table[key] = val.get<bool>();
+		}
+		else if (val.is_object())
+		{
+			table[key] = jsonToTable(lua, val);
+		}
+		else if (val.is_array())
+		{
+			sol::table arr = lua.create_table();
+			int idx        = 1;
+			for (const auto &elem : val)
+				if (elem.is_number_integer() || elem.is_number_unsigned())
+					arr[idx++] = elem.get<int>();
+				else if (elem.is_number_float())
+					arr[idx++] = elem.get<double>();
+				else if (elem.is_string())
+					arr[idx++] = elem.get<std::string>();
+				else if (elem.is_boolean())
+					arr[idx++] = elem.get<bool>();
+				else if (elem.is_object())
+					arr[idx++] = jsonToTable(lua, elem);
+				else
+					arr[idx++] = sol::nil;
+			table[key] = arr;
+		}
+		else
+		{
+			// unsupported types -> nil
+			table[key] = sol::nil;
+		}
+	}
+
+	return table;
+}
+
 static void SetupLateState(sol::state &lua, const std::string &scriptName)
 {
 	if (ms_NativesDefCache.empty() && DoesFileExist(LUA_NATIVESDEF))
@@ -509,6 +606,13 @@ static void SetupLateState(sol::state &lua, const std::string &scriptName)
 	E("IsWeaponShotgun", Util::IsWeaponShotgun);
 	E("AddCustomLabel", Hooks::AddCustomLabel);
 	E("DisplayHelpText", DisplayHelpText);
+	E("WorldToScreen",
+	  [](LuaVector3 position)
+	  {
+		  ChaosVector2 res;
+		  Memory::WorldToScreen(ChaosVector3 { Vector3 { position.X, position.Y, position.Z } }, &res);
+		  return LuaVector3(res.x, res.y, 0);
+	  });
 	E("GetRandomInt",
 	  [](int lower, int upper) -> int
 	  {
@@ -573,6 +677,24 @@ static void SetupLateState(sol::state &lua, const std::string &scriptName)
 			  sharedData->EffectSoundPlayOptions.PlayFlags =
 			      state ? sharedData->EffectSoundPlayOptions.PlayFlags & ~EffectSoundPlayFlags_DontStopOnEntityDeath
 			            : sharedData->EffectSoundPlayOptions.PlayFlags | EffectSoundPlayFlags_DontStopOnEntityDeath;
+	  });
+	E("GetSocketMessages",
+	  [&lua]()
+	  {
+		  sol::table arr = lua.create_table();
+		  if (ComponentExists<DebugSocket>())
+		  {
+			  int idx = 1;
+			  for (const auto message : GetComponent<DebugSocket>()->GetMessages())
+				  arr[idx++] = jsonToTable(lua, message);
+		  }
+		  return arr;
+	  });
+	E("SendToSocket",
+	  [](sol::table table)
+	  {
+		  if (ComponentExists<DebugSocket>())
+			  return GetComponent<DebugSocket>()->Send(tableToJson(table));
 	  });
 }
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Util/Types.h"
+
 namespace Memory
 {
 	inline bool WorldToScreen(ChaosVector3 worldPosition, ChaosVector2 *screenPosition)

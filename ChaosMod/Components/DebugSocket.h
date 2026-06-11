@@ -6,6 +6,8 @@
 
 #include <ixwebsocket/IXWebSocketServer.h>
 
+#include <json.hpp>
+
 #include <cstdint>
 #include <functional>
 #include <list>
@@ -36,12 +38,18 @@ class DebugSocket : public Component
 	};
 	std::unordered_map<std::string, EffectTraceStats> m_EffectTraceStats;
 
+	std::mutex m_MessageMutex;
+	std::vector<nlohmann::json> m_Messages;
+
   private:
 	std::unique_ptr<ix::WebSocketServer> m_Server;
 
 	CHAOS_EVENT_LISTENER(EffectDispatcher::OnPreDispatchEffect) m_OnPreDispatchEffectListener;
 	CHAOS_EVENT_LISTENER(EffectDispatcher::OnPreRunEffect) m_OnPreRunEffectListener;
 	CHAOS_EVENT_LISTENER(EffectDispatcher::OnPostRunEffect) m_OnPostRunEffectListener;
+
+	std::mutex m_CommitMessageMutex;
+	std::vector<nlohmann::json> m_CommittedMessages;
 
   public:
 	DebugSocket();
@@ -56,6 +64,10 @@ class DebugSocket : public Component
 	void Close();
 
 	void ScriptLog(std::string_view scriptName, std::string_view text);
+
+	void Send(nlohmann::json json);
+	void CommitMessages();
+	std::vector<nlohmann::json> GetMessages();
 };
 
 #endif

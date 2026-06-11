@@ -7,8 +7,6 @@
 #include "Components/EffectDispatcher.h"
 #include "Effects/EnabledEffects.h"
 
-#include <json.hpp>
-
 #define LISTEN_PORT 31819
 
 #define TRACING_ENTRIES_HISTORY_SECONDS 10
@@ -41,6 +39,13 @@ static void OnFetchEffects(DebugSocket *debugSocket, std::shared_ptr<ix::Connect
 	}
 
 	webSocket.send(effectsJson.dump());
+}
+
+static void OnRawMessage(DebugSocket *debugSocket, std::shared_ptr<ix::ConnectionState> connectionState,
+                           ix::WebSocket &webSocket, const json &payloadJson)
+{
+	std::lock_guard lock(debugSocket->m_MessageMutex);
+	debugSocket->m_Messages.push_back(payloadJson);
 }
 
 static void OnTriggerEffect(DebugSocket *debugSocket, std::shared_ptr<ix::ConnectionState> connectionState,
@@ -187,6 +192,7 @@ static void OnMessage(DebugSocket *debugSocket, std::shared_ptr<ix::ConnectionSt
 	SET_HANDLER("trigger_effect", OnTriggerEffect);
 	SET_HANDLER("exec_script", OnExecScript);
 	SET_HANDLER("profile_state", OnSetProfileState);
+	SET_HANDLER("message", OnRawMessage);
 
 #undef HANDLER
 }
@@ -302,8 +308,27 @@ void DebugSocket::ScriptLog(std::string_view scriptName, std::string_view text)
 	json["script_name"] = scriptName;
 	json["text"]        = text;
 
+	Send(json);
+}
+
+void DebugSocket::Send(nlohmann::json json)
+{
 	for (auto client : m_Server->getClients())
 		client->send(json.dump());
+}
+
+void DebugSocket::CommitMessages()
+{
+	std::lock_guard lock1(m_MessageMutex);
+	std::lock_guard lock2(m_CommitMessageMutex);
+	m_CommittedMessages = m_Messages;
+	m_Messages.clear();
+}
+
+std::vector<nlohmann::json> DebugSocket::GetMessages()
+{
+	std::lock_guard lock(m_CommitMessageMutex);
+	return m_CommittedMessages;
 }
 
 #endif

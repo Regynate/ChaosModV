@@ -327,6 +327,10 @@ static void MainRun()
 			continue;
 		}
 
+		// preferrably do this somewhere else but oh well...
+		if (ComponentExists<DebugSocket>())
+			GetComponent<DebugSocket>()->CommitMessages();
+
 		for (auto &component : g_Components)
 			component->OnRun();
 	}
