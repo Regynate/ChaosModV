@@ -68,6 +68,11 @@ class DebugSocket : public Component
 	void Send(nlohmann::json json);
 	void CommitMessages();
 	std::vector<nlohmann::json> GetMessages();
+
+	inline int GetClientCount()
+	{
+		return m_Server->getClients().size();
+	}
 };
 
 #endif

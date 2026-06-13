@@ -407,13 +407,21 @@ static nlohmann::json tableToJson(sol::table table)
 			    {
 				    json[keyStr] = value.as<bool>();
 			    }
+			    else if (value.is<LuaVector3>())
+			    {
+				    auto val          = value.as<LuaVector3>();
+				    json[keyStr]      = nlohmann::json();
+				    json[keyStr]["x"] = val.X;
+				    json[keyStr]["y"] = val.Y;
+				    json[keyStr]["z"] = val.Z;
+			    }
 			    else if (value.is<sol::table>())
 			    {
 				    json[keyStr] = tableToJson(value.as<sol::table>());
 			    }
 			    else
 			    {
-				    // Handle other types if needed
+				    // ...
 			    }
 		    }
 	    });
@@ -695,6 +703,13 @@ static void SetupLateState(sol::state &lua, const std::string &scriptName)
 	  {
 		  if (ComponentExists<DebugSocket>())
 			  return GetComponent<DebugSocket>()->Send(tableToJson(table));
+	  });
+	E("GetSocketClientCount",
+	  []()
+	  {
+		  if (ComponentExists<DebugSocket>())
+			  return GetComponent<DebugSocket>()->GetClientCount();
+		  return 0;
 	  });
 }
 
