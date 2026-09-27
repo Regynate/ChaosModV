@@ -10,10 +10,10 @@ CHAOS_VAR int function_id;
 
 static std::string &Shuffle(std::string &str)
 {
-	for (int i = 0; i < str.size(); ++i)
+	for (int i = str.size() - 1; i > 0; --i)
 	{
-		int j  = g_Random.GetRandomInt(0, str.size() - 1);
-		char t = str[j];
+		int j  = g_Random.GetRandomInt(0, i);
+		auto t = str[j];
 		str[j] = str[i];
 		str[i] = t;
 	}

@@ -1,11 +1,13 @@
 #include <stdafx.h>
 
+#include "EffectDispatcher.h"
+
 #include "Components/CrossingChallenge.h"
 #include "Components/EffectDispatchTimer.h"
 #include "Components/EffectDispatcher.h"
 #include "Components/EffectSound/EffectSoundManager.h"
 #include "Components/MetaModifiers.h"
-#include "EffectDispatcher.h"
+#include "Components/PermanentEffectChallenge.h"
 #include "Effects/EffectCategory.h"
 #include "Effects/EffectThreads.h"
 #include "Effects/EffectTimedType.h"
@@ -150,7 +152,8 @@ static bool _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 			{
 			case EffectTimedType::NotTimed:
 				effectDuration = (effectData.IsMeta() ? effectDispatcher->SharedState.MetaEffectTimedDur
-				                                      : effectDispatcher->SharedState.EffectTimedDur) * 1.33f;
+				                                      : effectDispatcher->SharedState.EffectTimedDur)
+				               * 1.33f;
 				break;
 			case EffectTimedType::Normal:
 				effectDuration = effectData.IsMeta() ? effectDispatcher->SharedState.MetaEffectTimedDur
@@ -173,14 +176,16 @@ static bool _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 			}
 
 			effectDispatcher->SharedState.ActiveEffects.push_back({
-			    .Id             = entry.Id,
-			    .Name           = effectName.str(),
-			    .ThreadId       = EffectThreads::CreateThread(registeredEffect),
-			    .Timer          = static_cast<float>(effectDuration),
-			    .MaxTime        = static_cast<float>(effectDuration),
-			    .IsTimed        = effectData.TimedType != EffectTimedType::NotTimed,
-			    .IsMeta         = effectData.IsMeta(),
-			    .HideEffectName = effectData.ShouldHideRealNameOnStart(),
+			    .Id               = entry.Id,
+			    .Name             = effectName.str(),
+			    .RegisteredEffect = registeredEffect,
+			    .ThreadId         = EffectThreads::CreateThread(registeredEffect),
+			    .Timer            = effectDuration,
+			    .MaxTime          = effectDuration,
+			    .IsTimed          = effectData.TimedType != EffectTimedType::NotTimed,
+			    .IsPermanent      = effectData.TimedType == EffectTimedType::Permanent,
+			    .IsMeta           = effectData.IsMeta(),
+			    .HideEffectName   = effectData.ShouldHideRealNameOnStart(),
 			});
 			auto &activeEffect                = effectDispatcher->SharedState.ActiveEffects.back();
 
@@ -210,10 +215,75 @@ static bool _DispatchEffect(EffectDispatcher *effectDispatcher, const EffectDisp
 	return true;
 }
 
+static void _DispatchPermanentEffect(EffectDispatcher *effectDispatcher,
+                                     const EffectDispatcher::EffectDispatchEntry &entry)
+{
+	auto effectId = entry.Id;
+
+	LOG("Dispatching permanent effect " << effectId.Id());
+
+	if (!g_EnabledEffects.contains(effectId))
+		return;
+	const auto effectData  = g_EnabledEffects[effectId];
+
+	auto *registeredEffect = GetRegisteredEffect(effectId);
+	if (registeredEffect)
+	{
+		effectDispatcher->SharedState.PermanentEffects.push_back({
+
+		    .Id               = effectId,
+		    .Name             = effectData.Name,
+		    .RegisteredEffect = registeredEffect,
+		    .ThreadId         = EffectThreads::CreateThread(registeredEffect),
+		    .Timer            = effectDispatcher->SharedState.PermanentNonTimedRestartDur,
+		    .MaxTime          = effectDispatcher->SharedState.PermanentNonTimedRestartDur,
+		    .IsTimed          = effectData.TimedType != EffectTimedType::NotTimed,
+		    .IsPermanent      = true,
+		    .IsMeta           = effectData.IsMeta(),
+		    .HideEffectName   = effectData.ShouldHideRealNameOnStart(),
+		});
+	}
+}
+
+static void _DispatchPendingEffect(EffectDispatcher *effectDispatcher,
+                                   const EffectDispatcher::EffectDispatchEntry &entry)
+{
+	auto effectId = entry.Id;
+
+	LOG("Dispatching pending effect " << effectId.Id());
+
+	if (!g_EnabledEffects.contains(effectId))
+		return;
+	const auto effectData  = g_EnabledEffects[effectId];
+
+	auto *registeredEffect = GetRegisteredEffect(effectId);
+	if (registeredEffect)
+	{
+		effectDispatcher->SharedState.PendingEffects.push_back({
+		    .Id             = effectId,
+		    .Name           = effectData.Name,
+		    .IsTimed        = false,
+		    .IsPermanent    = false,
+		    .IsPending      = true,
+		    .IsMeta         = effectData.IsMeta(),
+		    .HideEffectName = effectData.ShouldHideRealNameOnStart(),
+		});
+	}
+}
+
 static void _TryDispatchEffect(EffectDispatcher *effectDispatcher, const EffectDispatcher::EffectDispatchEntry &entry)
 {
-	if (!_DispatchEffect(effectDispatcher, entry))
-		effectDispatcher->OnDispatchEffectFailed.Fire(entry.Id, entry.Context);
+	if (entry.IsPending)
+		_DispatchPendingEffect(effectDispatcher, entry);
+	else
+	{
+		std::erase_if(effectDispatcher->SharedState.PendingEffects,
+		              [entry](EffectDispatcher::ActiveEffect e) { return entry.Id == e.Id; });
+		if (entry.IsPermanent)
+			_DispatchPermanentEffect(effectDispatcher, entry);
+		else if (!_DispatchEffect(effectDispatcher, entry))
+			effectDispatcher->OnDispatchEffectFailed.Fire(entry.Id, entry.Context);
+	}
 }
 
 static void _OnRunEffects(LPVOID data)
@@ -226,7 +296,7 @@ static void _OnRunEffects(LPVOID data)
 		float deltaTime =
 		    !ComponentExists<EffectDispatchTimer>()
 		        ? 0
-		        : (curTime - lastTime)
+				: (curTime - lastTime)
 		              * (ComponentExists<MetaModifiers>() ? GetComponent<MetaModifiers>()->EffectDurationModifier
 		                                                  : 1.f);
 		// The game was paused
@@ -234,6 +304,8 @@ static void _OnRunEffects(LPVOID data)
 			deltaTime = 0.f;
 
 		lastTime = curTime;
+
+		effectDispatcher->CheckClearState();
 
 		while (!effectDispatcher->EffectDispatchQueue.empty())
 		{
@@ -252,25 +324,26 @@ static void _OnRunEffects(LPVOID data)
 
 EffectDispatcher::EffectDispatcher() : Component()
 {
-	m_TextColor        = g_OptionsManager.GetConfigValue({ "EffectTextColor" }, OPTION_DEFAULT_TEXT_COLOR);
-	m_EffectTimerColor = g_OptionsManager.GetConfigValue({ "EffectTimedTimerColor" }, OPTION_DEFAULT_TIMED_COLOR);
+	m_TextColor                = g_OptionsManager.GetConfigValue("EffectTextColor", OPTION_DEFAULT_TEXT_COLOR);
+	m_EffectTimerColor         = g_OptionsManager.GetConfigValue("EffectTimedTimerColor", OPTION_DEFAULT_TIMED_COLOR);
 
-	m_DisableDrawEffectTexts =
-	    g_OptionsManager.GetConfigValue({ "DisableEffectTextDraw" }, OPTION_DEFAULT_NO_TEXT_DRAW);
+	m_DisableDrawEffectTexts   = g_OptionsManager.GetConfigValue("DisableEffectTextDraw", OPTION_DEFAULT_NO_TEXT_DRAW);
 
-	SharedState.EffectTimedDur = g_OptionsManager.GetConfigValue({ "EffectTimedDur" }, OPTION_DEFAULT_EFFECT_TIMED_DUR);
+	SharedState.EffectTimedDur = g_OptionsManager.GetConfigValue("EffectTimedDur", OPTION_DEFAULT_EFFECT_TIMED_DUR);
 	SharedState.EffectTimedShortDur =
-	    g_OptionsManager.GetConfigValue({ "EffectTimedShortDur" }, OPTION_DEFAULT_EFFECT_SHORT_TIMED_DUR);
+	    g_OptionsManager.GetConfigValue("EffectTimedShortDur", OPTION_DEFAULT_EFFECT_SHORT_TIMED_DUR);
+	SharedState.PermanentNonTimedRestartDur = g_OptionsManager.GetConfigValue(
+	    "PermanentNonTimedRestartDur", OPTION_DEFAULT_EFFECT_PERMANENT_NON_TIMED_RESTART_DUR);
 
 	SharedState.MetaEffectSpawnTime =
-	    g_OptionsManager.GetConfigValue({ "NewMetaEffectSpawnTime" }, OPTION_DEFAULT_EFFECT_META_SPAWN_TIME);
+	    g_OptionsManager.GetConfigValue("NewMetaEffectSpawnTime", OPTION_DEFAULT_EFFECT_META_SPAWN_TIME);
 	SharedState.MetaEffectTimedDur =
-	    g_OptionsManager.GetConfigValue({ "MetaEffectDur" }, OPTION_DEFAULT_EFFECT_META_TIMED_DUR);
+	    g_OptionsManager.GetConfigValue("MetaEffectDur", OPTION_DEFAULT_EFFECT_META_TIMED_DUR);
 	SharedState.MetaEffectShortDur =
-	    g_OptionsManager.GetConfigValue({ "MetaShortEffectDur" }, OPTION_DEFAULT_EFFECT_META_SHORT_TIMED_DUR);
+	    g_OptionsManager.GetConfigValue("MetaShortEffectDur", OPTION_DEFAULT_EFFECT_META_SHORT_TIMED_DUR);
 
 	m_MaxRunningEffects =
-	    g_OptionsManager.GetConfigValue({ "MaxParallelRunningEffects" }, OPTION_DEFAULT_MAX_RUNNING_PARALLEL_EFFECTS);
+	    g_OptionsManager.GetConfigValue("MaxParallelRunningEffects", OPTION_DEFAULT_MAX_RUNNING_PARALLEL_EFFECTS);
 
 	Reset();
 
@@ -309,16 +382,17 @@ void EffectDispatcher::OnRun()
 	DrawEffectTexts();
 }
 
-void EffectDispatcher::UpdateEffects(float deltaTime)
+void EffectDispatcher::CheckClearState()
 {
 	if (m_ClearEffectsState != ClearEffectsState::None)
 	{
+		SharedState.PendingEffects.clear();
 		SharedState.ActiveEffects.clear();
-		m_PermanentEffects.clear();
+		SharedState.PermanentEffects.clear();
 		SharedState.DispatchedEffectsLog.clear();
 
 		static bool startedStopping = false;
-		
+
 		if (!startedStopping)
 		{
 			EffectThreads::StopThreadsImmediately();
@@ -339,13 +413,31 @@ void EffectDispatcher::UpdateEffects(float deltaTime)
 		if (m_ClearEffectsState == ClearEffectsState::AllRestartPermanent)
 			RegisterPermanentEffects();
 
+		OnClearedEffects.Fire(m_ClearEffectsState);
+
 		m_ClearEffectsState = ClearEffectsState::None;
 	}
+}
 
-	for (auto threadId : m_PermanentEffects)
-		EffectThreads::RunThread(threadId);
-
+void EffectDispatcher::UpdateEffects(float deltaTime)
+{
 	float adjustedDeltaTime = deltaTime / 1000.f;
+
+	for (auto &effect : SharedState.PermanentEffects)
+	{
+		EffectThreads::RunThread(effect.ThreadId);
+
+		effect.Timer -= adjustedDeltaTime;
+		
+		// rerun non timed effects intermittently
+		if (effect.Timer < 0 && effect.MaxTime > 0 && !effect.IsTimed)
+		{
+			LOG("Rerunning effect " << effect.Name);
+			effect.Timer = effect.MaxTime;
+			EffectThreads::StopThread(effect.ThreadId);
+			effect.ThreadId = EffectThreads::CreateThread(effect.RegisteredEffect);
+		}
+	}
 
 	// Reverse order to ensure the first effects are removed if activeEffects > m_MaxRunningEffects
 	for (auto it = SharedState.ActiveEffects.rbegin(); it != SharedState.ActiveEffects.rend();)
@@ -356,9 +448,10 @@ void EffectDispatcher::UpdateEffects(float deltaTime)
 		activeEffect.Timer -=
 		    (adjustedDeltaTime
 		     / (!ComponentExists<MetaModifiers>() ? 1.f : GetComponent<MetaModifiers>()->EffectDurationModifier))
-		    * (activeEffect.IsTimed
-		           ? 1.f
-		           : std::max(1.f, .33f * (SharedState.ActiveEffects.size() - EFFECT_NONTIMED_TIMER_SPEEDUP_MIN_EFFECTS + 3)));
+		    * (activeEffect.IsTimed ? 1.f
+		                            : std::max(1.f, .33f
+		                                                * (SharedState.ActiveEffects.size()
+		                                                   - EFFECT_NONTIMED_TIMER_SPEEDUP_MIN_EFFECTS + 3)));
 
 		if (!EffectThreads::DoesThreadExist(activeEffect.ThreadId) || activeEffect.IsZombie)
 		{
@@ -418,7 +511,8 @@ void EffectDispatcher::UpdateEffects(float deltaTime)
 
 		if (!activeEffect.IsZombie // Shouldn't ever occur since the ActiveEffect is removed if timer <= 0 above, but
 		                           // just in case this check is moved in the future
-		    && (activeEffect.Timer <= 0.f || (!activeEffect.IsMeta && SharedState.ActiveEffects.size() > m_MaxRunningEffects)))
+		    && (activeEffect.Timer <= 0.f
+		        || (!activeEffect.IsMeta && SharedState.ActiveEffects.size() > m_MaxRunningEffects)))
 		{
 			if (!activeEffect.IsStopping)
 			{
@@ -484,8 +578,10 @@ void EffectDispatcher::UpdateMetaEffects(float deltaTime)
 					if (effectData.IsMeta() && !effectData.IsUtility() && !effectData.IsHidden())
 						effectData.Weight += effectData.WeightMult;
 
-				_TryDispatchEffect(
-				    this, { .Id = *targetEffectId, .Suffix = "(Meta)", .Flags = DispatchEffectFlag_NoAddToLog });
+				_TryDispatchEffect(this, { .Id          = *targetEffectId,
+				                           .IsPermanent = false,
+				                           .Suffix      = "(Meta)",
+				                           .Flags       = DispatchEffectFlag_NoAddToLog });
 			}
 		}
 		else
@@ -501,11 +597,18 @@ void EffectDispatcher::DrawEffectTexts()
 	if (m_DisableDrawEffectTexts)
 		return;
 
-	float y               = GetEffectTopSpace();
-	float effectSpacing   = EFFECT_TEXT_INNER_SPACING_MAX;
+	float y             = GetEffectTopSpace();
+	float effectSpacing = EFFECT_TEXT_INNER_SPACING_MAX;
+
+	auto effects        = SharedState.ActiveEffects;
+
+	if (ComponentExists<PermanentChallenge>() && GetComponent<PermanentChallenge>()->IsEnabled())
+		effects.insert(effects.end(), SharedState.PermanentEffects.begin(), SharedState.PermanentEffects.end());
+
+	effects.insert(effects.end(), SharedState.PendingEffects.begin(), SharedState.PendingEffects.end());
 
 	int activeEffectCount = 0;
-	for (const ActiveEffect &effect : SharedState.ActiveEffects)
+	for (const ActiveEffect &effect : effects)
 		if (!effect.IsStopping)
 			activeEffectCount++;
 
@@ -515,7 +618,7 @@ void EffectDispatcher::DrawEffectTexts()
 		                         std::max(EFFECT_TEXT_INNER_SPACING_MIN, (1.0f - y) / activeEffectCount));
 	}
 
-	for (const ActiveEffect &effect : SharedState.ActiveEffects)
+	for (const ActiveEffect &effect : effects)
 	{
 		if (effect.IsStopping)
 			continue;
@@ -536,7 +639,7 @@ void EffectDispatcher::DrawEffectTexts()
 			}
 		}
 
-		bool showTimer             = false;
+		bool showTimer             = effect.IsTimed && !effect.IsPermanent && !effect.IsPending;
 		float completionPercentage = effect.Timer / effect.MaxTime;
 		auto effectSharedData      = EffectThreads::GetThreadSharedData(effect.ThreadId);
 		if (effectSharedData)
@@ -562,12 +665,16 @@ void EffectDispatcher::DrawEffectTexts()
 				color = colorOverride.value();
 		}
 
+		if (effect.IsPending)
+			color = Color(static_cast<int>(color.R * 0.6), static_cast<int>(color.G * 0.6),
+			              static_cast<int>(color.B * 0.6), static_cast<int>(color.A));
+
 		if (ComponentExists<MetaModifiers>() && GetComponent<MetaModifiers>()->FlipChaosUI)
 			DrawScreenText(effectName, { .085f, y }, .47f, color, true, ScreenTextAdjust::Left, { .0f, .915f });
 		else
 			DrawScreenText(effectName, { .915f, y }, .47f, color, true, ScreenTextAdjust::Right, { .0f, .915f });
 
-		if (effect.IsTimed || showTimer)
+		if (showTimer)
 		{
 			color = m_EffectTimerColor;
 
@@ -602,7 +709,8 @@ void EffectDispatcher::DispatchEffect(const EffectIdentifier &effectId, Dispatch
 	if (effectId == "misc_repeat_last_effect") // hack
 		dispatchEffectFlags = DispatchEffectFlag_NoAddToLog;
 
-	EffectDispatchQueue.push({ .Id = effectId, .Suffix = suffix, .Flags = dispatchEffectFlags, .Context = context });
+	EffectDispatchQueue.push(
+	    { .Id = effectId, .IsPermanent = false, .Suffix = suffix, .Flags = dispatchEffectFlags, .Context = context });
 }
 
 std::string EffectDispatcher::GetRandomEffectId() const
@@ -749,29 +857,21 @@ float EffectDispatcher::GetEffectTopSpace()
 	return EnableEffectTextExtraTopSpace ? EFFECT_TEXT_TOP_SPACING_EXTRA : EFFECT_TEXT_TOP_SPACING;
 }
 
+void EffectDispatcher::DispatchPermanentEffect(const EffectIdentifier &effectId)
+{
+	EffectDispatchQueue.push({ .Id = effectId, .IsPermanent = true });
+}
+
+void EffectDispatcher::DispatchPendingEffect(const EffectIdentifier &effectId)
+{
+	EffectDispatchQueue.push({ .Id = effectId, .IsPending = true });
+}
+
 void EffectDispatcher::RegisterPermanentEffects()
 {
-	auto registerEffect = [&](EffectIdentifier effectId)
-	{
-		auto *registeredEffect = GetRegisteredEffect(effectId);
-		if (registeredEffect)
-		{
-			auto threadId = EffectThreads::CreateThread(registeredEffect);
-			m_PermanentEffects.push_back(threadId);
-		}
-	};
-
-	if (g_OptionsManager.GetConfigValue({ "Australia" }, false))
-		registerEffect({ "player_flip_camera" });
-
 	for (const auto &[effectId, effectData] : g_EnabledEffects)
-	{
 		if (effectData.TimedType == EffectTimedType::Permanent)
-		{
-			// Always run permanent timed effects in background
-			registerEffect(effectId);
-		}
-	}
+			DispatchPermanentEffect(effectId);
 }
 
 bool EffectDispatcher::IsClearingEffects() const

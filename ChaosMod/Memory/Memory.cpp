@@ -199,6 +199,7 @@ namespace Memory
 			return resultAddr;
 		};
 
+#if USE_ASYNC_PATTERN_SEARCH
 		if (EffectThreads::IsThreadAnEffectThread())
 		{
 			Handle handle;
@@ -211,6 +212,7 @@ namespace Memory
 
 			return handle;
 		}
+#endif
 
 		return scanPattern();
 	}

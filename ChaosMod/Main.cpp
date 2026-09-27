@@ -16,6 +16,7 @@
 #include "Components/KeyStates.h"
 #include "Components/LuaScripts.h"
 #include "Components/MetaModifiers.h"
+#include "Components/PermanentEffectChallenge.h"
 #include "Components/SplashTexts.h"
 #include "Components/Voting.h"
 #include "Components/Workshop.h"
@@ -114,18 +115,18 @@ static void Init()
 	g_OptionsManager.Reset();
 
 	ms_Flags.ClearEffectsShortcutEnabled =
-	    g_OptionsManager.GetConfigValue({ "EnableClearEffectsShortcut" }, OPTION_DEFAULT_SHORTCUT_CLEAR_EFFECTS);
+	    g_OptionsManager.GetConfigValue("EnableClearEffectsShortcut", OPTION_DEFAULT_SHORTCUT_CLEAR_EFFECTS);
 	ms_Flags.ToggleModShortcutEnabled =
-	    g_OptionsManager.GetConfigValue({ "EnableToggleModShortcut" }, OPTION_DEFAULT_SHORTCUT_TOGGLE_MOD);
+	    g_OptionsManager.GetConfigValue("EnableToggleModShortcut", OPTION_DEFAULT_SHORTCUT_TOGGLE_MOD);
 	ms_Flags.PauseTimerShortcutEnabled =
-	    g_OptionsManager.GetConfigValue({ "EnablePauseTimerShortcut" }, OPTION_DEFAULT_SHORTCUT_PAUSE_TIMER);
+	    g_OptionsManager.GetConfigValue("EnablePauseTimerShortcut", OPTION_DEFAULT_SHORTCUT_PAUSE_TIMER);
 	ms_Flags.AntiSoftlockShortcutEnabled =
-	    g_OptionsManager.GetConfigValue({ "EnableAntiSoftlockShortcut" }, OPTION_DEFAULT_SHORTCUT_ANTI_SOFTLOCK);
+	    g_OptionsManager.GetConfigValue("EnableAntiSoftlockShortcut", OPTION_DEFAULT_SHORTCUT_ANTI_SOFTLOCK);
 
 	g_EnableGroupWeighting = false; //
-	//    g_OptionsManager.GetConfigValue({ "EnableGroupWeightingAdjustments" }, OPTION_DEFAULT_GROUP_WEIGHTING);
+	//    g_OptionsManager.GetConfigValue("EnableGroupWeightingAdjustments", OPTION_DEFAULT_GROUP_WEIGHTING);
 
-	auto seed = g_OptionsManager.GetConfigValue<std::string>({ "Seed" });
+	auto seed = g_OptionsManager.GetConfigValue<std::string>("Seed");
 	if (!seed.empty())
 		g_Random.SetSeed(std::hash<std::string> {}(seed));
 	g_RandomNoDeterm.SetSeed(GetTickCount64());
@@ -172,7 +173,7 @@ static void Init()
 
 	INIT_COMPONENT("Workshop", "workshop", Workshop);
 
-	if (g_OptionsManager.GetConfigValue({ "EffectSoundUseMCI" }, OPTION_DEFAULT_EFFECT_SOUND_USE_MCI)
+	if (g_OptionsManager.GetConfigValue("EffectSoundUseMCI", OPTION_DEFAULT_EFFECT_SOUND_USE_MCI)
 	    || FORCE_LEGACY_SOUND_MANAGER)
 	{
 		INIT_COMPONENT_BASE("EffectSoundManager", "effect sound system (legacy MCI)", EffectSoundManager,
@@ -207,6 +208,8 @@ static void Init()
 
 	INIT_COMPONENT("CrossingChallenge", "Crossing Challenge", CrossingChallenge);
 
+	INIT_COMPONENT("PermanentChallenge", "Permanent Challenge", PermanentChallenge);
+
 	INIT_COMPONENT("DispatchSocket", "socket for remote dispatching", DispatchSocket);
 
 #ifdef WITH_DEBUG_PANEL_SUPPORT
@@ -230,7 +233,7 @@ static void MainRun()
 
 	g_MainThread            = GetCurrentFiber();
 
-	ms_Flags.ToggleModState = g_OptionsManager.GetConfigValue({ "DisableStartup" }, OPTION_DEFAULT_DISABLE_STARTUP);
+	ms_Flags.ToggleModState = g_OptionsManager.GetConfigValue("DisableStartup", OPTION_DEFAULT_DISABLE_STARTUP);
 
 	if (ComponentExists<EffectDispatcher>())
 	{

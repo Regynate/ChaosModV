@@ -58,7 +58,7 @@ namespace Util
 		{
 			result = ParseConfigColorString(text.data(), success);
 		}
-		else
+		else if constexpr (requires(long value) { static_cast<T>(value); })
 		{
 			char *end;
 			long parseResult;

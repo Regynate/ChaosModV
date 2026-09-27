@@ -141,10 +141,10 @@ DispatchSocket::DispatchSocket()
 {
 	m_ErrorSplashShown = false;
 
-	const auto enabled = g_OptionsManager.GetVotingValue({ "EnableChannelPoints" }, false);
-	const auto server  = g_OptionsManager.GetVotingValue({ "ChannelPointsServer" }, std::string("regynate.com"));
-	const auto channel = g_OptionsManager.GetVotingValue({ "TwitchChannelName" }, std::string(""));
-	const auto token   = g_OptionsManager.GetVotingValue({ "ChannelPointsToken" }, std::string(""));
+	const auto enabled = g_OptionsManager.GetVotingValue("EnableChannelPoints", false);
+	const auto server  = g_OptionsManager.GetVotingValue("ChannelPointsServer", std::string("regynate.com"));
+	const auto channel = g_OptionsManager.GetVotingValue("TwitchChannelName", std::string(""));
+	const auto token   = g_OptionsManager.GetVotingValue("ChannelPointsToken", std::string(""));
 
 	if (!enabled)
 		return;

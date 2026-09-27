@@ -259,7 +259,7 @@ void CrossingChallenge::CaptureEnd()
 
 CrossingChallenge::CrossingChallenge()
 {
-	m_Enabled = g_OptionsManager.GetConfigValue({ "EnableCrossingChallenge" }, false);
+	m_Enabled = g_OptionsManager.GetConfigValue("EnableCrossingChallenge", false);
 
 	if (!m_Enabled)
 		return;

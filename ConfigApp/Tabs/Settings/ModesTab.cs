@@ -22,12 +22,15 @@ namespace ConfigApp.Tabs.Settings
         private TextBox? m_EffectDispatchTimer = null;
         private TextBox? m_TimedEffectDuration = null;
         private TextBox? m_ShortTimedEffectDuration = null;
+        private TextBox? m_PermanentNonTimedRestartDuration = null;
 
         private ChaosGrid? m_DistanceGrid = null;
         private TextBox? m_DistanceBasedDispatchDistance = null;
         private ComboBox? m_DistanceBasedDispatchType = null;
 
         private CheckBox? m_EnableCrossingChallenge = null;
+        private CheckBox? m_EnablePermanentChallenge = null;
+        private TextBox? m_PermanentChallengeMaxEffects = null;
 
         private void UpdateDispatchModeGridVisibility()
         {
@@ -92,6 +95,7 @@ namespace ConfigApp.Tabs.Settings
             m_TimeGrid.PushRowSpacedPair("Timed effect duration (in seconds)", m_TimedEffectDuration = Utils.GenerateCommonNumericOnlyTextBox());
             m_TimeGrid.PopRow();
             m_TimeGrid.PushRowSpacedPair("Short timed effect duration (in seconds)", m_ShortTimedEffectDuration = Utils.GenerateCommonNumericOnlyTextBox());
+            m_TimeGrid.PushRowSpacedPair("Permanent non-timed effect restart interval (in seconds; 0 to disable)", m_PermanentNonTimedRestartDuration = Utils.GenerateCommonNumericOnlyTextBox());
             body.Children.Add(m_TimeGrid.Grid);
 
             m_DistanceGrid = createCommonGrid();
@@ -110,6 +114,9 @@ namespace ConfigApp.Tabs.Settings
 
             var footerGrid = createCommonGrid();
             footerGrid.PushRowSpacedPair("Enable Crossing Challenge™", m_EnableCrossingChallenge = Utils.GenerateCommonCheckBox(), "Set respawn and finish points on the map. Reach the finish point without dying to win.");
+            footerGrid.PushRowSpacedPair("Enable Permanent Challenge™", m_EnablePermanentChallenge = Utils.GenerateCommonCheckBox(), "Every mission passed adds a new permanent effect");
+            footerGrid.PopRow();
+            footerGrid.PushRowSpacedPair("Maximum effects for Permanent Challenge", m_PermanentChallengeMaxEffects = Utils.GenerateCommonNumericOnlyTextBox(), "Every mission passed adds a new permanent effect");
             grid.PushRowElement(footerGrid.Grid);
 
             scrollViewer.Content = grid.Grid;
@@ -130,12 +137,18 @@ namespace ConfigApp.Tabs.Settings
                 m_TimedEffectDuration.Text = $"{OptionsManager.ConfigFile.ReadValue("EffectTimedDur", 90)}";
             if (m_ShortTimedEffectDuration is not null)
                 m_ShortTimedEffectDuration.Text = $"{OptionsManager.ConfigFile.ReadValue("EffectTimedShortDur", 30)}";
+            if (m_PermanentNonTimedRestartDuration is not null)
+                m_PermanentNonTimedRestartDuration.Text = $"{OptionsManager.ConfigFile.ReadValue("PermanentNonTimedRestartDur", 30)}";
             if (m_DistanceBasedDispatchDistance is not null)
                 m_DistanceBasedDispatchDistance.Text = $"{OptionsManager.ConfigFile.ReadValue("DistanceToActivateEffect", 250)}";
             if (m_DistanceBasedDispatchType is not null)
                 m_DistanceBasedDispatchType.SelectedIndex = OptionsManager.ConfigFile.ReadValue("DistanceType", 0);
             if (m_EnableCrossingChallenge is not null)
                 m_EnableCrossingChallenge.IsChecked = OptionsManager.ConfigFile.ReadValue("EnableCrossingChallenge", false);
+            if (m_EnablePermanentChallenge is not null)
+                m_EnablePermanentChallenge.IsChecked = OptionsManager.ConfigFile.ReadValue("EnablePermanentChallenge", false);
+            if (m_PermanentChallengeMaxEffects is not null)
+                m_PermanentChallengeMaxEffects.Text = $"{OptionsManager.ConfigFile.ReadValue("PermanentChallengeMaxEffects", 0)}";
         }
 
         public override void OnSaveValues()
@@ -143,10 +156,13 @@ namespace ConfigApp.Tabs.Settings
             OptionsManager.ConfigFile.WriteValueAsInt("NewEffectSpawnTime", m_EffectDispatchTimer?.Text);
             OptionsManager.ConfigFile.WriteValueAsInt("EffectTimedDur", m_TimedEffectDuration?.Text);
             OptionsManager.ConfigFile.WriteValueAsInt("EffectTimedShortDur", m_ShortTimedEffectDuration?.Text);
+            OptionsManager.ConfigFile.WriteValueAsInt("PermanentNonTimedRestartDur", m_PermanentNonTimedRestartDuration?.Text);
             OptionsManager.ConfigFile.WriteValue("EffectDispatchMode", m_DispatchMode?.SelectedIndex);
             OptionsManager.ConfigFile.WriteValueAsInt("DistanceToActivateEffect", m_DistanceBasedDispatchDistance?.Text);
             OptionsManager.ConfigFile.WriteValue("DistanceType", m_DistanceBasedDispatchType?.SelectedIndex);
             OptionsManager.ConfigFile.WriteValue("EnableCrossingChallenge", m_EnableCrossingChallenge?.IsChecked);
+            OptionsManager.ConfigFile.WriteValue("EnablePermanentChallenge", m_EnablePermanentChallenge?.IsChecked);
+            OptionsManager.ConfigFile.WriteValueAsInt("PermanentChallengeMaxEffects", m_PermanentChallengeMaxEffects?.Text);
         }
     }
 }

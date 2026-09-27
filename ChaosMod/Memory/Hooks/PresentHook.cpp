@@ -47,4 +47,4 @@ static void OnCleanup()
 		Memory::Write<void *>(ms_PresentAddr, reinterpret_cast<void *>(OG_IDXGISwapChain_Present));
 }
 
-static RegisterHook registerHook(OnHook, OnCleanup, "IDXGISwapChain::Present", true);
+//static RegisterHook registerHook(OnHook, OnCleanup, "IDXGISwapChain::Present", true);

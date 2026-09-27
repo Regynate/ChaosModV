@@ -10,9 +10,9 @@ class OptionsManager
 {
   private:
 	OptionsFile m_ConfigFile { { "chaosmod/configs/config.json", "chaosmod/configs/config.ini",
-		                         "chaosmod/config.ini" } };
+	                             "chaosmod/config.ini" } };
 	OptionsFile m_TwitchFile { { "chaosmod/configs/voting.json", "chaosmod/configs/voting.ini",
-		                         "chaosmod/configs/twitch.ini", "chaosmod/twitch.ini" } };
+	                             "chaosmod/configs/twitch.ini", "chaosmod/twitch.ini" } };
 
   public:
 	void Reset()
@@ -26,9 +26,19 @@ class OptionsManager
 		return GetOptionValue(m_ConfigFile, lookupKeys, defaultValue);
 	}
 
+	template <typename T> inline T GetConfigValue(std::string_view lookupKey, T defaultValue = {})
+	{
+		return GetOptionValue(m_ConfigFile, { std::string(lookupKey) }, defaultValue);
+	}
+
 	template <typename T> inline T GetVotingValue(const std::vector<std::string> &lookupKeys, T defaultValue = {})
 	{
 		return GetOptionValue(m_TwitchFile, lookupKeys, defaultValue);
+	}
+
+	template <typename T> inline T GetVotingValue(std::string_view lookupKey, T defaultValue = {})
+	{
+		return GetOptionValue(m_TwitchFile, { std::string(lookupKey) }, defaultValue);
 	}
 
   private:

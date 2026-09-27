@@ -18,15 +18,15 @@
 
 Voting::Voting() : Component()
 {
-	m_SilentVoting = g_OptionsManager.GetVotingValue({ "EnableSilentVoting" }, OPTION_DEFAULT_SILENT_VOTING_ENABLED);
+	m_SilentVoting = g_OptionsManager.GetVotingValue("EnableSilentVoting", OPTION_DEFAULT_SILENT_VOTING_ENABLED);
 	if (!m_SilentVoting)
 	{
-		m_EnableVoting = g_OptionsManager.GetVotingValue({ "EnableVoting", "EnableTwitchVoting" },
-		                                                 OPTION_DEFAULT_TWITCH_VOTING_ENABLED);
+		m_EnableVoting = g_OptionsManager.GetVotingValue(
+		    std::vector<std::string> { "EnableVoting", "EnableTwitchVoting" }, OPTION_DEFAULT_TWITCH_VOTING_ENABLED);
 	}
-	m_VoteablePrefix = g_OptionsManager.GetVotingValue<std::string>({ "VoteablePrefix" });
+	m_VoteablePrefix = g_OptionsManager.GetVotingValue<std::string>("VoteablePrefix");
 
-	m_TextColor      = g_OptionsManager.GetConfigValue({ "EffectTextColor" }, OPTION_DEFAULT_BAR_COLOR);
+	m_TextColor      = g_OptionsManager.GetConfigValue("EffectTextColor", OPTION_DEFAULT_BAR_COLOR);
 }
 
 bool Voting::Init()
@@ -54,22 +54,26 @@ bool Voting::Init()
 		CloseHandle(mutex);
 	}
 
-	m_SecsBeforeVoting = g_OptionsManager.GetVotingValue({ "VotingSecsBeforeVoting", "TwitchVotingSecsBeforeVoting" },
-	                                                     OPTION_DEFAULT_TWITCH_SECS_BEFORE_VOTING);
+	m_SecsBeforeVoting = g_OptionsManager.GetVotingValue(
+	    std::vector<std::string> { "VotingSecsBeforeVoting", "TwitchVotingSecsBeforeVoting" },
+	    OPTION_DEFAULT_TWITCH_SECS_BEFORE_VOTING);
 
-	m_OverlayMode      = g_OptionsManager.GetVotingValue({ "VotingOverlayMode", "TwitchVotingOverlayMode" },
-	                                                     static_cast<OverlayMode>(OPTION_DEFAULT_TWITCH_OVERLAY_MODE));
+	m_OverlayMode =
+	    g_OptionsManager.GetVotingValue(std::vector<std::string> { "VotingOverlayMode", "TwitchVotingOverlayMode" },
+		                                static_cast<OverlayMode>(OPTION_DEFAULT_TWITCH_OVERLAY_MODE));
 
-	m_VotingMode       = g_OptionsManager.GetVotingValue({ "VotingChanceSystem", "TwitchVotingChanceSystem" },
-	                                                     OPTION_DEFAULT_TWITCH_PROPORTIONAL_VOTING)
-	                       ? VotingMode::Percentage
-	                       : VotingMode::Majority;
-	m_EnableVotingChanceSystemRetainInitialChance =
-	    g_OptionsManager.GetVotingValue({ "VotingChanceSystemRetainChance", "TwitchVotingChanceSystemRetainChance" },
-	                                    OPTION_DEFAULT_TWITCH_PROPORTIONAL_VOTING_RETAIN_CHANCE);
+	m_VotingMode =
+	    g_OptionsManager.GetVotingValue(std::vector<std::string> { "VotingChanceSystem", "TwitchVotingChanceSystem" },
+		                                OPTION_DEFAULT_TWITCH_PROPORTIONAL_VOTING)
+	        ? VotingMode::Percentage
+			: VotingMode::Majority;
+	m_EnableVotingChanceSystemRetainInitialChance = g_OptionsManager.GetVotingValue(
+	    std::vector<std::string> { "VotingChanceSystemRetainChance", "TwitchVotingChanceSystemRetainChance" },
+	    OPTION_DEFAULT_TWITCH_PROPORTIONAL_VOTING_RETAIN_CHANCE);
 
 	m_EnableRandomEffectVoteable = g_OptionsManager.GetVotingValue(
-	    { "RandomEffectVoteableEnable", "TwitchRandomEffectVoteableEnable" }, OPTION_DEFAULT_TWITCH_RANDOM_EFFECT);
+	    std::vector<std::string> { "RandomEffectVoteableEnable", "TwitchRandomEffectVoteableEnable" },
+	    OPTION_DEFAULT_TWITCH_RANDOM_EFFECT);
 
 	STARTUPINFO startupInfo      = {};
 	PROCESS_INFORMATION procInfo = {};
@@ -98,7 +102,7 @@ bool Voting::Init()
 
 	m_PipeHandle =
 	    CreateNamedPipe(L"\\\\.\\pipe\\ChaosModVVotingPipe", PIPE_ACCESS_DUPLEX,
-	                    PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_NOWAIT, 1, BUFFER_SIZE, BUFFER_SIZE, 0, NULL);
+		                PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_NOWAIT, 1, BUFFER_SIZE, BUFFER_SIZE, 0, NULL);
 
 	if (m_PipeHandle == INVALID_HANDLE_VALUE)
 	{
@@ -419,7 +423,7 @@ void Voting::PrintVoteables()
 				percentage =
 				    !chanceVotes
 				        ? .0f
-				        : std::roundf(static_cast<float>(chanceVotes) / static_cast<float>(totalVotes) * 100.f) / 100.f;
+						: std::roundf(static_cast<float>(chanceVotes) / static_cast<float>(totalVotes) * 100.f) / 100.f;
 			}
 
 			oss << " (" << percentage * 100.f << "%)";

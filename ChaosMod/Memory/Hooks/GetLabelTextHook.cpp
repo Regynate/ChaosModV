@@ -155,6 +155,7 @@ namespace Hooks
 
 	void ShowSubtitle(std::string_view label)
 	{
+		AddCustomLabel(label, std::string(label));
 		CGarage__PrintMessage(0, label.data());
 	}
 

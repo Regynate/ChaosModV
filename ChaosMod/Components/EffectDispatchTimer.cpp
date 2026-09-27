@@ -8,20 +8,21 @@
 
 EffectDispatchTimer::EffectDispatchTimer() : Component()
 {
-	m_TimerColor      = g_OptionsManager.GetConfigValue({ "EffectTimerColor" }, OPTION_DEFAULT_BAR_COLOR);
+	m_TimerColor      = g_OptionsManager.GetConfigValue("EffectTimerColor", OPTION_DEFAULT_BAR_COLOR);
 
-	m_DrawTimerBar    = !g_OptionsManager.GetConfigValue({ "DisableTimerBarDraw" }, OPTION_DEFAULT_NO_EFFECT_BAR);
-	m_EffectSpawnTime = g_OptionsManager.GetConfigValue({ "NewEffectSpawnTime" }, OPTION_DEFAULT_EFFECT_SPAWN_TIME);
+	m_DrawTimerBar    = !g_OptionsManager.GetConfigValue("DisableTimerBarDraw", OPTION_DEFAULT_NO_EFFECT_BAR);
+	m_EffectSpawnTime = g_OptionsManager.GetConfigValue("NewEffectSpawnTime", OPTION_DEFAULT_EFFECT_SPAWN_TIME);
 
 	m_DistanceChaosState.EnableDistanceBasedEffectDispatch =
-	    g_OptionsManager.GetConfigValue({ "EffectDispatchMode", " EnableDistanceBasedEffectDispatch " },
-	                                    OPTION_DEFAULT_DISTANCE_BASED_DISPATCH_ENABLED)
+	    g_OptionsManager.GetConfigValue(
+	        std::vector<std::string> { "EffectDispatchMode", " EnableDistanceBasedEffectDispatch " },
+	        OPTION_DEFAULT_DISTANCE_BASED_DISPATCH_ENABLED)
 	        ? true
-	        : false;
+			: false;
 	m_DistanceChaosState.DistanceToActivateEffect =
-	    g_OptionsManager.GetConfigValue({ "DistanceToActivateEffect" }, OPTION_DEFAULT_EFFECT_SPAWN_DISTANCE);
+	    g_OptionsManager.GetConfigValue("DistanceToActivateEffect", OPTION_DEFAULT_EFFECT_SPAWN_DISTANCE);
 	m_DistanceChaosState.DistanceType = static_cast<DistanceChaosState::TravelledDistanceType>(
-	    g_OptionsManager.GetConfigValue({ "DistanceType" }, OPTION_DEFAULT_DISTANCE_TYPE));
+	    g_OptionsManager.GetConfigValue("DistanceType", OPTION_DEFAULT_DISTANCE_TYPE));
 }
 
 void EffectDispatchTimer::OnRun()
@@ -109,11 +110,11 @@ void EffectDispatchTimer::UpdateTravelledDistance()
 	float effectSpawnDistance =
 	    ComponentExists<MetaModifiers>() && GetComponent<MetaModifiers>()->DistanceToDispatchEffect > 0
 	        ? GetComponent<MetaModifiers>()->DistanceToDispatchEffect
-	        : m_DistanceChaosState.DistanceToActivateEffect;
+			: m_DistanceChaosState.DistanceToActivateEffect;
 
 	auto distance =
 	    GET_DISTANCE_BETWEEN_COORDS(position.x, position.y, position.z, m_DistanceChaosState.SavedPosition.x,
-	                                m_DistanceChaosState.SavedPosition.y, m_DistanceChaosState.SavedPosition.z, true);
+		                            m_DistanceChaosState.SavedPosition.y, m_DistanceChaosState.SavedPosition.z, true);
 
 	if (m_DistanceChaosState.DistanceType == DistanceChaosState::TravelledDistanceType::Displacement)
 	{
@@ -167,7 +168,7 @@ void EffectDispatchTimer::SetTimerEnabled(bool state)
 
 int EffectDispatchTimer::GetDefaultEffectSpawnTime() const
 {
-	return static_cast<int>(m_EffectSpawnTime);;
+	return static_cast<int>(m_EffectSpawnTime);
 }
 
 int EffectDispatchTimer::GetDefaultEffectSpawnDistance() const

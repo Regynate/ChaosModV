@@ -2,6 +2,7 @@
 
 #include "Components/Component.h"
 
+#include "Effects/EffectData.h"
 #include "Effects/EffectIdentifier.h"
 #include "Effects/EffectThreads.h"
 #include "Effects/Register/RegisteredEffects.h"
@@ -28,6 +29,8 @@ class EffectDispatcher : public Component
 	struct EffectDispatchEntry
 	{
 		EffectIdentifier Id;
+		bool IsPermanent;
+		bool IsPending;
 		std::string Suffix;
 		DispatchEffectFlags Flags;
 		std::string Context;
@@ -41,49 +44,42 @@ class EffectDispatcher : public Component
 		std::string Name;
 		std::string FakeName;
 
-		LPVOID ThreadId     = nullptr;
+		RegisteredEffect *RegisteredEffect = nullptr;
+		LPVOID ThreadId                    = nullptr;
 
-		float Timer         = 0.f;
-		float MaxTime       = 0.f;
-		bool IsTimed        = false;
+		float Timer                        = 0.f;
+		float MaxTime                      = 0.f;
+		bool IsTimed                       = false;
+		bool IsPermanent                   = false;
+		bool IsPending                     = false;
 
-		bool IsMeta         = false;
+		bool IsMeta                        = false;
 
-		bool HideEffectName = false;
-		bool IsStopping     = false;
-		bool IsZombie       = false;
+		bool HideEffectName                = false;
+		bool IsStopping                    = false;
+		bool IsZombie                      = false;
 
-		DWORD64 SoundId     = 0;
+		DWORD64 SoundId                    = 0;
 
 		void Stop();
 	};
 	struct
 	{
+		std::vector<ActiveEffect> PendingEffects;
 		std::vector<ActiveEffect> ActiveEffects;
+		std::vector<ActiveEffect> PermanentEffects;
 		std::list<RegisteredEffect *> DispatchedEffectsLog;
-		float MetaEffectTimerPercentage = 0.f;
-		float MetaEffectSpawnTime       = 0;
-		float MetaEffectTimedDur        = 0;
-		float MetaEffectShortDur        = 0;
-		float EffectTimedDur            = 0;
-		float EffectTimedShortDur       = 0;
-		bool MetaEffectsEnabled         = true;
+		float MetaEffectTimerPercentage   = 0.f;
+		float MetaEffectSpawnTime         = 0;
+		float MetaEffectTimedDur          = 0;
+		float MetaEffectShortDur          = 0;
+		float EffectTimedDur              = 0;
+		float EffectTimedShortDur         = 0;
+		float PermanentNonTimedRestartDur = 0;
+		bool MetaEffectsEnabled           = true;
 	} SharedState;
 
   public:
-	ChaosCancellableEvent<const EffectIdentifier &> OnPreDispatchEffect;
-	ChaosEvent<const EffectIdentifier &, const std::string> OnDispatchEffectFailed;
-	ChaosEvent<const EffectIdentifier &, const std::string> OnPostDispatchEffect;
-
-	ChaosEvent<const EffectIdentifier &> OnPreRunEffect;
-	ChaosEvent<const EffectIdentifier &> OnPostRunEffect;
-
-  private:
-	std::vector<LPVOID> m_PermanentEffects;
-
-  private:
-	int m_MaxRunningEffects = 0;
-
 	enum class ClearEffectsState
 	{
 		None,
@@ -91,7 +87,17 @@ class EffectDispatcher : public Component
 		AllRestartPermanent
 	} m_ClearEffectsState = ClearEffectsState::None;
 
+	ChaosCancellableEvent<const EffectIdentifier &> OnPreDispatchEffect;
+	ChaosEvent<const EffectIdentifier &, const std::string> OnDispatchEffectFailed;
+	ChaosEvent<const EffectIdentifier &, const std::string> OnPostDispatchEffect;
+
+	ChaosEvent<const EffectIdentifier &> OnPreRunEffect;
+	ChaosEvent<const EffectIdentifier &> OnPostRunEffect;
+	ChaosEvent<const ClearEffectsState &> OnClearedEffects;
+
   private:
+	int m_MaxRunningEffects = 0;
+
 	Color m_TextColor;
 	Color m_EffectTimerColor;
 
@@ -112,6 +118,9 @@ class EffectDispatcher : public Component
 	void RegisterPermanentEffects();
 
   public:
+	void DispatchPermanentEffect(const EffectIdentifier &effectId);
+	void DispatchPendingEffect(const EffectIdentifier &effectId);
+
 	virtual void OnModPauseCleanup() override;
 	virtual void OnRun() override;
 
@@ -125,6 +134,7 @@ class EffectDispatcher : public Component
 	void DispatchRandomEffect(DispatchEffectFlags dispatchEffectFlags = DispatchEffectFlag_None,
 	                          const std::string &suffix = {}, const std::string &context = {});
 
+	void CheckClearState();
 	void UpdateEffects(float deltaTime);
 	void UpdateMetaEffects(float deltaTime);
 

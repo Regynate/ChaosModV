@@ -198,8 +198,8 @@ class OptionsFile
 
 	template <typename T> inline void SetValue(const std::string &key, T value)
 	{
-		DEBUG_LOG("Writing value \"" << value << "\" for key \"" << key << "\" to config file \""
-		                             << m_LookupFilePaths[0] << "\"");
+		//DEBUG_LOG("Writing value \"" << value << "\" for key \"" << key << "\" to config file \""
+		//                             << m_LookupFilePaths[0] << "\"");
 		m_Options[key] = value;
 	}
 
