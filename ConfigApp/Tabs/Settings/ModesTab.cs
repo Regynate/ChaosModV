@@ -138,7 +138,7 @@ namespace ConfigApp.Tabs.Settings
             if (m_ShortTimedEffectDuration is not null)
                 m_ShortTimedEffectDuration.Text = $"{OptionsManager.ConfigFile.ReadValue("EffectTimedShortDur", 30)}";
             if (m_PermanentNonTimedRestartDuration is not null)
-                m_PermanentNonTimedRestartDuration.Text = $"{OptionsManager.ConfigFile.ReadValue("PermanentNonTimedRestartDur", 30)}";
+                m_PermanentNonTimedRestartDuration.Text = $"{OptionsManager.ConfigFile.ReadValue("PermanentNonTimedRestartDur", 10)}";
             if (m_DistanceBasedDispatchDistance is not null)
                 m_DistanceBasedDispatchDistance.Text = $"{OptionsManager.ConfigFile.ReadValue("DistanceToActivateEffect", 250)}";
             if (m_DistanceBasedDispatchType is not null)
