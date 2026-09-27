@@ -116,8 +116,8 @@ namespace ConfigApp.Tabs.Settings
             footerGrid.PushRowSpacedPair("Enable Crossing Challenge™", m_EnableCrossingChallenge = Utils.GenerateCommonCheckBox(), "Set respawn and finish points on the map. Reach the finish point without dying to win.");
             footerGrid.PushRowSpacedPair("Enable Permanent Challenge™", m_EnablePermanentChallenge = Utils.GenerateCommonCheckBox(), "Every mission passed adds a new permanent effect");
             footerGrid.PopRow();
-            footerGrid.PushRowSpacedPair("Maximum effects for Permanent Challenge", m_PermanentChallengeMaxEffects = Utils.GenerateCommonNumericOnlyTextBox(), "Every mission passed adds a new permanent effect");
-            grid.PushRowElement(footerGrid.Grid);
+            footerGrid.PushRowSpacedPair("Maximum effects for Permanent Challenge", m_PermanentChallengeMaxEffects = Utils.GenerateCommonNumericOnlyTextBox());
+            grid.PushRowExpandElement(footerGrid.Grid);
 
             scrollViewer.Content = grid.Grid;
 
@@ -148,7 +148,7 @@ namespace ConfigApp.Tabs.Settings
             if (m_EnablePermanentChallenge is not null)
                 m_EnablePermanentChallenge.IsChecked = OptionsManager.ConfigFile.ReadValue("EnablePermanentChallenge", false);
             if (m_PermanentChallengeMaxEffects is not null)
-                m_PermanentChallengeMaxEffects.Text = $"{OptionsManager.ConfigFile.ReadValue("PermanentChallengeMaxEffects", 0)}";
+                m_PermanentChallengeMaxEffects.Text = $"{OptionsManager.ConfigFile.ReadValue("PermanentChallengeMaxEffects", 10)}";
         }
 
         public override void OnSaveValues()
