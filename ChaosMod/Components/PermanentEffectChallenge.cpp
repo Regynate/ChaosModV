@@ -101,8 +101,6 @@ std::vector<std::string> PermanentChallenge::GetValidEffects()
 	for (const auto &effect : GetFilteredEnabledEffects())
 		if (!effect->IsMeta() /* && (effect->TimedType != EffectTimedType::NotTimed) */)
 			effects.push_back(effect->Id);
-		else
-			LOG(effect->Name);
 
 	if (effects.size() < 69 + 20)
 	{
@@ -194,8 +192,11 @@ void PermanentChallenge::OnRun()
 	{
 		m_RerollEffect = false;
 		// yay more ugly
-		LOG("Rerolling effect " << m_Effects[maxEffectIndex - 1]);
-		m_Effects[maxEffectIndex - 1] = "";
+		LOG("Rerolling effects starting with " << m_Effects[maxEffectIndex - 1]);
+		for (int i = maxEffectIndex - 1; i < m_Effects.size(); ++i)
+		{
+			m_Effects[i] = "";
+		}
 		RevalidateEffects();
 		reapplyEffects = true;
 	}
