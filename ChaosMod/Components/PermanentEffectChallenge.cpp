@@ -62,10 +62,6 @@ PermanentChallenge::PermanentChallenge() : Component()
 	else
 		RevalidateEffects();
 
-	m_WaitingStart = true;
-
-	RerunEffectsNoDispatch();
-
 	m_SearchMissionGlobalListener.Register(Hooks::OnScriptThreadRun, [this](rage::scrThread *thread)
 	                                       { return SearchMissionStateGlobal(thread); });
 
@@ -188,21 +184,22 @@ void PermanentChallenge::OnRun()
 
 	int maxEffectIndex = MaxEffectIndex();
 
-	if (m_RerollEffect && m_Effects.size() > 0)
+	if (m_RerollEffect && m_Effects.size() > 0 && maxEffectIndex > 0)
 	{
 		m_RerollEffect = false;
 		// yay more ugly
 		LOG("Rerolling effects starting with " << m_Effects[maxEffectIndex - 1]);
 		for (int i = maxEffectIndex - 1; i < m_Effects.size(); ++i)
-		{
 			m_Effects[i] = "";
-		}
 		RevalidateEffects();
 		reapplyEffects = true;
 	}
 
 	if (missionCount != m_LastMissionCount || reapplyEffects)
 	{
+		if (m_LastMissionCount == -1)
+			m_WaitingStart = missionCount > 0;
+
 		m_LastMissionCount = missionCount;
 		if (m_WaitingStart)
 			RerunEffectsNoDispatch();

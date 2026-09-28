@@ -47,7 +47,7 @@ class PermanentChallenge : public Component
 	bool m_Enabled         = false;
 
 	int m_MaxEffects       = 10;
-	int m_LastMissionCount = 0;
+	int m_LastMissionCount = -1;
 
 	std::vector<std::string> m_Effects;
 
